@@ -1,9 +1,15 @@
 <?php 
 error_reporting(0);
-$pagetitle = "CANEXPOL";
+$pagetitle = "Sprawdzanie INCI";
 
 function wielkoscliterinci($text) {
     $rp = [
+        1 => [
+            't' => 't',
+            'o' => 'o',
+            'p' => 'p',
+            'm' => 'm'
+        ],
         2 => [
             'se' => 'SE',
             'ci' => 'CI',
@@ -12,7 +18,8 @@ function wielkoscliterinci($text) {
             'va' => 'VA',
             'ap' => 'AP',
             '9m' => '9M',
-            'pg' => 'PG'
+            'pg' => 'PG',
+            'hc' => 'HC'
         ],
         3 => [
             'bht' => 'BHT',
@@ -20,6 +27,7 @@ function wielkoscliterinci($text) {
             'peg' => 'PEG',
             'ppg' => 'PPG',
             'hcl' => 'HCl',
+            'hbr' => 'HBr',
             'eop' => 'EOP',
             'dea' => 'DEA',
             'mea' => 'MEA',
@@ -201,7 +209,7 @@ if (isset($_GET['anx'])) {
                     } ?>
                     <div class="mt-2">
                         <h5>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h5>
-                        <strong>Załącznik w trakcie prac :)</strong>
+                        <strong>Załącznik wstępnie przeredagowany</strong>
                         <table class="table">
                             <tr>
                                 <th scope="row">Indeks</th>
@@ -302,7 +310,7 @@ if (isset($_POST['inci'])) {
     <!-- Material icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <!-- Page CSS -->
-    <link href="styles.css?ver=1.7.7" rel="stylesheet">
+    <link href="styles.css?ver=2.0.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -318,18 +326,18 @@ if (isset($_POST['inci'])) {
         </form>
         <?php if (isset($incitest)): 
         if ($fail): ?>
-            <div class="text-danger fw-bold fs-3 mt-2">Błędne INCI</div>
+            <div class="text-danger fw-bold fs-3 mt-2">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></div>
         <?php else: ?>
             <div class="text-success fw-bold fs-3 mt-2">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></div>
             <button type="button" class="btn btn-primary" onclick="downloadTable()">Pobierz tabelę</button>
         <?php endif; ?>
     </div>
-    <div class="container-fluid">
+    <div class="container-fluid ingredients">
         <div class="m-4">
             <small>Podwójne kliknięcie na składnik, nr CAS lub nr WE kopiuje go do schowka</small>
             <table class="table table-sm">
                 <thead>
-                    <tr class="sticky-top">
+                    <tr>
                         <th scope="col">INCI</th>
                         <?php if ($fail): ?>
                         <th scope="col">Podpowiedź</th>
@@ -381,7 +389,13 @@ if (isset($_POST['inci'])) {
             <div class="modal-content">
                 <div class="modal-body">
                     <h1 class="fs-3 modal-title fst-italic"></h1>
-                    <div class="annexes"></div>
+                    <div class="annexes">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Ładowanie...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Zamknij</button>
@@ -397,6 +411,22 @@ if (isset($_POST['inci'])) {
             </div>
         </div>
     </div>
+    <?php if (0): ?>
+    <div class="container-fluid">
+        <table class="table">
+            <?php
+            $annex2 = array_map('str_getcsv',file('A3.csv'));
+            foreach ($annex2 as $row) {
+                echo '<tr>';
+                foreach ($row as $column) {
+                    echo '<td>' . $column . '</td>';
+                }
+                echo '</tr>';
+            }
+            ?>
+        </table>
+    </div>
+    <?php endif; ?>
     <script>
         function wyczysc() {
             const inci = document.querySelector('#inci');
@@ -411,7 +441,7 @@ if (isset($_POST['inci'])) {
             toastOn.show();
         }
         function downloadTable() {
-            let tableRows = document.querySelectorAll('tr');
+            let tableRows = document.querySelectorAll('.ingredients tr');
             let csvRow = [];
             tableRows.forEach(x => {
                 let tableCols = x.querySelectorAll('th,td');
@@ -443,27 +473,19 @@ if (isset($_POST['inci'])) {
                 const xhttp = new XMLHttpRequest();
                 xhttp.onload = function () {
                     annexModal.querySelector('.annexes').innerHTML = xhttp.responseText;
+                    const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
+                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
                 }
                 xhttp.open('GET','?anx='+request);
                 xhttp.send();
             });
+            annexModal.addEventListener('hidden.bs.modal',event => {
+                annexModal.querySelector('.annexes').innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
+            });
         }
     </script>
-    <?php if (0): ?>
-    <div class="container-fluid">
-        <table class="table">
-            <?php
-            $annex2 = array_map('str_getcsv',file('A3.csv'));
-            foreach ($annex2 as $row) {
-                echo '<tr>';
-                foreach ($row as $column) {
-                    echo '<td>' . $column . '</td>';
-                }
-                echo '</tr>';
-            }
-            ?>
-        </table>
-    </div>
-    <?php endif; ?>
 </body>
 </html>
+<?php 
+// <sup><span class='text-info' data-bs-toggle='tooltip' data-bs-title=''></span></sup>
+?>
