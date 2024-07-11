@@ -19,7 +19,8 @@ function wielkoscliterinci($text) {
             'ap' => 'AP',
             '9m' => '9M',
             'pg' => 'PG',
-            'hc' => 'HC'
+            'hc' => 'HC',
+            'hf' => 'HF'
         ],
         3 => [
             'bht' => 'BHT',
@@ -35,7 +36,8 @@ function wielkoscliterinci($text) {
             '90m' => '90M',
             '45m' => '45M',
             'pca' => 'PCA',
-            'pvp' => 'PVP'
+            'pvp' => 'PVP',
+            'n,n' => 'N,N'
         ],
         4 => [
             'edta' => 'EDTA',
@@ -43,7 +45,8 @@ function wielkoscliterinci($text) {
             'dmdm' => 'DMDM',
             'mipa' => 'MIPA',
             'dipa' => 'DIPA',
-            'hema' => 'HEMA'
+            'hema' => 'HEMA',
+            'n,n'
         ]
     ];
     foreach(explode(', ',$text) as $ingredient) {
@@ -167,7 +170,9 @@ if (isset($_GET['anx'])) {
                         <h3>Załącznik II: Wykaz substancji zakazanych w produktach kosmetycznych</h3>
                         <table class="table">
                             <thead>
-                            <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                                <tr>
+                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                                </tr>
                             </thead>
                             <tbody class="table-group-divider">
                             <?php
@@ -177,7 +182,6 @@ if (isset($_GET['anx'])) {
                                     foreach ($row as $cell) {
                                         echo '<td>'. $cell .'</td>';
                                     }
-                                    $i++;
                                     echo '</tr>';
                                 }
                             ?>
@@ -236,7 +240,9 @@ if (isset($_GET['anx'])) {
                         <strong>Załącznik wstępnie przeredagowany</strong>
                         <table class="table">
                             <thead>
-                            <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                                <tr>
+                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                                </tr>
                             </thead>
                             <tbody class="table-group-divider">
                             <?php
@@ -330,7 +336,9 @@ if (isset($_GET['anx'])) {
                         <h3>Załącznik IV: Wykaz barwników dopuszczonych w produktach kosmetycznych</h3>
                         <table class="table">
                             <thead>
-                            <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                                <tr>
+                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                                </tr>
                             </thead>
                             <tbody class="table-group-divider">
                             <?php
@@ -433,7 +441,8 @@ if (isset($_GET['anx'])) {
 }
 
 $csv = array_map('str_getcsv', file('INCI.csv'));
-foreach ($csv as $ingredient) {
+foreach ($csv as $key => $ingredient) {
+    if ($key == 0) continue;
     $ingredients[] = [
         'name' => $ingredient[1],
         'cas' => $ingredient[2],
@@ -464,7 +473,7 @@ if (isset($_POST['inci'])) {
     <title><?php echo $pagetitle." | ".$_SERVER['HTTP_HOST']; ?></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Private server for Friends">
+    <meta name="author" content="Mikołaj Piętka">
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -473,7 +482,7 @@ if (isset($_POST['inci'])) {
     <!-- Material icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <!-- Page CSS -->
-    <link href="styles.css?ver=2.1.inci" rel="stylesheet">
+    <link href="styles.css?ver=2.2.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -600,19 +609,31 @@ if (isset($_POST['inci'])) {
             </div>
         </div>
     </div>
-    <?php if (0): ?>
+    <?php if (0): 
+        // Annex checking part
+
+        $annextable = array_map('str_getcsv',file('A3.csv'));
+        // echo strtr(implode(', ',array_column($annextable,2)),$eol = [' <br>' => ', ', ', ,' => ',', ';' => ',']);
+    ?>
     <div class="container-fluid">
         <table class="table">
+            <thead>
+                <tr>
+                    <?php foreach ($annextable[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
             <?php
-            $annex2 = array_map('str_getcsv',file('A4.csv'));
-            foreach ($annex2 as $row) {
-                echo '<tr>';
-                foreach ($row as $column) {
-                    echo '<td>' . $column . '</td>';
+                foreach ($annextable as $key => $row) {
+                    if ($key == 0) continue;
+                    echo '<tr>';
+                    foreach ($row as $cell) {
+                        echo '<td>'. $cell .'</td>';
+                    }
+                    echo '</tr>';
                 }
-                echo '</tr>';
-            }
             ?>
+            </tbody>
         </table>
     </div>
     <?php endif; ?>
