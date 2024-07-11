@@ -42,15 +42,18 @@ function wielkoscliterinci($text) {
             'tbhq' => 'TBHQ',
             'dmdm' => 'DMDM',
             'mipa' => 'MIPA',
-            'dipa' => 'DIPA'
+            'dipa' => 'DIPA',
+            'hema' => 'HEMA'
         ]
     ];
     foreach(explode(', ',$text) as $ingredient) {
+        $ingredient = strtolower($ingredient);
         foreach (explode(' ',$ingredient) as $word) {
-            $word = strtolower($word);
             if (str_contains($word,'/')) {
                 foreach(explode('/',$word) as $part) {
-                    if (strlen($part) == 2) {
+                    if (strlen($part) == 1) {
+                        $parts[] = strtr($part,$rp[1]);
+                    } elseif (strlen($part) == 2) {
                         $parts[] = strtr($part,$rp[2]);
                     } elseif (strlen($part) == 3) {
                         $parts[] = strtr($part,$rp[3]);
@@ -159,35 +162,67 @@ if (isset($_GET['anx'])) {
         switch ($annex[0]) {
             case 'II':
                 if (file_exists('A2.csv') && !empty($fileraw = array_map('str_getcsv', file('A2.csv')))) {
-                    foreach ($fileraw as $row) {
-                        $file[$row[0]] = [
-                            'substance' => $row[1],
-                            'CAS' => $row[2],
-                            'WE' => $row[3]
-                        ];
-                    } ?>
-                    <div class="mt-2">
-                        <h5>Załącznik II: Wykaz substancji zakazanych w produktach kosmetycznych</h5>
+                    if ($annex[1] == 'all') {
+                        ?>
+                        <h3>Załącznik II: Wykaz substancji zakazanych w produktach kosmetycznych</h3>
                         <table class="table">
-                            <tr>
-                                <th scope="row">Indeks</th>
-                                <td><?php echo $anx; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Nazwa chemiczna / INN</th>
-                                <td><?php echo $file[$annex[1]]['substance']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">nr CAS</th>
-                                <td><?php echo $file[$annex[1]]['CAS']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">nr WE</th>
-                                <td><?php echo $file[$annex[1]]['WE']; ?></td>
-                            </tr>
+                            <thead>
+                            <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                            </thead>
+                            <tbody class="table-group-divider">
+                            <?php
+                                foreach ($fileraw as $key => $row) {
+                                    if ($key == 0) continue;
+                                    echo '<tr>';
+                                    foreach ($row as $cell) {
+                                        echo '<td>'. $cell .'</td>';
+                                    }
+                                    $i++;
+                                    echo '</tr>';
+                                }
+                            ?>
+                            </tbody>
                         </table>
-                    </div>
-                    <?php
+                        <?php
+                    } else {
+                        foreach ($fileraw as $row) {
+                            $file[$row[0]] = [
+                                'substance' => $row[1],
+                                'CAS' => $row[2],
+                                'WE' => $row[3]
+                            ];
+                        } ?>
+                        <div class="mb-5">
+                            <h3>Załącznik II: Wykaz substancji zakazanych w produktach kosmetycznych</h3>
+                            <table class="table mt-3">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col-4">Kolumna</th>
+                                        <th scope="col" class="col-8">Treść</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-group-divider">
+                                    <tr>
+                                        <th scope="row">Numer porządkowy</th>
+                                        <td><?php echo $annex[1]; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nazwa chemiczna / INN</th>
+                                        <td><?php echo $file[$annex[1]]['substance']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr CAS</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['CAS']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr WE</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['WE']; ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php
+                    }
                 } else {
                     echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
                     exit;
@@ -195,74 +230,202 @@ if (isset($_GET['anx'])) {
                 break;
             case 'III':
                 if (file_exists('A3.csv') && !empty($fileraw = array_map('str_getcsv', file('A3.csv')))) {
-                    foreach ($fileraw as $row) {
-                        $file[$row[0]] = [
-                            'inn' => $row[1],
-                            'inci' => $row[2],
-                            'cas' => $row[3],
-                            'we' => $row[4],
-                            'type' => $row[5],
-                            'max' => $row[6],
-                            'other' => $row[7],
-                            'conditions' => $row[8]
-                        ];
-                    } ?>
-                    <div class="mt-2">
-                        <h5>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h5>
+                    if ($annex[1] == 'all') {
+                        ?>
+                        <h3>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h3>
                         <strong>Załącznik wstępnie przeredagowany</strong>
                         <table class="table">
-                            <tr>
-                                <th scope="row">Indeks</th>
-                                <td><?php echo $anx; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Nazwa chemiczna / INN</th>
-                                <td><?php echo $file[$annex[1]]['inn']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Nazwa w słowniku wspólnych nazw / INCI</th>
-                                <td><?php echo $file[$annex[1]]['inci']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">nr CAS</th>
-                                <td><?php echo $file[$annex[1]]['cas']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">nr WE</th>
-                                <td><?php echo $file[$annex[1]]['we']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Rodzaj produktu, części ciała</th>
-                                <td><?php echo $file[$annex[1]]['type']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia</th>
-                                <td><?php echo $file[$annex[1]]['max']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Inne</th>
-                                <td><?php echo $file[$annex[1]]['other']; ?></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">Warunki i ostrzeżenia na opakowaniach</th>
-                                <td><?php echo $file[$annex[1]]['conditions']; ?></td>
-                            </tr>
+                            <thead>
+                            <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                            </thead>
+                            <tbody class="table-group-divider">
+                            <?php
+                                foreach ($fileraw as $key => $row) {
+                                    if ($key == 0) continue;
+                                    echo '<tr>';
+                                    foreach ($row as $cell) {
+                                        echo '<td>'. $cell .'</td>';
+                                    }
+                                    $i++;
+                                    echo '</tr>';
+                                }
+                            ?>
+                            </tbody>
                         </table>
-                    </div>
-                    <?php
+                        <?php
+                    } else {
+                        foreach ($fileraw as $row) {
+                            $file[$row[0]] = [
+                                'inn' => $row[1],
+                                'inci' => $row[2],
+                                'cas' => $row[3],
+                                'we' => $row[4],
+                                'type' => $row[5],
+                                'max' => $row[6],
+                                'other' => $row[7],
+                                'conditions' => $row[8]
+                            ];
+                        } ?>
+                        <div class="mb-5">
+                            <h3>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h3>
+                            <strong>Załącznik wstępnie przeredagowany</strong>
+                            <table class="table mt-3">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col-4">Kolumna</th>
+                                        <th scope="col" class="col-8">Treść</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-group-divider">
+                                    <tr>
+                                        <th scope="row">Numer porządkowy (a)</th>
+                                        <td><?php echo $annex[1]; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nazwa chemiczna / INN (b)</th>
+                                        <td><?php echo $file[$annex[1]]['inn']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nazwa w słowniku wspólnych nazw / INCI (c)</th>
+                                        <td><?php echo $file[$annex[1]]['inci']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr CAS (d)</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['cas']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr WE (e)</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['we']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Rodzaj produktu, części ciała (f)</th>
+                                        <td><?php echo $file[$annex[1]]['type']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia (g)</th>
+                                        <td><?php echo $file[$annex[1]]['max']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Inne (h)</th>
+                                        <td><?php echo $file[$annex[1]]['other']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Warunki i ostrzeżenia na opakowaniach (i)</th>
+                                        <td><?php echo $file[$annex[1]]['conditions']; ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php
+                    }
                 } else {
                     echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
                     exit;
                 }
                 break;
             case 'IV':
-                echo '<h5>Załącznik IV niegotowy do wyświetlenia</h5>';
+                if (file_exists('A4.csv') && !empty($fileraw = array_map('str_getcsv', file('A4.csv')))) {
+                    if ($annex[1] == 'all') {
+                        ?>
+                        <h3>Załącznik IV: Wykaz barwników dopuszczonych w produktach kosmetycznych</h3>
+                        <table class="table">
+                            <thead>
+                            <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                            </thead>
+                            <tbody class="table-group-divider">
+                            <?php
+                                foreach ($fileraw as $key => $row) {
+                                    if ($key == 0) continue;
+                                    echo '<tr>';
+                                    foreach ($row as $cell) {
+                                        echo '<td>'. $cell .'</td>';
+                                    }
+                                    $i++;
+                                    echo '</tr>';
+                                }
+                            ?>
+                            </tbody>
+                        </table>
+                        <?php
+                    } else {
+                        foreach ($fileraw as $row) {
+                            $file[$row[0]] = [
+                                'name' => $row[1],
+                                'ci' => $row[2],
+                                'cas' => $row[3],
+                                'we' => $row[4],
+                                'colour' => $row[5],
+                                'type' => $row[6],
+                                'max' => $row[7],
+                                'other' => $row[8],
+                                'conditions' => $row[9]
+                            ];
+                        } ?>
+                        <div class="mb-5">
+                            <h3>Załącznik IV: Wykaz barwników dopuszczonych w produktach kosmetycznych</h3>
+                            <table class="table mt-3">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col-4">Kolumna</th>
+                                        <th scope="col" class="col-8">Treść</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-group-divider">
+                                    <tr>
+                                        <th scope="row">Numer porządkowy (a)</th>
+                                        <td><?php echo $annex[1]; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nazwa chemiczna (b)</th>
+                                        <td><?php echo $file[$annex[1]]['name']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Numer/nazwa wg wykazu barwników zawartego w słowniku (c)</th>
+                                        <td><?php echo $file[$annex[1]]['ci']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr CAS (d)</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['cas']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr WE (e)</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['we']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Kolor (f)</th>
+                                        <td><?php echo $file[$annex[1]]['colour']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Rodzaj produktu, części ciała (g)</th>
+                                        <td><?php echo $file[$annex[1]]['type']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia (h)</th>
+                                        <td><?php echo $file[$annex[1]]['max']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Inne (i)</th>
+                                        <td><?php echo $file[$annex[1]]['other']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Brzmienie warunków stosowania i ostrzeżeń (j)</th>
+                                        <td><?php echo $file[$annex[1]]['conditions']; ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php
+                    }
+                } else {
+                    echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
+                    exit;
+                }
                 break;
             case 'V':
-                echo '<h5>Załącznik V niegotowy do wyświetlenia</h5>';
+                echo '<h3>Załącznik V w przygotowaniu</h3>';
                 break;
             case 'VI':
-                echo '<h5>Załącznik VI niegotowy do wyświetlenia</h5>';
+                echo '<h3>Załącznik VI w przygotowaniu</h3>';
                 break;
         }
     }
@@ -310,7 +473,7 @@ if (isset($_POST['inci'])) {
     <!-- Material icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <!-- Page CSS -->
-    <link href="styles.css?ver=2.0.inci" rel="stylesheet">
+    <link href="styles.css?ver=2.1.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -322,6 +485,7 @@ if (isset($_POST['inci'])) {
             <div class="d-flex gap-3 mt-3">
                 <button type="submit" class="btn btn-outline-light">Sprawdź</button>
                 <button type="button" class="btn btn-outline-danger" onclick="wyczysc()">Wyczyść</button>
+                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#annex">Podgląd załączników</button>
             </div>
         </form>
         <?php if (isset($incitest)): 
@@ -370,7 +534,7 @@ if (isset($_POST['inci'])) {
                                     if (str_contains($ingredients[$key]['annex'],'#')) {
                                         echo '<a href="#annex" class="text-reset" data-bs-toggle="modal">'. trim(substr($ingredients[$key]['annex'],0,strpos($ingredients[$key]['annex'],'#'))) .'</a> '. substr($ingredients[$key]['annex'],strpos($ingredients[$key]['annex'],'#'));
                                     } else {
-                                        echo '<a href="#annex" class="text-reset" data-bs-toggle="modal">'. $ingredients[$key]['annex'] .'</a>';
+                                        echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $ingredients[$key]['annex'] .'</a>';
                                     }
                                 } else {
                                     echo $ingredients[$key]['annex']; 
@@ -384,11 +548,11 @@ if (isset($_POST['inci'])) {
         </div>
         <?php endif; ?>
     </div>
-    <div class="modal fade" id="annex" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-body">
-                    <h1 class="fs-3 modal-title fst-italic"></h1>
+                    <h1 class="modal-title fst-italic"></h1>
                     <div class="annexes">
                         <div class="text-center">
                             <div class="spinner-border text-primary" role="status">
@@ -399,6 +563,31 @@ if (isset($_POST['inci'])) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="annex" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Załączniki</h5>
+                    <div class="col-2 mx-auto">
+                        <select class="form-select" onchange="getAnnex(this.value)" name="query">
+                            <option value="0" selected>Wybierz...</option>
+                            <option value="II/all">Załącznik II</option>
+                            <option value="III/all">Załącznik III</option>
+                            <option value="IV/all">Załącznik IV</option>
+                            <option value="V/all">Załącznik V</option>
+                            <option value="VI/all">Załącznik VI</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    
                 </div>
             </div>
         </div>
@@ -415,7 +604,7 @@ if (isset($_POST['inci'])) {
     <div class="container-fluid">
         <table class="table">
             <?php
-            $annex2 = array_map('str_getcsv',file('A3.csv'));
+            $annex2 = array_map('str_getcsv',file('A4.csv'));
             foreach ($annex2 as $row) {
                 echo '<tr>';
                 foreach ($row as $column) {
@@ -463,7 +652,7 @@ if (isset($_POST['inci'])) {
             tempLink.remove();
         }
 
-        const annexModal = document.querySelector('#annex');
+        const annexModal = document.querySelector('#ingredient');
         if (annexModal) {
             annexModal.addEventListener('show.bs.modal',event => {
                 const link = event.relatedTarget;
@@ -482,6 +671,27 @@ if (isset($_POST['inci'])) {
             annexModal.addEventListener('hidden.bs.modal',event => {
                 annexModal.querySelector('.annexes').innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
             });
+        }
+
+        const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+        function getAnnex (request) {
+            if (request != '0') {
+                const modalBody = document.querySelector('#annex .modal-body');
+                modalBody.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
+                request = encodeURI(request);
+                const xhttp = new XMLHttpRequest();
+                xhttp.onload = function () {
+                    modalBody.innerHTML = xhttp.responseText;
+                    const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
+                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+                }
+                xhttp.open('GET','?anx='+request);
+                xhttp.send();
+            } else {
+                document.querySelector('#annex .modal-body').innerHTML = '<h2>Wybierz załącznik...</h2>'
+            }
         }
     </script>
 </body>
