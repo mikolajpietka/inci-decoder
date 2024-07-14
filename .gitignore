@@ -1,2 +1,3 @@
 empties*.csv
 querylog*.csv
+.htaccess
