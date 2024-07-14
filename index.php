@@ -354,7 +354,6 @@ if (isset($_GET['anx'])) {
                                     foreach ($row as $cell) {
                                         echo '<td>'. $cell .'</td>';
                                     }
-                                    $i++;
                                     echo '</tr>';
                                 }
                             ?>
@@ -436,7 +435,100 @@ if (isset($_GET['anx'])) {
                 }
                 break;
             case 'V':
-                echo '<h3>Załącznik V w przygotowaniu</h3>';
+                if (file_exists('A5.csv') && !empty($fileraw = array_map('str_getcsv', file('A5.csv')))) {
+                    if ($annex[1] == 'all') {
+                        ?>
+                        <h3>Załącznik V: Wykaz substancji konserwujących dozwolonych w produktach kosmetycznych</h3>
+                        <strong>Nie uzupełnione przypisy</strong>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                            <?php
+                                foreach ($fileraw as $key => $row) {
+                                    if ($key == 0) continue;
+                                    echo '<tr>';
+                                    foreach ($row as $cell) {
+                                        echo '<td>'. $cell .'</td>';
+                                    }
+                                    echo '</tr>';
+                                }
+                            ?>
+                            </tbody>
+                        </table>
+                        <?php
+                    } else {
+                        foreach ($fileraw as $row) {
+                            $file[$row[0]] = [
+                                'name' => $row[1],
+                                'inci' => $row[2],
+                                'cas' => $row[3],
+                                'we' => $row[4],
+                                'type' => $row[5],
+                                'max' => $row[6],
+                                'other' => $row[7],
+                                'conditions' => $row[8]
+                            ];
+                        } ?>
+                        <div class="mb-5">
+                            <h3>Załącznik V: Wykaz substancji konserwujących dozwolonych w produktach kosmetycznych</h3>
+                            <strong>Nie uzupełnione przypisy</strong>
+                            <table class="table mt-3">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col-4">Kolumna</th>
+                                        <th scope="col" class="col-8">Treść</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-group-divider">
+                                    <tr>
+                                        <th scope="row">Numer porządkowy (a)</th>
+                                        <td><?php echo $annex[1]; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nazwa chemiczna/INN (b)</th>
+                                        <td><?php echo $file[$annex[1]]['name']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nazwa w glosariuszu wspólnych nazw składników (c)</th>
+                                        <td><?php echo $file[$annex[1]]['inci']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr CAS (d)</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['cas']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">nr WE (e)</th>
+                                        <td class="font-monospace"><?php echo $file[$annex[1]]['we']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Rodzaj produktu, części ciała (f)</th>
+                                        <td><?php echo $file[$annex[1]]['type']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia (g)</th>
+                                        <td><?php echo $file[$annex[1]]['max']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Inne (h)</th>
+                                        <td><?php echo $file[$annex[1]]['other']; ?></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Określenie warunków stosowania i ostrzeżeń (i)</th>
+                                        <td><?php echo $file[$annex[1]]['conditions']; ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php
+                    }
+                } else {
+                    echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
+                    exit;
+                }
                 break;
             case 'VI':
                 echo '<h3>Załącznik VI w przygotowaniu</h3>';
@@ -477,6 +569,17 @@ if (isset($_POST['inci'])) {
         fwrite($querylog,$query);
         fclose($querylog);
     }
+}
+
+if (isset($_GET['empty'])) {
+    if (empty($_GET['empty'])) {
+        $file = 'empties'.date("dmY").'.csv';
+    } else {
+        $file = $_GET['empty'];
+    }
+    $incitest = array_column(array_map('str_getcsv',file($file)),0);
+    $fail = false;
+    $adding = true;
 }
 ?>
 <!DOCTYPE HTML>
@@ -538,9 +641,9 @@ if (isset($_POST['inci'])) {
                         if (in_array(strtoupper($ingredient),$slownik)) {
                             $test = 1;
                             $key = array_search(strtoupper($ingredient),$slownik);
-                            if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties'.date("dmY").'.csv') && !in_array(strtoupper($ingredient),file('empties'.date("dmY").'.csv',FILE_IGNORE_NEW_LINES))) || !file_exists('empties'.date("dmY").'.csv'))) {
+                            if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties'.date("dmY").'.csv') && !in_array(strtoupper($ingredient),array_map('str_getcsv',file('empties'.date("dmY").'.csv',FILE_IGNORE_NEW_LINES)))) || !file_exists('empties'.date("dmY").'.csv')) && !$adding) {
                                 $empties = fopen('empties'.date("dmY").'.csv','a');
-                                fwrite($empties,strtoupper($ingredient)."\n");
+                                fwrite($empties,'"'.strtoupper($ingredient)."\"\n");
                             }
                         } else {
                             $test = 0;
@@ -628,7 +731,7 @@ if (isset($_POST['inci'])) {
     <?php if (0): 
         // Annex checking part
 
-        $annextable = array_map('str_getcsv',file('A3.csv'));
+        $annextable = array_map('str_getcsv',file('A5.csv'));
         // echo strtr(implode(', ',array_column($annextable,2)),$eol = [' <br>' => ', ', ', ,' => ',', ';' => ',']);
     ?>
     <div class="container-fluid">
