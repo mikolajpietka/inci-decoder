@@ -1,5 +1,7 @@
 <?php 
-error_reporting(0);
+setlocale(LC_ALL,'pl_PL');
+date_default_timezone_set('Europe/Warsaw');
+// error_reporting(0);
 $pagetitle = "Sprawdzanie INCI";
 
 function wielkoscliterinci($text) {
@@ -155,6 +157,12 @@ function wyszukajpodpowiedz($text,$array) {
 
 if (isset($_GET['anx'])) {
     $request = urldecode($_GET['anx']);
+    $querylog = fopen('querylog'.date("dmY").'.csv','a');
+    $time = date("d.m.Y H:i:s");
+    $query = '"'.$time.'","'.$request.'"'."\n";
+    fwrite($querylog,$query);
+    fclose($querylog);
+
     if (str_contains($request,',')) {
         $annexes = explode(', ',$request);
     } else {
@@ -237,7 +245,6 @@ if (isset($_GET['anx'])) {
                     if ($annex[1] == 'all') {
                         ?>
                         <h3>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h3>
-                        <strong>Załącznik wstępnie przeredagowany</strong>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -252,7 +259,6 @@ if (isset($_GET['anx'])) {
                                     foreach ($row as $cell) {
                                         echo '<td>'. $cell .'</td>';
                                     }
-                                    $i++;
                                     echo '</tr>';
                                 }
                             ?>
@@ -464,6 +470,12 @@ if (isset($_POST['inci'])) {
                 $fail = 1;
             }
         }
+        $querylog = fopen('querylog'.date("dmY").'.csv','a');
+        $time = date("d.m.Y H:i:s");
+        $text = $_POST['inci'];
+        $query = '"'.$time.'","'.$text.'"'."\n";
+        fwrite($querylog,$query);
+        fclose($querylog);
     }
 }
 ?>
@@ -526,6 +538,10 @@ if (isset($_POST['inci'])) {
                         if (in_array(strtoupper($ingredient),$slownik)) {
                             $test = 1;
                             $key = array_search(strtoupper($ingredient),$slownik);
+                            if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties'.date("dmY").'.csv') && !in_array(strtoupper($ingredient),file('empties'.date("dmY").'.csv',FILE_IGNORE_NEW_LINES))) || !file_exists('empties'.date("dmY").'.csv'))) {
+                                $empties = fopen('empties'.date("dmY").'.csv','a');
+                                fwrite($empties,strtoupper($ingredient)."\n");
+                            }
                         } else {
                             $test = 0;
                             $podpowiedz = wyszukajpodpowiedz($ingredient,$slownik);
