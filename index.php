@@ -651,6 +651,12 @@ if (isset($_POST['inci'])) {
                 $fail = 1;
             }
         }
+        $counted = array_count_values(array_map('strtoupper',$incitest));
+        foreach ($counted as $key => $value) {
+            if ($value > 1) {
+                $duplicates[] = $key;
+            }
+        }
         $querylog = fopen('querylog'.date("dmY").'.csv','a');
         $time = date("d.m.Y H:i:s");
         $text = $_POST['inci'];
@@ -706,8 +712,8 @@ if (isset($_GET['rnd'])) {
 </head>
 <body class="bg-dark">
     <div class="container my-3">
-        <h1>Skład kosmetyku do sprawdzenia</h1>
-        <h4>Wszystkie załączniki rozporządzenia 1223/2009 już działają <i class="bi bi-emoji-smile-fill"></i></h4>
+        <h1>Skład do sprawdzenia</h1>
+        <strong>Wszystkie załączniki rozporządzenia są uzupełnione i aplikacja sprawdza czy skład zawiera powtórzenia składników</strong>
         <h5><?php if (isset($fill)) echo $fill; ?></h5>
         <form method="post">
             <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace("\n","",$_POST['inci'])) : ""; ?></textarea>
@@ -720,9 +726,11 @@ if (isset($_GET['rnd'])) {
         <?php if (isset($incitest)): 
         if ($fail): ?>
             <div class="text-danger fw-bold fs-3 mt-2">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></div>
-        <?php else: ?>
+        <?php elseif (empty($duplicates)):?>
             <div class="text-success fw-bold fs-3 mt-2">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></div>
             <button type="button" class="btn btn-primary" onclick="downloadTable()">Pobierz tabelę</button>
+        <?php else: ?>
+            <div class="text-warning fw-bold fs-3 mt-2">INCI zawiera powtórzenia <i class="bi bi-exclamation-triangle"></i></div>
         <?php endif; ?>
     </div>
     <div class="container-fluid ingredients">
@@ -744,19 +752,19 @@ if (isset($_GET['rnd'])) {
                 <tbody class="table-group-divider">
                     <?php foreach ($incitest as $ingredient) { 
                         if (in_array(strtoupper($ingredient),$slownik)) {
-                            $test = 1;
+                            $test = true;
                             $key = array_search(strtoupper($ingredient),$slownik);
                             if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties'.date("dmY").'.csv') && !in_array(strtoupper($ingredient),array_column(array_map('str_getcsv',file('empties'.date("dmY").'.csv',FILE_IGNORE_NEW_LINES)),0))) || !file_exists('empties'.date("dmY").'.csv'))) {
                                 $empties = fopen('empties'.date("dmY").'.csv','a');
                                 fwrite($empties,'"'.strtoupper($ingredient)."\"\n");
                             }
                         } else {
-                            $test = 0;
+                            $test = false;
                             $podpowiedz = wyszukajpodpowiedz($ingredient,$slownik);
                         }
                     ?>
                         <tr>
-                            <th scope="row" <?php if (!$test) echo 'class="text-danger"'; ?>><?php echo '<span class="user-select-all" ondblclick="copyInci(this)">' . wielkoscliterinci($ingredient) . '</span>'; ?></th>
+                            <th scope="row" <?php if (!$test) echo 'class="text-danger"'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo 'class="text-warning"'; ?>><span class="user-select-all" ondblclick="copyInci(this)"><?php echo wielkoscliterinci($ingredient); ?></span></th>
                             <?php if ($fail): ?>
                             <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
                             <?php else: ?>
