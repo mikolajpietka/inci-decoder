@@ -280,7 +280,6 @@ if (isset($_GET['anx'])) {
                         } ?>
                         <div class="mb-5">
                             <h3>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h3>
-                            <strong>Załącznik wstępnie przeredagowany</strong>
                             <table class="table mt-3">
                                 <thead>
                                     <tr>
@@ -439,7 +438,6 @@ if (isset($_GET['anx'])) {
                     if ($annex[1] == 'all') {
                         ?>
                         <h3>Załącznik V: Wykaz substancji konserwujących dozwolonych w produktach kosmetycznych</h3>
-                        <strong>Nie uzupełnione przypisy</strong>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -475,7 +473,6 @@ if (isset($_GET['anx'])) {
                         } ?>
                         <div class="mb-5">
                             <h3>Załącznik V: Wykaz substancji konserwujących dozwolonych w produktach kosmetycznych</h3>
-                            <strong>Nie uzupełnione przypisy</strong>
                             <table class="table mt-3">
                                 <thead>
                                     <tr>
