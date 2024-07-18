@@ -693,6 +693,7 @@ if (isset($_GET['empty'])) {
 <body class="bg-dark">
     <div class="container my-3">
         <h1>Skład kosmetyku do sprawdzenia</h1>
+        <h4>Wszystkie załączniki rozporządzenia 1223/2009 już działają <i class="bi bi-emoji-smile-fill"></i></h4>
         <form method="post">
             <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace("\n","",$_POST['inci'])) : ""; ?></textarea>
             <div class="d-flex gap-3 mt-3">
