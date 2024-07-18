@@ -39,7 +39,8 @@ function wielkoscliterinci($text) {
             '45m' => '45M',
             'pca' => 'PCA',
             'pvp' => 'PVP',
-            'n,n' => 'N,N'
+            'n,n' => 'N,N',
+            'pna' => 'PNA'
         ],
         4 => [
             'edta' => 'EDTA',
@@ -670,6 +671,19 @@ if (isset($_GET['empty'])) {
     $incitest = array_column(array_map('str_getcsv',file($file)),0);
     $fail = false;
 }
+
+if (isset($_GET['rnd'])) {
+    if (!empty($_GET['rnd'])) $n = $_GET['rnd']; else $n = 10;
+    foreach ($ingredients as $ingredient) {
+        if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
+    }
+    $inciall = count($ingredients);
+    $inciempty = count($emptyinci);
+    $fill = "Wypełnione: " . $inciall - $inciempty . "/" . $inciall;
+    $incitest = array_rand(array_flip($emptyinci),$n);
+    if (is_string($incitest)) $incitest = array($incitest);
+    $fail = false;
+}
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -694,6 +708,7 @@ if (isset($_GET['empty'])) {
     <div class="container my-3">
         <h1>Skład kosmetyku do sprawdzenia</h1>
         <h4>Wszystkie załączniki rozporządzenia 1223/2009 już działają <i class="bi bi-emoji-smile-fill"></i></h4>
+        <h5><?php if (isset($fill)) echo $fill; ?></h5>
         <form method="post">
             <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace("\n","",$_POST['inci'])) : ""; ?></textarea>
             <div class="d-flex gap-3 mt-3">
