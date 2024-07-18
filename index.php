@@ -1,7 +1,7 @@
 <?php 
 setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
-// error_reporting(0);
+error_reporting(0);
 $pagetitle = "Sprawdzanie INCI";
 
 function wielkoscliterinci($text) {
@@ -574,12 +574,13 @@ if (isset($_POST['inci'])) {
 if (isset($_GET['empty'])) {
     if (empty($_GET['empty'])) {
         $file = 'empties'.date("dmY").'.csv';
+        if (!file_exists($file)) header("Location: ".$_SERVER['SCRIPT_NAME']);
     } else {
         $file = $_GET['empty'];
+        if (!file_exists($file)) header("Location: ".$_SERVER['SCRIPT_NAME']);
     }
     $incitest = array_column(array_map('str_getcsv',file($file)),0);
     $fail = false;
-    $adding = true;
 }
 ?>
 <!DOCTYPE HTML>
@@ -641,7 +642,7 @@ if (isset($_GET['empty'])) {
                         if (in_array(strtoupper($ingredient),$slownik)) {
                             $test = 1;
                             $key = array_search(strtoupper($ingredient),$slownik);
-                            if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties'.date("dmY").'.csv') && !in_array(strtoupper($ingredient),array_map('str_getcsv',file('empties'.date("dmY").'.csv',FILE_IGNORE_NEW_LINES)))) || !file_exists('empties'.date("dmY").'.csv')) && !$adding) {
+                            if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties'.date("dmY").'.csv') && !in_array(strtoupper($ingredient),array_column(array_map('str_getcsv',file('empties'.date("dmY").'.csv',FILE_IGNORE_NEW_LINES)),0))) || !file_exists('empties'.date("dmY").'.csv'))) {
                                 $empties = fopen('empties'.date("dmY").'.csv','a');
                                 fwrite($empties,'"'.strtoupper($ingredient)."\"\n");
                             }
@@ -677,7 +678,7 @@ if (isset($_GET['empty'])) {
         <?php endif; ?>
     </div>
     <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
             <div class="modal-content">
                 <div class="modal-body">
                     <h1 class="modal-title fst-italic"></h1>
