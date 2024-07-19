@@ -642,7 +642,8 @@ foreach ($csv as $key => $ingredient) {
         'name' => $ingredient[1],
         'cas' => $ingredient[2],
         'we' => $ingredient[3],
-        'annex' => $ingredient[4]
+        'annex' => $ingredient[4],
+        'ref' => $ingredient[5]
     ];
 }
 $slownik = array_column($ingredients,'name');
@@ -761,13 +762,14 @@ if (isset($_GET['rnd'])) {
             <table class="table table-hover table-sm">
                 <thead>
                     <tr>
-                        <th scope="col">INCI</th>
+                        <th scope="col" class="dwn">INCI</th>
                         <?php if ($fail): ?>
                         <th scope="col">Podpowiedź</th>
                         <?php else: ?>
-                        <th scope="col">CAS</th>
-                        <th scope="col">WE</th>
+                        <th scope="col" class="dwn">CAS</th>
+                        <th scope="col" class="dwn">WE</th>
                         <th scope="col">Annex</th>
+                        <th scope="col"></th>
                         <?php endif; ?>
                     </tr>
                 </thead>
@@ -786,12 +788,12 @@ if (isset($_GET['rnd'])) {
                         }
                     ?>
                         <tr>
-                            <th scope="row" <?php if (!$test) echo 'class="text-danger"'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo 'class="text-warning"'; ?>><span class="user-select-all" ondblclick="copyInci(this)"><?php echo wielkoscliterinci($ingredient); ?></span></th>
+                            <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyInci(this)"><?php echo wielkoscliterinci($ingredient); ?></span></th>
                             <?php if ($fail): ?>
                             <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
                             <?php else: ?>
-                            <td><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['cas']; ?></span></td>
-                            <td><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['we']; ?></span></td>
+                            <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['cas']; ?></span></td>
+                            <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['we']; ?></span></td>
                             <td><?php 
                                 if (str_contains($ingredients[$key]['annex'],"I/") || str_contains($ingredients[$key]['annex'],"V/")) {
                                     if (str_contains($ingredients[$key]['annex'],'#')) {
@@ -803,6 +805,7 @@ if (isset($_GET['rnd'])) {
                                     echo $ingredients[$key]['annex']; 
                                 }
                             ?></td>
+                            <td><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
                             <?php endif; ?>
                         </tr>
                     <?php } ?>
@@ -926,7 +929,7 @@ if (isset($_GET['rnd'])) {
             let tableRows = document.querySelectorAll('.ingredients tr');
             let csvRow = [];
             tableRows.forEach(x => {
-                let tableCols = x.querySelectorAll('th,td');
+                let tableCols = x.querySelectorAll('.dwn');
                 let csvCol = [];
                 tableCols.forEach(x => {
                     csvCol.push('"'+x.innerText+'"');
