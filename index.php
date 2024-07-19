@@ -53,7 +53,7 @@ function wielkoscliterinci($text) {
         ]
     ];
     foreach(explode(', ',$text) as $ingredient) {
-        $ingredient = strtolower($ingredient);
+        $ingredient = trim(strtolower($ingredient));
         foreach (explode(' ',$ingredient) as $word) {
             if (str_contains($word,'/')) {
                 foreach(explode('/',$word) as $part) {
@@ -154,6 +154,14 @@ function wyszukajpodpowiedz($text,$array) {
     } else {
         return $answer;
     }
+}
+
+if (!empty($_POST['report'])) {
+    $reportfile = fopen('reports.csv','a');
+    $report = '"'. date("d.m.Y H:i:s") .'","'. $_POST['report'] . '"';
+    fwrite($reportfile,$report);
+    fclose($reportfile);
+    $done = true;
 }
 
 if (isset($_GET['anx'])) {
@@ -641,7 +649,7 @@ $slownik = array_column($ingredients,'name');
 
 if (isset($_POST['inci'])) {
     if (!empty($_POST['inci'])) {
-        $inciexp = explode(', ',str_replace("\n","",$_POST['inci']));
+        $inciexp = explode(', ',str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci']));
         foreach ($inciexp as $ingredient) {
             $incitest[] = trim($ingredient);
         }
@@ -706,32 +714,51 @@ if (isset($_GET['rnd'])) {
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
+    <nav class="container navbar navbar-expand-lg bg-body-tertiary my-3 border rounded-3 px-3 py-1">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <div class="navbar-nav nav-underline">
+                <a href="index.php" class="nav-link active">Cały skład</a>
+                <a href="#" class="nav-link visually-hidden">Pojedynczy składnik</a>
+                <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
+                <a href="#" class="nav-link visually-hidden">Aktualizacje</a>
+                <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
+                <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
+            </div>
+        </div>
+    </nav>
     <div class="container my-3">
+        <?php if (!empty($done)): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Twoja uwaga została zapisana!</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
         <h1>Skład do sprawdzenia</h1>
-        <strong>Wszystkie załączniki rozporządzenia są uzupełnione i aplikacja sprawdza czy skład zawiera powtórzenia składników</strong>
         <h5><?php if (isset($fill)) echo $fill; ?></h5>
         <form method="post">
-            <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace("\n","",$_POST['inci'])) : ""; ?></textarea>
+            <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci'])) : ""; ?></textarea>
             <div class="d-flex gap-3 mt-3">
                 <button type="submit" class="btn btn-outline-light">Sprawdź</button>
                 <button type="button" class="btn btn-outline-danger" onclick="wyczysc()">Wyczyść</button>
-                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#annex">Podgląd załączników</button>
             </div>
         </form>
         <?php if (isset($incitest)): 
         if ($fail): ?>
             <div class="text-danger fw-bold fs-3 mt-2">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></div>
         <?php elseif (empty($duplicates)):?>
-            <div class="text-success fw-bold fs-3 mt-2">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></div>
-            <button type="button" class="btn btn-primary" onclick="downloadTable()">Pobierz tabelę</button>
+            <div class="text-success fw-bold fs-3 my-2">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></div>
         <?php else: ?>
             <div class="text-warning fw-bold fs-3 mt-2">INCI zawiera powtórzenia <i class="bi bi-exclamation-triangle"></i></div>
         <?php endif; ?>
     </div>
     <div class="container-fluid ingredients">
         <div class="m-4">
-            <small>Podwójne kliknięcie na składnik, nr CAS lub nr WE kopiuje go do schowka</small>
-            <table class="table table-sm">
+            <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
+            <div><small>Podwójne kliknięcie na składnik, nr CAS lub nr WE kopiuje go do schowka</small></div>
+            <table class="table table-hover table-sm">
                 <thead>
                     <tr>
                         <th scope="col">INCI</th>
@@ -822,9 +849,27 @@ if (isset($_GET['rnd'])) {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                 </div>
-                <div class="modal-body">
-                    
-                </div>
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="report" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Zgłoś</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label" for="reportbox">Napisz gdzie jest błąd lub zaproponuj nową funkcję</label>
+                        <textarea class="form-control" name="report" id="reportbox" rows="5"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-outline-success px-3">Wyślij</button>
+                        <button type="reset" class="btn btn-outline-danger px-3" data-bs-dismiss="modal">Zamknij</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
