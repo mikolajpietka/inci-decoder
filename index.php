@@ -914,7 +914,7 @@ if (isset($_GET['rnd'])) {
                                 foreach ($ingredients as $ingredient) {
                                     if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
                                 }
-                                echo count($ingredients) - count($emptyinci) ."/". count($ingredients) ." (".round((count($ingredients) - count($emptyinci))/count($ingredients)*100,1)."%)";
+                                echo count($ingredients) - count($emptyinci) ."/". count($ingredients) ." (".number_format(round((count($ingredients) - count($emptyinci))/count($ingredients)*100,2),2,',')." %)";
                             ?></td>
                         </tr>
                         <tr>
