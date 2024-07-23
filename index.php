@@ -46,6 +46,7 @@ function wielkoscliterinci($text) {
             'edta' => 'EDTA',
             'tbhq' => 'TBHQ',
             'dmdm' => 'DMDM',
+            'dedm' => 'DEDM',
             'mipa' => 'MIPA',
             'dipa' => 'DIPA',
             'hema' => 'HEMA',
@@ -913,7 +914,7 @@ if (isset($_GET['rnd'])) {
                                 foreach ($ingredients as $ingredient) {
                                     if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
                                 }
-                                echo count($ingredients) - count($emptyinci) ."/". count($ingredients);
+                                echo count($ingredients) - count($emptyinci) ."/". count($ingredients) ." (".round((count($ingredients) - count($emptyinci))/count($ingredients)*100,1)."%)";
                             ?></td>
                         </tr>
                         <tr>
