@@ -648,7 +648,7 @@ foreach ($csv as $key => $ingredient) {
 }
 $slownik = array_column($ingredients,'name');
 
-if (isset($_POST['inci'])) {
+if (isset($_POST['whole'])) {
     if (!empty($_POST['inci'])) {
         $inciexp = explode(', ',str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci']));
         foreach ($inciexp as $ingredient) {
@@ -675,6 +675,10 @@ if (isset($_POST['inci'])) {
     }
 }
 
+if (isset($_POST['single'])) {
+
+}
+
 if (isset($_GET['empty'])) {
     $file = 'empties.csv';
     if (!file_exists($file)) header("Location: ".$_SERVER['SCRIPT_NAME']);
@@ -683,13 +687,10 @@ if (isset($_GET['empty'])) {
 }
 
 if (isset($_GET['rnd'])) {
-    if (!empty($_GET['rnd'])) $n = $_GET['rnd']; else $n = 10;
+    if (!empty($_GET['rnd'])) $n = $_GET['rnd']; else $n = 1;
     foreach ($ingredients as $ingredient) {
         if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
     }
-    $inciall = count($ingredients);
-    $inciempty = count($emptyinci);
-    $fill = "Wypełnione: " . $inciall - $inciempty . "/" . $inciall;
     $incitest = array_rand(array_flip($emptyinci),$n);
     if (is_string($incitest)) $incitest = array($incitest);
     $fail = false;
@@ -721,15 +722,26 @@ if (isset($_GET['rnd'])) {
         </button>
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
-                <a href="index.php" class="nav-link active">Cały skład</a>
-                <a href="#" class="nav-link visually-hidden">Pojedynczy składnik</a>
+                <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
+                <a href="?single" class="nav-link disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
-                <a href="#" class="nav-link visually-hidden">Aktualizacje</a>
+                <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Dodatkowe</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a href="?rnd" class="dropdown-item">Losowy nieuzupełniony składnik</a></li>
+                        <li><a href="?empty" class="dropdown-item">Nieuzupełnione wyszukiwane składniki</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
+    <?php 
+    if (!isset($_GET['single'])): 
+    if (!isset($_GET['rnd']) && !isset($_GET['empty'])):
+    ?>
     <div class="container my-3">
         <?php if (!empty($done)): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -737,25 +749,26 @@ if (isset($_GET['rnd'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
-        <h1>Skład do sprawdzenia</h1>
+        <h1 class="text-center">Skład do sprawdzenia</h1>
         <h5><?php if (isset($fill)) echo $fill; ?></h5>
         <form method="post">
             <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci'])) : ""; ?></textarea>
             <div class="d-flex gap-3 mt-3">
-                <button type="submit" class="btn btn-outline-light">Sprawdź</button>
-                <button type="button" class="btn btn-outline-danger" onclick="wyczysc()">Wyczyść</button>
+                <button type="submit" class="btn btn-outline-light px-5" name="whole">Sprawdź</button>
+                <button type="button" class="btn btn-outline-danger px-5" onclick="wyczysc()">Wyczyść</button>
             </div>
         </form>
+    </div>
+    <?php endif; ?>
+    <div class="container-fluid ingredients">
         <?php if (isset($incitest)): 
         if ($fail): ?>
-            <div class="text-danger fw-bold fs-3 mt-2">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></div>
+            <h3 class="text-danger fw-bold my-2 ms-5">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></h3>
         <?php elseif (empty($duplicates)):?>
-            <div class="text-success fw-bold fs-3 my-2">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></div>
+            <h3 class="text-success fw-bold my-2 ms-5">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></h3>
         <?php else: ?>
-            <div class="text-warning fw-bold fs-3 mt-2">INCI zawiera powtórzenia <i class="bi bi-exclamation-triangle"></i></div>
+            <h3 class="text-warning fw-bold my-2 ms-5">INCI zawiera powtórzenia <i class="bi bi-exclamation-triangle"></i></h3>
         <?php endif; ?>
-    </div>
-    <div class="container-fluid ingredients">
         <div class="m-4">
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
             <div><small>Podwójne kliknięcie na składnik, nr CAS lub nr WE kopiuje go do schowka</small></div>
@@ -814,11 +827,42 @@ if (isset($_GET['rnd'])) {
         </div>
         <?php endif; ?>
     </div>
+    <?php else: ?>
+    <div class="container">
+        <?php if (!empty($done)): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Twoja uwaga została zapisana!</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+        <h1 class="text-center">Pojedynczy składnik</h1>
+        <div class="card col-lg-4 mx-auto p-3 mt-3">
+            <form method="post" class="text-center">
+                <div class="card-body">
+                    <div class="row g-4 align-items-center text-end">
+                        <label for="inci-name" class="form-label col-3 fw-bold">INCI</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="inci" id="inci">
+                        </div>
+                        <label for="cas" class="form-label col-3 fw-bold">CAS</label>
+                        <div class="col-9">
+                            <input type="text" class="form-control" name="cas" id="cas">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary mt-3 w-50" name="single">Sprawdź</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
     <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
             <div class="modal-content">
+                <div class="modal-header fst-italic">
+                    <h2 class="modal-title"></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body">
-                    <h1 class="modal-title fst-italic"></h1>
                     <div class="annexes">
                         <div class="text-center">
                             <div class="spinner-border text-primary" role="status">
@@ -826,9 +870,6 @@ if (isset($_GET['rnd'])) {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Zamknij</button>
                 </div>
             </div>
         </div>
@@ -856,6 +897,56 @@ if (isset($_GET['rnd'])) {
             </div>
         </div>
     </div>
+    <div class="modal fade" id="info" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Informacje i aktualizacje</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>Aktualizacje plików</h3>
+                    <table class="table">
+                        <tr>
+                            <th scope="row">Wypełnienie bazy składników</th>
+                            <td><?php
+                                foreach ($ingredients as $ingredient) {
+                                    if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
+                                }
+                                echo count($ingredients) - count($emptyinci) ."/". count($ingredients);
+                            ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Aktualizacja bazy składników</th>
+                            <td><?php echo date("d.m.Y H:i", filemtime('INCI.csv')); ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Aktualizacja załącznika II</th>
+                            <td><?php echo date("d.m.Y H:i", filemtime('A2.csv')); ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Aktualizacja załącznika III</th>
+                            <td><?php echo date("d.m.Y H:i", filemtime('A3.csv')); ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Aktualizacja załącznika IV</th>
+                            <td><?php echo date("d.m.Y H:i", filemtime('A4.csv')); ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Aktualizacja załącznika V</th>
+                            <td><?php echo date("d.m.Y H:i", filemtime('A5.csv')); ?></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Aktualizacja załącznika VI</th>
+                            <td><?php echo date("d.m.Y H:i", filemtime('A6.csv')); ?></td>
+                        </tr>
+                    </table>
+                    <h3>Informacje</h3>
+                    <strong>Brak</strong>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="report" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -865,7 +956,7 @@ if (isset($_GET['rnd'])) {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <label class="form-label" for="reportbox">Napisz gdzie jest błąd lub zaproponuj nową funkcję</label>
+                        <label class="form-label" for="reportbox">Podaj gdzie jest błąd lub zaproponuj nową funkcję</label>
                         <textarea class="form-control" name="report" id="reportbox" rows="5"></textarea>
                     </div>
                     <div class="modal-footer">
@@ -884,34 +975,6 @@ if (isset($_GET['rnd'])) {
             </div>
         </div>
     </div>
-    <?php if (0): 
-        // Annex checking part
-
-        $annextable = array_map('str_getcsv',file('A6.csv'));
-        // echo strtr(implode(', ',array_column($annextable,2)),$eol = [' <br>' => ', ', ', ,' => ',', ';' => ',']);
-    ?>
-    <div class="container-fluid">
-        <table class="table">
-            <thead>
-                <tr>
-                    <?php foreach ($annextable[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
-                </tr>
-            </thead>
-            <tbody class="table-group-divider">
-            <?php
-                foreach ($annextable as $key => $row) {
-                    if ($key == 0) continue;
-                    echo '<tr>';
-                    foreach ($row as $cell) {
-                        echo '<td>'. $cell .'</td>';
-                    }
-                    echo '</tr>';
-                }
-            ?>
-            </tbody>
-        </table>
-    </div>
-    <?php endif; ?>
     <script>
         function wyczysc() {
             const inci = document.querySelector('#inci');
@@ -992,6 +1055,3 @@ if (isset($_GET['rnd'])) {
     </script>
 </body>
 </html>
-<?php 
-// <sup><span class='text-info' data-bs-toggle='tooltip' data-bs-title=''></span></sup>
-?>
