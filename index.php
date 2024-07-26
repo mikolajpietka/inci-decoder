@@ -670,14 +670,24 @@ if (isset($_POST['whole'])) {
         $querylog = fopen('querylog'.date("dmY").'.csv','a');
         $time = date("d.m.Y H:i:s");
         $text = $_POST['inci'];
-        $query = '"'.$time.'","'.$text.'"'."\n";
+        $query = '"'.$time.'","'.str_replace(array("\r\n", "\n", "\r")," ",$text).'"'."\n";
         fwrite($querylog,$query);
         fclose($querylog);
     }
 }
 
 if (isset($_POST['single'])) {
+    if (!empty($_POST['inci']) && empty($_POST['cas'])) {
+        if (array_search(strtoupper($_POST['inci']),array_column($ingredients,'name')) !== false) {
+            $searchedkeys[] = array_search(strtoupper($_POST['inci']),array_column($ingredients,'name'));
+        } else {
 
+        }
+    } elseif (empty($_POST['inci']) && !empty($_POST['cas'])) {
+
+    } else {
+
+    }
 }
 
 if (isset($_GET['empty'])) {
@@ -724,7 +734,7 @@ if (isset($_GET['rnd'])) {
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
                 <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
-                <a href="?single" class="nav-link disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
+                <a href="?single" class="nav-link<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
@@ -819,7 +829,7 @@ if (isset($_GET['rnd'])) {
                                     echo $ingredients[$key]['annex']; 
                                 }
                             ?></td>
-                            <td><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
+                            <td><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
                             <?php endif; ?>
                         </tr>
                     <?php } ?>
@@ -843,17 +853,26 @@ if (isset($_GET['rnd'])) {
                     <div class="row g-4 align-items-center text-end">
                         <label for="inci-name" class="form-label col-3 fw-bold">INCI</label>
                         <div class="col-9">
-                            <input type="text" class="form-control" name="inci" id="inci">
+                            <input type="text" class="form-control" name="inci" id="inci"<?php echo !empty($_POST['inci']) ? 'value="'.$_POST['inci'].'"': ''; ?>>
                         </div>
                         <label for="cas" class="form-label col-3 fw-bold">CAS</label>
                         <div class="col-9">
-                            <input type="text" class="form-control" name="cas" id="cas">
+                            <input type="text" class="form-control" name="cas" id="cas"<?php echo !empty($_POST['cas']) ? 'value="'.$_POST['cas'].'"': ''; ?>>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-outline-primary mt-3 w-50" name="single">Sprawdź</button>
                 </div>
             </form>
         </div>
+    </div>
+    <div class="container-fluid">
+        <?php
+        foreach ($searchedkeys as $key) {
+            foreach ($ingredients[$key] as $value) {
+                echo $value . "<br>";
+            }
+        }
+        ?>
     </div>
     <?php endif; ?>
     <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
