@@ -159,7 +159,7 @@ function wyszukajpodpowiedz($text,$array) {
 
 if (!empty($_POST['report'])) {
     $reportfile = fopen('reports.csv','a');
-    $report = '"'. date("d.m.Y H:i:s") .'","'. $_POST['report'] . '"';
+    $report = '"'. date("d.m.Y H:i:s") .'","'. $_POST['report'] . "\"\n";
     fwrite($reportfile,$report);
     fclose($reportfile);
     $done = true;
@@ -734,7 +734,7 @@ if (isset($_GET['rnd'])) {
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
                 <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
-                <a href="?single" class="nav-link<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
+                <a href="?single" class="nav-link disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
