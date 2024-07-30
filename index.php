@@ -167,11 +167,6 @@ if (!empty($_POST['report'])) {
 
 if (isset($_GET['anx'])) {
     $request = urldecode($_GET['anx']);
-    $querylog = fopen('querylog'.date("dmY").'.csv','a');
-    $time = date("d.m.Y H:i:s");
-    $query = '"'.$time.'","'.$request.'"'."\n";
-    fwrite($querylog,$query);
-    fclose($querylog);
 
     if (str_contains($request,',')) {
         $annexes = explode(', ',$request);
@@ -667,7 +662,7 @@ if (isset($_POST['whole'])) {
                 $duplicates[] = $key;
             }
         }
-        $querylog = fopen('querylog'.date("dmY").'.csv','a');
+        $querylog = fopen('querylog.csv','a');
         $time = date("d.m.Y H:i:s");
         $text = $_POST['inci'];
         $query = '"'.$time.'","'.str_replace(array("\r\n", "\n", "\r")," ",$text).'"'."\n";
@@ -742,6 +737,7 @@ if (isset($_GET['rnd'])) {
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Dodatkowe</a>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a href="?history" class="dropdown-item disabled">Historia wyszukiwań</a></li>
                         <li><a href="?rnd" class="dropdown-item">Losowy nieuzupełniony składnik</a></li>
                         <li><a href="?empty" class="dropdown-item">Nieuzupełnione wyszukiwane składniki</a></li>
                     </ul>
