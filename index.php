@@ -779,7 +779,7 @@ if (isset($_GET['rnd'])) {
         <div class="m-4">
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
             <div><small>Podwójne kliknięcie na składnik, nr CAS lub nr WE kopiuje go do schowka</small></div>
-            <table class="table table-hover table-sm">
+            <table class="table table-hover table-sm align-middle">
                 <thead>
                     <tr>
                         <th scope="col" class="dwn">INCI</th>
