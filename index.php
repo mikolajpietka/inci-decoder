@@ -685,22 +685,6 @@ if (isset($_POST['single'])) {
     }
 }
 
-if (isset($_GET['empty'])) {
-    $file = 'empties.csv';
-    if (!file_exists($file)) header("Location: ".$_SERVER['SCRIPT_NAME']);
-    $incitest = array_column(array_map('str_getcsv',file($file)),0);
-    $fail = false;
-}
-
-if (isset($_GET['rnd'])) {
-    if (!empty($_GET['rnd'])) $n = $_GET['rnd']; else $n = 1;
-    foreach ($ingredients as $ingredient) {
-        if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
-    }
-    $incitest = array_rand(array_flip($emptyinci),$n);
-    if (is_string($incitest)) $incitest = array($incitest);
-    $fail = false;
-}
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -734,20 +718,12 @@ if (isset($_GET['rnd'])) {
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Dodatkowe</a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a href="?history" class="dropdown-item disabled">Historia wyszukiwań</a></li>
-                        <li><a href="?rnd" class="dropdown-item">Losowy nieuzupełniony składnik</a></li>
-                        <li><a href="?empty" class="dropdown-item">Nieuzupełnione wyszukiwane składniki</a></li>
-                    </ul>
-                </div>
+                <a href="?history" class="nav-link disabled">Historia wyszukiwań</a>
             </div>
         </div>
     </nav>
     <?php 
-    if (!isset($_GET['single'])): 
-    if (!isset($_GET['rnd']) && !isset($_GET['empty'])):
+    if (!isset($_GET['single'])):
     ?>
     <div class="container my-3">
         <?php if (!empty($done)): ?>
@@ -766,7 +742,6 @@ if (isset($_GET['rnd'])) {
             </div>
         </form>
     </div>
-    <?php endif; ?>
     <div class="container-fluid ingredients">
         <?php if (isset($incitest)): 
         if ($fail): ?>
@@ -798,10 +773,6 @@ if (isset($_GET['rnd'])) {
                         if (in_array(strtoupper($ingredient),$slownik)) {
                             $test = true;
                             $key = array_search(strtoupper($ingredient),$slownik);
-                            if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties.csv') && !in_array(strtoupper($ingredient),array_column(array_map('str_getcsv',file('empties.csv',FILE_IGNORE_NEW_LINES)),0))) || !file_exists('empties.csv'))) {
-                                $empties = fopen('empties.csv','a');
-                                fwrite($empties,'"'.strtoupper($ingredient)."\"\n");
-                            }
                         } else {
                             $test = false;
                             $podpowiedz = wyszukajpodpowiedz($ingredient,$slownik);
@@ -923,15 +894,6 @@ if (isset($_GET['rnd'])) {
                 <div class="modal-body">
                     <h3>Aktualizacje plików</h3>
                     <table class="table">
-                        <tr>
-                            <th scope="row">Wypełnienie bazy składników</th>
-                            <td><?php
-                                foreach ($ingredients as $ingredient) {
-                                    if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
-                                }
-                                echo count($ingredients) - count($emptyinci) ."/". count($ingredients) ." (".number_format(round((count($ingredients) - count($emptyinci))/count($ingredients)*100,2),2,',')." %)";
-                            ?></td>
-                        </tr>
                         <tr>
                             <th scope="row">Aktualizacja bazy składników</th>
                             <td><?php echo date("d.m.Y H:i", filemtime('INCI.csv')); ?></td>
