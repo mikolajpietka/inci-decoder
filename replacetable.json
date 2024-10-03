@@ -44,7 +44,9 @@
         "tea":"TEA",
         "hea":"HEA",
         "dvb":"DVB",
-        "cis":"cis"
+        "cis":"cis",
+        "pei":"PEI",
+        "14m":"14M"
     },
     "4":{
         "edta":"EDTA",
