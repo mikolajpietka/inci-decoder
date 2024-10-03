@@ -2,3 +2,7 @@ empties*.csv
 querylog*.csv
 reports.csv
 .htaccess
+cosing.json
+cosingraw.csv
+geninci.php
+INCI-backup.csv
