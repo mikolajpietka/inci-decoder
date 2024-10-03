@@ -5,54 +5,7 @@ error_reporting(0);
 $pagetitle = "Sprawdzanie INCI";
 
 function wielkoscliterinci($text) {
-    $rp = [
-        1 => [
-            't' => 't',
-            'o' => 'o',
-            'p' => 'p',
-            'm' => 'm'
-        ],
-        2 => [
-            'se' => 'SE',
-            'ci' => 'CI',
-            'np' => 'NP',
-            'vp' => 'VP',
-            'va' => 'VA',
-            'ap' => 'AP',
-            '9m' => '9M',
-            'pg' => 'PG',
-            'hc' => 'HC',
-            'hf' => 'HF'
-        ],
-        3 => [
-            'bht' => 'BHT',
-            'bha' => 'BHA',
-            'peg' => 'PEG',
-            'ppg' => 'PPG',
-            'hcl' => 'HCl',
-            'hbr' => 'HBr',
-            'eop' => 'EOP',
-            'dea' => 'DEA',
-            'mea' => 'MEA',
-            'fcf' => 'FCF',
-            '90m' => '90M',
-            '45m' => '45M',
-            'pca' => 'PCA',
-            'pvp' => 'PVP',
-            'n,n' => 'N,N',
-            'pna' => 'PNA'
-        ],
-        4 => [
-            'edta' => 'EDTA',
-            'tbhq' => 'TBHQ',
-            'dmdm' => 'DMDM',
-            'dedm' => 'DEDM',
-            'mipa' => 'MIPA',
-            'dipa' => 'DIPA',
-            'hema' => 'HEMA',
-            'paba' => 'PABA'
-        ]
-    ];
+    $rp = json_decode(file_get_contents("replacetable.json"),true);
     foreach(explode(', ',$text) as $ingredient) {
         $ingredient = trim(strtolower($ingredient));
         foreach (explode(' ',$ingredient) as $word) {
@@ -66,6 +19,8 @@ function wielkoscliterinci($text) {
                         $parts[] = strtr($part,$rp[3]);
                     } elseif (strlen($part) == 4) {
                         $parts[] = strtr($part,$rp[4]);
+                    } elseif (strlen($part) == 5) {
+                        $parts[] = strtr($part,$rp[5]);
                     } else {
                         $parts[] = ucfirst($part);
                     }
@@ -684,20 +639,8 @@ if (isset($_POST['single'])) {
 
     }
 }
-
-if (isset($_GET['empty'])) {
-    $file = 'empties.csv';
-    if (!file_exists($file)) header("Location: ".$_SERVER['SCRIPT_NAME']);
-    $incitest = array_column(array_map('str_getcsv',file($file)),0);
-    $fail = false;
-}
-
-if (isset($_GET['rnd'])) {
-    if (!empty($_GET['rnd'])) $n = $_GET['rnd']; else $n = 1;
-    foreach ($ingredients as $ingredient) {
-        if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
-    }
-    $incitest = array_rand(array_flip($emptyinci),$n);
+if (isset($_GET['random'])) {
+    $incitest = array_rand(array_flip($slownik),1);
     if (is_string($incitest)) $incitest = array($incitest);
     $fail = false;
 }
@@ -729,25 +672,18 @@ if (isset($_GET['rnd'])) {
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
                 <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
-                <a href="?single" class="nav-link disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
+                <a href="?single" class="nav-link visually-hidden disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Dodatkowe</a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a href="?history" class="dropdown-item disabled">Historia wyszukiwań</a></li>
-                        <li><a href="?rnd" class="dropdown-item">Losowy nieuzupełniony składnik</a></li>
-                        <li><a href="?empty" class="dropdown-item">Nieuzupełnione wyszukiwane składniki</a></li>
-                    </ul>
-                </div>
+                <a href="?history" class="nav-link visually-hidden disabled">Historia wyszukiwań</a>
+                <a href="?random" class="nav-link">Losowy składnik</a>
             </div>
         </div>
     </nav>
     <?php 
-    if (!isset($_GET['single'])): 
-    if (!isset($_GET['rnd']) && !isset($_GET['empty'])):
+    if (!isset($_GET['single'])):
     ?>
     <div class="container my-3">
         <?php if (!empty($done)): ?>
@@ -766,7 +702,6 @@ if (isset($_GET['rnd'])) {
             </div>
         </form>
     </div>
-    <?php endif; ?>
     <div class="container-fluid ingredients">
         <?php if (isset($incitest)): 
         if ($fail): ?>
@@ -798,10 +733,6 @@ if (isset($_GET['rnd'])) {
                         if (in_array(strtoupper($ingredient),$slownik)) {
                             $test = true;
                             $key = array_search(strtoupper($ingredient),$slownik);
-                            if ((empty($ingredients[$key]['cas']) || empty($ingredients[$key]['we'])) && ((file_exists('empties.csv') && !in_array(strtoupper($ingredient),array_column(array_map('str_getcsv',file('empties.csv',FILE_IGNORE_NEW_LINES)),0))) || !file_exists('empties.csv'))) {
-                                $empties = fopen('empties.csv','a');
-                                fwrite($empties,'"'.strtoupper($ingredient)."\"\n");
-                            }
                         } else {
                             $test = false;
                             $podpowiedz = wyszukajpodpowiedz($ingredient,$slownik);
@@ -924,15 +855,6 @@ if (isset($_GET['rnd'])) {
                     <h3>Aktualizacje plików</h3>
                     <table class="table">
                         <tr>
-                            <th scope="row">Wypełnienie bazy składników</th>
-                            <td><?php
-                                foreach ($ingredients as $ingredient) {
-                                    if (empty($ingredient['cas']) || empty($ingredient['we'])) $emptyinci[] = $ingredient['name'];
-                                }
-                                echo count($ingredients) - count($emptyinci) ."/". count($ingredients) ." (".number_format(round((count($ingredients) - count($emptyinci))/count($ingredients)*100,2),2,',')." %)";
-                            ?></td>
-                        </tr>
-                        <tr>
                             <th scope="row">Aktualizacja bazy składników</th>
                             <td><?php echo date("d.m.Y H:i", filemtime('INCI.csv')); ?></td>
                         </tr>
@@ -1019,7 +941,8 @@ if (isset($_GET['rnd'])) {
 
             csvFile = new Blob([csvData],{type: "tex/csv"});
             let tempLink = document.createElement("a");
-            tempLink.download = "Ingredients.csv";
+            let d = new Date;
+            tempLink.download = "Ingredients-" + d.getFullYear() + ((d.getMonth()+1 < 10) ? "0"+(d.getMonth()+1) : (d.getMonth()+1)) + ((d.getDate() < 10) ? "0"+d.getDate() : d.getDate()) + "-" + ((d.getHours() < 10) ? "0"+d.getHours() : d.getHours()) + ((d.getMinutes() < 10) ? "0"+d.getMinutes() : d.getMinutes()) + ((d.getSeconds() < 10) ? "0"+d.getSeconds() : d.getSeconds()) + ".csv";
             tempLink.href = window.URL.createObjectURL(csvFile);
             tempLink.style.display = "none";
             document.body.appendChild(tempLink);
