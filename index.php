@@ -637,7 +637,11 @@ if (isset($_POST['single'])) {
 
     }
 }
-
+if (isset($_GET['random'])) {
+    $incitest = array_rand(array_flip($slownik),1);
+    if (is_string($incitest)) $incitest = array($incitest);
+    $fail = false;
+}
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -666,12 +670,13 @@ if (isset($_POST['single'])) {
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
                 <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
-                <a href="?single" class="nav-link disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
+                <a href="?single" class="nav-link visually-hidden disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
-                <a href="?history" class="nav-link disabled">Historia wyszukiwań</a>
+                <a href="?history" class="nav-link visually-hidden disabled">Historia wyszukiwań</a>
+                <a href="?random" class="nav-link">Losowy składnik</a>
             </div>
         </div>
     </nav>
