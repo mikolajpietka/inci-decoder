@@ -3,7 +3,8 @@
         "t":"t",
         "o":"o",
         "p":"p",
-        "m":"m"
+        "m":"m",
+        "r":"r"
     },
     "2":{
         "se":"SE",
@@ -15,7 +16,12 @@
         "9m":"9M",
         "pg":"PG",
         "hc":"HC",
-        "hf":"HF"
+        "hf":"HF",
+        "sd":"SD",
+        "sr":"sr",
+        "sh":"sh",
+        "yl":"yl",
+        "sp":"SP"
     },
     "3":{
         "bht":"BHT",
@@ -34,7 +40,11 @@
         "pvp":"PVP",
         "n,n":"N,N",
         "pna":"PNA",
-        "mdm":"MDM"
+        "mdm":"MDM",
+        "tea":"TEA",
+        "hea":"HEA",
+        "dvb":"DVB",
+        "cis":"cis"
     },
     "4":{
         "edta":"EDTA",
@@ -44,6 +54,12 @@
         "mipa":"MIPA",
         "dipa":"DIPA",
         "hema":"HEMA",
-        "paba":"PABA"
+        "paba":"PABA",
+        "ipdi":"IPDI",
+        "smdi":"SMDI",
+        "hpma":"HPMA"
+    },
+    "5":{
+        "tmhdi":"TMHDI"
     }
 }

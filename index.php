@@ -19,6 +19,8 @@ function wielkoscliterinci($text) {
                         $parts[] = strtr($part,$rp[3]);
                     } elseif (strlen($part) == 4) {
                         $parts[] = strtr($part,$rp[4]);
+                    } elseif (strlen($part) == 5) {
+                        $parts[] = strtr($part,$rp[5]);
                     } else {
                         $parts[] = ucfirst($part);
                     }
