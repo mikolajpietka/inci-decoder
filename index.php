@@ -90,6 +90,30 @@ function wielkoscliterinci($text) {
     return implode(', ',$newingredient);
 }
 
+function lettersize($text) {
+    $rp = json_decode(file_get_contents("replacetable.json"),true);
+    $mainseparator = ", "; // Later separator chosen from select
+    // Check if main separator is in text
+    
+    $separators = [",","-","+","(",")"," ","/"];
+    // Check what separators are included in checked text
+    foreach ($separators as $sep) {
+        if (str_contains($text,$sep)) {
+            $usedseps[] = $sep;
+        }
+    }
+    if (empty($usedseps)) $usedseps = null;
+    // List positions of all separators
+
+
+    // Debug output
+    print_r($usedseps);
+}
+
+if (isset($_GET['test']) && isset($_POST['whole'])) {
+    echo lettersize($_POST['inci']);
+}
+
 function wyszukajpodpowiedz($text,$array) {
     $text = strtoupper($text);
     $raw = array_filter($array, function($v,$k) use ($text) {
@@ -855,7 +879,7 @@ if (isset($_GET['random'])) {
                 </div>
                 <div class="modal-body">
                     <h3>Informacje</h3>
-                    <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku.<br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009.</p>
+                    <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku. <a href="https://eur-lex.europa.eu/legal-content/pl/TXT/?uri=CELEX%3A32022D0677" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a><br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009. <a href="https://eur-lex.europa.eu/legal-content/PL/TXT/?uri=CELEX:02009R1223-20240424" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></p>
                     <h3>Aktualizacje plików</h3>
                     <table class="table">
                         <tr>
