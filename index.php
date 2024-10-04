@@ -721,10 +721,11 @@ if (isset($_GET['random'])) {
                         <?php if ($fail): ?>
                         <th scope="col">Podpowiedź</th>
                         <?php else: ?>
-                        <th scope="col" class="dwn">CAS</th>
-                        <th scope="col" class="dwn">WE</th>
-                        <th scope="col">Annex</th>
-                        <th scope="col"></th>
+                        <th scope="col" class="dwn">Nr CAS</th>
+                        <th scope="col" class="dwn">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
+                        <th scope="col">Zał. 1223/2009</th>
+                        <th scope="col" class="text-secondary">Funkcja <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Funkcja jeszcze nieaktywna"><i class="bi bi-info-circle"></i></span></sup></th>
+                        <th scope="col">CosIng</th>
                         <?php endif; ?>
                     </tr>
                 </thead>
@@ -756,6 +757,7 @@ if (isset($_GET['random'])) {
                                     echo $ingredients[$key]['annex']; 
                                 }
                             ?></td>
+                            <td></td>
                             <td><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
                             <?php endif; ?>
                         </tr>
