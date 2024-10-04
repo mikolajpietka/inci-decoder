@@ -21,7 +21,9 @@
         "sr":"sr",
         "sh":"sh",
         "yl":"yl",
-        "sp":"SP"
+        "sp":"SP",
+        "cd":"CD",
+        "rh":"rh"
     },
     "3":{
         "bht":"BHT",
@@ -46,7 +48,8 @@
         "dvb":"DVB",
         "cis":"cis",
         "pei":"PEI",
-        "14m":"14M"
+        "14m":"14M",
+        "tmp":"TMP"
     },
     "4":{
         "edta":"EDTA",
@@ -59,9 +62,11 @@
         "paba":"PABA",
         "ipdi":"IPDI",
         "smdi":"SMDI",
-        "hpma":"HPMA"
+        "hpma":"HPMA",
+        "dmpa":"DMPA"
     },
     "5":{
-        "tmhdi":"TMHDI"
+        "tmhdi":"TMHDI",
+        "hedta":"HEDTA"
     }
 }
