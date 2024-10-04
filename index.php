@@ -692,8 +692,8 @@ if (isset($_GET['random'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
-        <h1 class="text-center">Skład do sprawdzenia</h1>
-        <h5><?php if (isset($fill)) echo $fill; ?></h5>
+        <h2>Sprawdzanie INCI</h2>
+        <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post">
             <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci'])) : ""; ?></textarea>
             <div class="d-flex gap-3 mt-3">
@@ -725,7 +725,7 @@ if (isset($_GET['random'])) {
                         <th scope="col" class="dwn">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
                         <th scope="col">Zał. 1223/2009</th>
                         <th scope="col" class="text-secondary">Funkcja <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Funkcja jeszcze nieaktywna"><i class="bi bi-info-circle"></i></span></sup></th>
-                        <th scope="col">CosIng</th>
+                        <th scope="col" class="text-center">CosIng</th>
                         <?php endif; ?>
                     </tr>
                 </thead>
@@ -758,7 +758,7 @@ if (isset($_GET['random'])) {
                                 }
                             ?></td>
                             <td></td>
-                            <td><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
+                            <td class="text-center"><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
                             <?php endif; ?>
                         </tr>
                     <?php } ?>
@@ -854,6 +854,8 @@ if (isset($_GET['random'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <h3>Informacje</h3>
+                    <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku.<br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009.</p>
                     <h3>Aktualizacje plików</h3>
                     <table class="table">
                         <tr>
@@ -881,8 +883,6 @@ if (isset($_GET['random'])) {
                             <td><?php echo date("d.m.Y H:i", filemtime('A6.csv')); ?></td>
                         </tr>
                     </table>
-                    <h3>Informacje</h3>
-                    <strong>Brak</strong>
                 </div>
             </div>
         </div>
