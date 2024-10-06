@@ -92,22 +92,32 @@ function wielkoscliterinci($text) {
 
 function lettersize($text) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
-    $mainseparator = ", "; // Later separator chosen from select
-    // Check if main separator is in text
-    
+
     $separators = [",","-","+","(",")"," ","/"];
+    // Later add to array of separators from select
     // Check what separators are included in checked text
     foreach ($separators as $sep) {
         if (str_contains($text,$sep)) {
             $usedseps[] = $sep;
         }
     }
-    if (empty($usedseps)) $usedseps = null;
     // List positions of all separators
-
+    $positions = array();
+    if (!empty($usedseps)) {
+        foreach ($usedseps as $sep) {
+            $last = 0;
+            while (($last = strpos($text,$sep,$last)) !== false) {
+                $positions[] = $last;
+                $last = $last + 1;
+            }
+        }
+    }
+    asort($positions);
 
     // Debug output
     print_r($usedseps);
+    echo "<br>";
+    print_r($positions);
 }
 
 if (isset($_GET['test']) && isset($_POST['whole'])) {
