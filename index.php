@@ -112,12 +112,30 @@ function lettersize($text) {
             }
         }
     }
-    asort($positions);
+    sort($positions);
+    // Split string into words and serparators
+    $seplen = count($positions);
+    for ($i=0; $i < $seplen; $i++) { 
+        if ($positions[$i] == 0) {
+            $split[] = substr($text,0,1);
+            echo 1;
+        } elseif ($i == 0) {
+            $split[] = substr($text,0,$positions[$i+1]-1);
+            echo 2;
+        } else {
+            $split[] = substr($text,$positions[$i],1);
+            echo 3;
+        }
+    }
+    // if $position[$i]-$postion[$i-1] == 1 -> next pos. else sub between
 
     // Debug output
+    echo "<br>";
     print_r($usedseps);
     echo "<br>";
     print_r($positions);
+    echo "<br>";
+    print_r($split);
 }
 
 if (isset($_GET['test']) && isset($_POST['whole'])) {
