@@ -63,7 +63,8 @@
         "ipdi":"IPDI",
         "smdi":"SMDI",
         "hpma":"HPMA",
-        "dmpa":"DMPA"
+        "dmpa":"DMPA",
+        "nano":"nano"
     },
     "5":{
         "tmhdi":"TMHDI",

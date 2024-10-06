@@ -627,16 +627,28 @@ $funcdict = json_decode(file_get_contents('functions.json'),true);
 
 if (isset($_POST['whole'])) {
     if (!empty($_POST['inci'])) {
+        //  Different separators to add
         $inciexp = explode(', ',str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci']));
         foreach ($inciexp as $ingredient) {
             $incitest[] = trim($ingredient);
         }
         $fail = 0;
         foreach ($incitest as $ingredient) { 
-            if (!in_array(strtoupper($ingredient),$slownik)) {
-                $fail = 1;
+            // Test for nano ingredients
+            if (str_contains($ingredient,"(nano)")) {
+                // If yes then cut-off nano part and check if ingredient is correct
+                $temping = trim(str_replace("(nano)","",$ingredient));
+                if (!in_array(strtoupper($temping),$slownik)) {
+                    $fail = 1;
+                }
+            } else {
+                // If no just check
+                if (!in_array(strtoupper($ingredient),$slownik)) {
+                    $fail = 1;
+                }
             }
         }
+
         $counted = array_count_values(array_map('strtoupper',$incitest));
         foreach ($counted as $key => $value) {
             if ($value > 1) {
@@ -651,7 +663,7 @@ if (isset($_POST['whole'])) {
         fclose($querylog);
     }
 }
-
+// Single ingredient search (paused part of project)
 if (isset($_POST['single'])) {
     if (!empty($_POST['inci']) && empty($_POST['cas'])) {
         if (array_search(strtoupper($_POST['inci']),array_column($ingredients,'name')) !== false) {
@@ -665,6 +677,7 @@ if (isset($_POST['single'])) {
 
     }
 }
+// Showing random ingredient for testing
 if (isset($_GET['random'])) {
     $incitest = array_rand(array_flip($slownik),1);
     if (is_string($incitest)) $incitest = array($incitest);
@@ -758,12 +771,25 @@ if (isset($_GET['random'])) {
                 </thead>
                 <tbody class="table-group-divider">
                     <?php foreach ($incitest as $ingredient) { 
-                        if (in_array(strtoupper($ingredient),$slownik)) {
-                            $test = true;
-                            $key = array_search(strtoupper($ingredient),$slownik);
+                        // If nano...
+                        if (str_contains($ingredient,"(nano)")) {
+                            // If yes then cut-off nano part and check if ingredient is correct
+                            $temping = trim(str_replace("(nano)","",$ingredient));
+                            if (in_array(strtoupper($temping),$slownik)) {
+                                $test = true;
+                                $key = array_search(strtoupper($temping),$slownik);
+                            } else {
+                                $test = false;
+                                $podpowiedz = wyszukajpodpowiedz($temping,$slownik);
+                            }
                         } else {
-                            $test = false;
-                            $podpowiedz = wyszukajpodpowiedz($ingredient,$slownik);
+                            if (in_array(strtoupper($ingredient),$slownik)) {
+                                $test = true;
+                                $key = array_search(strtoupper($ingredient),$slownik);
+                            } else {
+                                $test = false;
+                                $podpowiedz = wyszukajpodpowiedz($ingredient,$slownik);
+                            }
                         }
                     ?>
                         <tr>
@@ -985,7 +1011,10 @@ if (isset($_GET['random'])) {
             annexModal.addEventListener('show.bs.modal',event => {
                 const link = event.relatedTarget;
                 const request = encodeURI(link.innerText);
-                const inciName = link.parentElement.parentElement.querySelector('th').innerText;
+                let inciName = link.parentElement.parentElement.querySelector('th').innerText;
+                if (inciName.includes("(nano)")) {
+                    inciName = inciName.replace("(nano)","");
+                }
                 annexModal.querySelector('.modal-title').innerText = inciName;
                 const xhttp = new XMLHttpRequest();
                 xhttp.onload = function () {
