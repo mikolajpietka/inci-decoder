@@ -1,0 +1,330 @@
+{
+    "ABRASIVE": {
+        "pl": "ścierająca",
+        "en": "abrasive"
+    },
+    "ABSORBENT": {
+        "pl": "pochłaniająca",
+        "en": "absorbent"
+    },
+    "ADHESIVE": {
+        "pl": "klejąca",
+        "en": "adhesive"
+    },
+    "ANTI-SEBORRHEIC": {
+        "pl": "przeciłojotokowa",
+        "en": "anti-seborrheic"
+    },
+    "ANTI-SEBUM": {
+        "pl": "zmniejszająca wydzielanie sebum",
+        "en": "anti-sebum"
+    },
+    "ANTICAKING": {
+        "pl": "przeciwzbrylająca",
+        "en": "anticaking"
+    },
+    "ANTICORROSIVE": {
+        "pl": "antykorozyjna",
+        "en": "anticorrosive"
+    },
+    "ANTIFOAMING": {
+        "pl": "zapobiegająca pienieniu",
+        "en": "antifoaming"
+    },
+    "ANTIMICROBIAL": {
+        "pl": "przeciwdrobnoustrojowa",
+        "en": "antimicrobial"
+    },
+    "ANTIOXIDANT": {
+        "pl": "antyoksydant",
+        "en": "antioxidant"
+    },
+    "ANTIPERSPIRANT": {
+        "pl": "przeciwpotna",
+        "en": "antiperspirant"
+    },
+    "ANTIPLAQUE": {
+        "pl": "zapobiega tworzeniu się płytki nazębnej",
+        "en": "antiplaque"
+    },
+    "ANTISTATIC": {
+        "pl": "antystatyczna",
+        "en": "antistatic"
+    },
+    "ASTRINGENT": {
+        "pl": "ściągająca",
+        "en": "astringent"
+    },
+    "BINDING": {
+        "pl": "wiążąca",
+        "en": "binding"
+    },
+    "BLEACHING": {
+        "pl": "wybielająca",
+        "en": "bleaching"
+    },
+    "BUFFERING": {
+        "pl": "buforująca",
+        "en": "buffering"
+    },
+    "BULKING": {
+        "pl": "wypełniająca",
+        "en": "bulking"
+    },
+    "CHELATING": {
+        "pl": "chelatująca",
+        "en": "chelating"
+    },
+    "CLEANSING": {
+        "pl": "czyszcząca",
+        "en": "cleansing"
+    },
+    "COLORANT": {
+        "pl": "barwnik",
+        "en": "colourant"
+    },
+    "DENATURANT": {
+        "pl": "denaturująca",
+        "en": "denaturant"
+    },
+    "DEODORANT": {
+        "pl": "deodorująca",
+        "en": "deodorant"
+    },
+    "DEPILATORY": {
+        "pl": "depilująca",
+        "en": "depilatory"
+    },
+    "DETANGLING": {
+        "pl": "ułatwiająca rozczesywanie włosów",
+        "en": "detangling"
+    },
+    "DISPERSING NON-SURFACTANT": {
+        "pl": "dyspergująca niebędąca surfaktantem ",
+        "en": "dispersing non-surfactant"
+    },
+    "EMULSION STABILISING": {
+        "pl": "stabilizująca emulsją",
+        "en": "emulsion stabilising"
+    },
+    "EPILATING": {
+        "pl": "epilująca",
+        "en": "epilating"
+    },
+    "EXFOLIATING": {
+        "pl": "peelingująca",
+        "en": "exfoliating"
+    },
+    "EYELASH CONDITIONING": {
+        "pl": "kondycjonująca rzęsy",
+        "en": "eyelash conditioning"
+    },
+    "FILM FORMING": {
+        "pl": "tworząca film",
+        "en": "film forming"
+    },
+    "FLAVOURING": {
+        "pl": "aromat smakowy",
+        "en": "flavouring"
+    },
+    "FOAMING": {
+        "pl": "pieniąca",
+        "en": "foaming"
+    },
+    "FRAGRANCE": {
+        "pl": "substancja zapachowa",
+        "en": "fragrance"
+    },
+    "GEL FORMING": {
+        "pl": "tworząca żel",
+        "en": "gel forming"
+    },
+    "HAIR CONDITIONING": {
+        "pl": "kondycjonująca włosy",
+        "en": "hair conditioning"
+    },
+    "HAIR DYEING": {
+        "pl": "farbująca włosy",
+        "en": "hair dyeing"
+    },
+    "HAIR FIXING": {
+        "pl": "stylizująca włosy",
+        "en": "hair fixing"
+    },
+    "HAIR WAVING OR STRAIGHTENING": {
+        "pl": "prostująca lub falująca włosy",
+        "en": "hair waving or straightening"
+    },
+    "HUMECTANT": {
+        "pl": "utrzymująca wilgoć",
+        "en": "humectant"
+    },
+    "KERATOLYTIC": {
+        "pl": "keratolityczna",
+        "en": "keratolytic"
+    },
+    "LIGHT STABILIZER": {
+        "pl": "stabilizator światła",
+        "en": "light stabilizer"
+    },
+    "LYTIC": {
+        "pl": "lityczne",
+        "en": "lytic"
+    },
+    "MOISTURISING": {
+        "pl": "nawilżająca",
+        "en": "moisturising"
+    },
+    "NAIL CONDITIONING": {
+        "pl": "kondycjonująca paznokcie",
+        "en": "nail conditioning"
+    },
+    "NAIL SCULPTING": {
+        "pl": "stylizująca paznokcie",
+        "en": "nail sculpting"
+    },
+    "NOT REPORTED": {
+        "pl": "nie stwierdzono",
+        "en": "not reported"
+    },
+    "OPACIFYING": {
+        "pl": "zmętniająca",
+        "en": "opacifying"
+    },
+    "ORAL CARE": {
+        "pl": "do higieny jamy ustnej",
+        "en": "oral care"
+    },
+    "OXIDISING": {
+        "pl": "utleniająca",
+        "en": "oxidising"
+    },
+    "PEARLESCENT": {
+        "pl": "nadaje perłowy efekt",
+        "en": "pearlescent"
+    },
+    "PERFUMING": {
+        "pl": "perfumująca",
+        "en": "perfuming"
+    },
+    "PLASTICISER": {
+        "pl": "plastyfikator",
+        "en": "plasticiser"
+    },
+    "PRESERVATIVE": {
+        "pl": "konserwująca",
+        "en": "preservative"
+    },
+    "PROPELLANT": {
+        "pl": "gaz pędny",
+        "en": "propellant"
+    },
+    "REDUCING": {
+        "pl": "redukujące",
+        "en": "reducing"
+    },
+    "REFATTING": {
+        "pl": "natłuszczająca",
+        "en": "refatting"
+    },
+    "REFRESHING": {
+        "pl": "odświeżająca",
+        "en": "refreshing"
+    },
+    "SKIN CONDITIONING": {
+        "pl": "kondycjonująca skórę",
+        "en": "skin conditioning"
+    },
+    "SKIN CONDITIONING - EMOLLIENT": {
+        "pl": "emolient",
+        "en": "emollient"
+    },
+    "SKIN CONDITIONING - HUMECTANT": {
+        "pl": "humektant",
+        "en": "humectant"
+    },
+    "SKIN CONDITIONING - MISCELLANEOUS": {
+        "pl": "kondycjonująca skórę (różne)",
+        "en": "skin conditioning (miscellaneous)"
+    },
+    "SKIN CONDITIONING - OCCLUSIVE": {
+        "pl": "okluzyjna",
+        "en": "occlusive"
+    },
+    "SKIN PROTECTING": {
+        "pl": "chroniąca skórę",
+        "en": "skin protecting"
+    },
+    "SLIP MODIFIER": {
+        "pl": "modyfikator poślizgu",
+        "en": "slip modifier"
+    },
+    "SMOOTHING": {
+        "pl": "wygładzająca",
+        "en": "smoothing"
+    },
+    "SOLVENT": {
+        "pl": "rozpuszczalnik",
+        "en": "solvent"
+    },
+    "SOOTHING": {
+        "pl": "odżywiająca",
+        "en": "soothing"
+    },
+    "SURFACE MODIFIER": {
+        "pl": "modyfikator powierzchni",
+        "en": "surface modifier"
+    },
+    "SURFACTANT": {
+        "pl": "surfaktant",
+        "en": "surfactant"
+    },
+    "SURFACTANT - CLEANSING": {
+        "pl": "surfaktant myjący",
+        "en": "cleansing surfactant"
+    },
+    "SURFACTANT - DISPERSING": {
+        "pl": "surfaktant dyspergujący",
+        "en": "dispersing surfactant"
+    },
+    "SURFACTANT - EMULSIFYING": {
+        "pl": "emulgator",
+        "en": "emulsifier"
+    },
+    "SURFACTANT - FOAM BOOSTING": {
+        "pl": "zwiększająca pianę",
+        "en": "foam boosting"
+    },
+    "SURFACTANT - HYDROTROPE": {
+        "pl": "hydrotropowa",
+        "en": "surfactant - hydrotrope"
+    },
+    "SURFACTANT - SOLUBILIZING": {
+        "pl": "solubilizator",
+        "en": "solubilizing"
+    },
+    "TANNING": {
+        "pl": "opalająca",
+        "en": "tanning"
+    },
+    "TONIC": {
+        "pl": "tonizująca",
+        "en": "tonic"
+    },
+    "UV ABSORBER": {
+        "pl": "pochłaniacz uv",
+        "en": "uv absorber"
+    },
+    "UV FILTER": {
+        "pl": "filtr uv",
+        "en": "uv filter"
+    },
+    "VISCOSITY CONTROLLING": {
+        "pl": "zagęstnik",
+        "en": "thickener"
+    },
+    "pH ADJUSTERS": {
+        "pl": "regulator pH",
+        "en": "pH adjusters"
+    }
+}
