@@ -49,7 +49,8 @@
         "cis":"cis",
         "pei":"PEI",
         "14m":"14M",
-        "tmp":"TMP"
+        "tmp":"TMP",
+        "20s":"20S"
     },
     "4":{
         "edta":"EDTA",
