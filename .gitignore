@@ -1,9 +1,5 @@
-empties*.csv
-querylog*.csv
+querylog.csv
 reports.csv
 .htaccess
-cosing.json
-cosingraw.csv
 geninci.php
 INCI-backup.csv
-addtoinci.php
