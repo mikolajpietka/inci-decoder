@@ -618,10 +618,12 @@ foreach ($csv as $key => $ingredient) {
         'cas' => $ingredient[2],
         'we' => $ingredient[3],
         'annex' => $ingredient[4],
-        'ref' => $ingredient[5]
+        'ref' => $ingredient[5],
+        'function' => $ingredient[6]
     ];
 }
 $slownik = array_column($ingredients,'name');
+$funcdict = json_decode(file_get_contents('functions.json'),true);
 
 if (isset($_POST['whole'])) {
     if (!empty($_POST['inci'])) {
@@ -748,7 +750,8 @@ if (isset($_GET['random'])) {
                         <th scope="col" class="dwn">Nr CAS</th>
                         <th scope="col" class="dwn">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
                         <th scope="col">Zał. 1223/2009</th>
-                        <th scope="col" class="text-secondary">Funkcja <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Funkcja jeszcze nieaktywna"><i class="bi bi-info-circle"></i></span></sup></th>
+                        <th scope="col" class="dwn">Funkcja</th>
+                        <th scope="col" class="dwn visually-hidden">Function</th>
                         <th scope="col" class="text-center">CosIng</th>
                         <?php endif; ?>
                     </tr>
@@ -781,7 +784,8 @@ if (isset($_GET['random'])) {
                                     echo $ingredients[$key]['annex']; 
                                 }
                             ?></td>
-                            <td></td>
+                            <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
+                            <td class="dwn visually-hidden"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
                             <td class="text-center"><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
                             <?php endif; ?>
                         </tr>
