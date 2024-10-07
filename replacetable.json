@@ -4,7 +4,8 @@
         "o":"o",
         "p":"p",
         "m":"m",
-        "r":"r"
+        "r":"r",
+        "s":"s"
     },
     "2":{
         "se":"SE",
@@ -23,7 +24,9 @@
         "yl":"yl",
         "sp":"SP",
         "cd":"CD",
-        "rh":"rh"
+        "rh":"rh",
+        "4a":"4A",
+        "ol":"ol"
     },
     "3":{
         "bht":"BHT",
@@ -50,7 +53,8 @@
         "pei":"PEI",
         "14m":"14M",
         "tmp":"TMP",
-        "20s":"20S"
+        "20s":"20S",
+        "hiv":"HIV"
     },
     "4":{
         "edta":"EDTA",
@@ -65,7 +69,8 @@
         "smdi":"SMDI",
         "hpma":"HPMA",
         "dmpa":"DMPA",
-        "nano":"nano"
+        "nano":"nano",
+        "amps":"AMPS"
     },
     "5":{
         "tmhdi":"TMHDI",
