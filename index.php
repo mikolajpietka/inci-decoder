@@ -4,7 +4,7 @@ date_default_timezone_set('Europe/Warsaw');
 error_reporting(0);
 $pagetitle = "Sprawdzanie INCI";
 
-function lettersize($text,$additional_separator=null) {
+function lettersize($text,$additional_separator=null,$debug=false) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
     $separators = [",",".","-","+","(",")"," ","/","&",":","'"];
@@ -57,15 +57,21 @@ function lettersize($text,$additional_separator=null) {
         }
     }
     // Debug output
-    if (false) {
-        if (!empty($usedseps)) echo "Used separators: " . implode(" | ",$usedseps); else echo "No separators";
+    if ($debug) {
+        echo "Separators to check: " . implode(" | ",$separators) . "<br>";
+        if (!empty($usedseps)) echo "Used separators in text: " . implode(" | ",$usedseps); else echo "No separators";
         echo "<br>";
-        if (!empty($positions)) echo "Positions of separators: " . implode(" | ",$positions) . "<br>";
+        if (!empty($positions)) echo "Sorted positions of separators: " . implode(" | ",$positions) . "<br>";
         echo "Splitted text: " . implode(" | ",$split) . "<br>";
+        echo "Splitted corrected text: " . implode(" | ",$newpart) . "<br>";
         echo "Corrected text: " . implode($newpart);
     }
     // Return corrected 
     return implode($newpart);
+}
+
+if (isset($_GET['test']) && isset($_POST['inci'])) {
+    echo lettersize($_POST['inci'],null,true);
 }
 
 function wyszukajpodpowiedz($text,$array) {
