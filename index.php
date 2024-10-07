@@ -1,13 +1,13 @@
 <?php 
 setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
-// error_reporting(0);
+error_reporting(0);
 $pagetitle = "Sprawdzanie INCI";
 
 function lettersize($text,$additional_separator=null) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
-    $separators = [",","-","+","(",")"," ","/","&"];
+    $separators = [",",".","-","+","(",")"," ","/","&",":","'"];
     // If additional separator in provided
     if ($additional_separator != null) {
         $separators[] = $additional_separator;
