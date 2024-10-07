@@ -155,9 +155,31 @@ if (false) {
     $file = "../INCI.csv";
     $oldinci = array_map('str_getcsv',file($file,FILE_IGNORE_NEW_LINES));
     $anxjson = json_decode(file_get_contents("anx2.json"),true);
-
-    foreach ($oldinci as $pos) {
-        
+    $openfile = fopen($file,'w');
+    foreach ($oldinci as $line) {
+        if ($line[1] == "INCI") {
+            fwrite($openfile,'"ID","INCI","CAS","WE","ANNEX","COSING REF. NO.","FUNCTIONS"'."\n");
+            continue;
+        }
+        if (array_key_exists($line[1],$anxjson)) {
+            if (empty($line[4])) {
+                $line[4] = $anxjson[$line[1]];
+            } elseif (!str_contains($line[4],$anxjson[$line[1]])) {
+                echo $line[1] . "<br>";
+            }
+        } 
+        // Write to file
+        foreach ($line as $part) {
+            if (!empty($part)) {
+                $newline[] = '"'.$part.'"';
+            } else {
+                $newline[] = $part;
+            }
+        }
+        $linetowrite = implode(",",$newline)."\n";
+        unset($newline);
+        fwrite($openfile,$linetowrite);
     }
+    fclose($openfile);
 }
 ?>
