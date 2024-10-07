@@ -1,8 +1,8 @@
 <?php
-// This is a tool to update INCI.csv
+// Tool to update INCI.csv
 
+// This is manual filler of INCI file
 if (false) {
-    // This is manual filler of INCI file
 
     $file = "INCI.csv";
     // Input data
@@ -34,8 +34,8 @@ if (false) {
     echo "DONE!";
 }
 
+// This for adding from CosIng raw file
 if (false) {
-    // This for adding from CosIng raw file
 
     $file = "../INCI.csv";
     $input = "cosing.json";
@@ -70,15 +70,23 @@ if (false) {
     $oldinci = array_map('str_getcsv',file($file,FILE_IGNORE_NEW_LINES));
     $openfile = fopen($file,'w');
     foreach ($oldinci as $line) {
+        if ($line[1] == "INCI") {
+            fwrite($openfile,'"ID","INCI","CAS","WE","ANNEX","COSING REF. NO.","FUNCTIONS"'."\n");
+            continue;
+        }
         if (array_key_exists($line[1],$data)) {
             if (empty($line[5])) {
                 $line[5] = $data[$line[1]]['refno'];
             }
             if (empty($line[6])) {
-                $line[6] = implode(" | ",$data[$line[1]]['function']);
+                if (empty($data[$line[1]]['function'])) {
+                    $line[6] = "UNKNOWN";
+                } else {
+                    $line[6] = implode(" | ",$data[$line[1]]['function']);
+                }
             }
         } else {
-            $line[6] = "";
+            $line[6] = "UNKNOWN";
             echo $line[1] . "<br>";
         }
         // Write to file
@@ -96,8 +104,8 @@ if (false) {
     fclose($openfile);
 }
 
+// Extract unique functions of ingredients
 if (false) {
-    // Extract unique functions of ingredients
     $input = "cosing.json";
     $data = json_decode(file_get_contents($input),true);
     $functions = array();
@@ -117,5 +125,39 @@ if (false) {
     // Export to file
     $funcfile = "functions.json";
     file_put_contents($funcfile,json_encode($tofile));
+}
+
+// Generate info from annex 2 exported from CosIng
+if (false) {
+    $annexfile = "anx2-04102024.csv";
+    $annex = array_map('str_getcsv',file($annexfile,FILE_IGNORE_NEW_LINES));
+    // Generate json with found indentified ingredients
+    $identified = array();
+    foreach ($annex as $line) {
+        // Skip header
+        if ($line[0]=="Reference Number") continue;
+        if (!empty($line[8])) {
+            $singleid = explode(",",$line[8]);
+            foreach($singleid as $id) {
+                if (!array_key_exists($id,$identified) && !empty($id)) {
+                    $identified[$id] = "II/" . $line[0];
+                } elseif (!empty($id)) {
+                    $identified[$id] .= ", II/" . $line[0];
+                }
+            }
+        }
+    }
+    file_put_contents("anx2.json",json_encode($identified));
+}
+
+// Update INCI with generated and redacted file anx2.json
+if (false) {
+    $file = "../INCI.csv";
+    $oldinci = array_map('str_getcsv',file($file,FILE_IGNORE_NEW_LINES));
+    $anxjson = json_decode(file_get_contents("anx2.json"),true);
+
+    foreach ($oldinci as $pos) {
+        
+    }
 }
 ?>
