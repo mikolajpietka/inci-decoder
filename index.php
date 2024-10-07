@@ -90,14 +90,6 @@ function wyszukajpodpowiedz($text,$array) {
     }
 }
 
-if (!empty($_POST['report'])) {
-    $reportfile = fopen('reports.csv','a');
-    $report = '"'. date("d.m.Y H:i:s") .'","'. $_POST['report'] . "\"\n";
-    fwrite($reportfile,$report);
-    fclose($reportfile);
-    $done = true;
-}
-
 if (isset($_GET['anx'])) {
     $request = urldecode($_GET['anx']);
 
@@ -609,12 +601,6 @@ if (isset($_POST['whole'])) {
                 $duplicates[] = $key;
             }
         }
-        $querylog = fopen('querylog.csv','a');
-        $time = date("d.m.Y H:i:s");
-        $text = $_POST['inci'];
-        $query = '"'.$time.'","'.str_replace(array("\r\n", "\n", "\r")," ",$text).'"'."\n";
-        fwrite($querylog,$query);
-        fclose($querylog);
     }
 }
 // Single ingredient search (paused part of project)
@@ -668,9 +654,7 @@ if (isset($_GET['random'])) {
                 <a href="?single" class="nav-link visually-hidden disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
-                <a href="#report" data-bs-toggle="modal" class="nav-link">Uwagi</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
-                <a href="?history" class="nav-link visually-hidden disabled">Historia wyszukiwań</a>
                 <a href="?random" class="nav-link">Losowy składnik</a>
             </div>
         </div>
@@ -892,26 +876,6 @@ if (isset($_GET['random'])) {
                         </tr>
                     </table>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="report" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form method="post">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Zgłoś</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <label class="form-label" for="reportbox">Podaj gdzie jest błąd lub zaproponuj nową funkcję</label>
-                        <textarea class="form-control" name="report" id="reportbox" rows="5"></textarea>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-outline-success px-3">Wyślij</button>
-                        <button type="reset" class="btn btn-outline-danger px-3" data-bs-dismiss="modal">Zamknij</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
