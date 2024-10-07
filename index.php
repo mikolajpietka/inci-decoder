@@ -1,100 +1,17 @@
 <?php 
 setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
-error_reporting(0);
+// error_reporting(0);
 $pagetitle = "Sprawdzanie INCI";
 
-function wielkoscliterinci($text) {
+function lettersize($text,$additional_separator=null) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
-    foreach(explode(', ',$text) as $ingredient) {
-        $ingredient = trim(strtolower($ingredient));
-        foreach (explode(' ',$ingredient) as $word) {
-            if (str_contains($word,'/')) {
-                foreach(explode('/',$word) as $part) {
-                    if (strlen($part) == 1) {
-                        $parts[] = strtr($part,$rp[1]);
-                    } elseif (strlen($part) == 2) {
-                        $parts[] = strtr($part,$rp[2]);
-                    } elseif (strlen($part) == 3) {
-                        $parts[] = strtr($part,$rp[3]);
-                    } elseif (strlen($part) == 4) {
-                        $parts[] = strtr($part,$rp[4]);
-                    } elseif (strlen($part) == 5) {
-                        $parts[] = strtr($part,$rp[5]);
-                    } else {
-                        $parts[] = ucfirst($part);
-                    }
-                } 
-                foreach ($parts as $secword) {
-                    if (str_contains($secword,'-')) {
-                        foreach(explode('-',$secword) as $secpart) {
-                            if (strlen($secpart) == 2) {
-                                $secparts[] = ucfirst(strtr(strtolower($secpart),$rp[2]));
-                            } elseif (strlen($secpart) == 3) {
-                                $secparts[] = ucfirst(strtr(strtolower($secpart),$rp[3]));
-                            } elseif (strlen($secpart) == 4) {
-                                $secparts[] = ucfirst(strtr(strtolower($secpart),$rp[4]));
-                            } else {
-                                $secparts[] = ucfirst(strtolower($secpart));
-                            }
-                        }
-                        $newerword[] = implode('-',$secparts);
-                        unset($parts);
-                        unset($secparts);
-                    } else {
-                        $newerword[] = ucfirst($secword);
-                    }
-                }
-                $newword[] = implode('/',$newerword);
-                unset($newerword);
-                unset($parts);
-            } else {
-                if (str_contains($word,'-')) {
-                    foreach (explode('-',$word) as $part) {
-                        if (strlen($part) == 2) {
-                            $parts[] = ucfirst(strtr($part,$rp[2]));
-                        } elseif (strlen($part) == 3) {
-                            $parts[] = ucfirst(strtr($part,$rp[3]));
-                        } elseif (strlen($part) == 4) {
-                            $parts[] = ucfirst(strtr($part,$rp[4]));
-                        } else {
-                            $parts[] = ucfirst($part);
-                        }
-                    }
-                    $newword[] = implode('-',$parts);
-                    unset($parts);
-                } else {
-                    if (strlen($word) == 2) {
-                        $newword[] = ucfirst(strtr(strtolower($word),$rp[2]));
-                    } elseif (strlen($word) == 3) {
-                        $newword[] = ucfirst(strtr(strtolower($word),$rp[3]));
-                    } elseif (strlen($word) == 4) {
-                        $newword[] = ucfirst(strtr(strtolower($word),$rp[4]));
-                    } else {
-                        $newword[] = ucfirst($word);
-                    }
-                }
-            }
-        }
-        if (strlen($ingredient) == 2) {
-            $newingredient[] = ucfirst(strtr(strtolower($ingredient),$rp[2]));
-        } elseif (strlen($ingredient) == 3) {
-            $newingredient[] = ucfirst(strtr(strtolower($ingredient),$rp[3]));
-        } elseif (strlen($ingredient) == 4) {
-            $newingredient[] = ucfirst(strtr(strtolower($ingredient),$rp[4]));
-        } else {
-            $newingredient[] = implode(' ',$newword);
-        }
-        unset($newword);
+    $text = strtolower($text);
+    $separators = [",","-","+","(",")"," ","/","&"];
+    // If additional separator in provided
+    if ($additional_separator != null) {
+        $separators[] = $additional_separator;
     }
-    return implode(', ',$newingredient);
-}
-
-function lettersize($text) {
-    $rp = json_decode(file_get_contents("replacetable.json"),true);
-
-    $separators = [",","-","+","(",")"," ","/"];
-    // Later add to array of separators from select
     // Check what separators are included in checked text
     foreach ($separators as $sep) {
         if (str_contains($text,$sep)) {
@@ -115,31 +32,40 @@ function lettersize($text) {
     sort($positions);
     // Split string into words and serparators
     $seplen = count($positions);
-    for ($i=0; $i < $seplen; $i++) { 
-        if ($positions[$i] == 0) {
-            $split[] = substr($text,0,1);
-            echo 1;
-        } elseif ($i == 0) {
-            $split[] = substr($text,0,$positions[$i+1]-1);
-            echo 2;
+    for ($i=0; $i < $seplen; $i++) {
+        if (isset($positions[$i+1])) {
+            $next = $positions[$i+1];
         } else {
-            $split[] = substr($text,$positions[$i],1);
-            echo 3;
+            $next = strlen($text);
+        }
+        if ($i == 0 && $positions[0] != 0) {
+            $split[] = substr($text,0,$positions[0]);
+        }
+        $split[] = substr($text,$positions[$i],1);
+        if ($next-$positions[$i] != 1 ) {
+            $split[] = substr($text,$positions[$i]+1,$next-$positions[$i]-1);
         }
     }
-    // if $position[$i]-$postion[$i-1] == 1 -> next pos. else sub between
-
+    if (empty($split)) $split[0] = $text;
+    // Make uppercase when needed
+    foreach ($split as $part) {
+        $partlen = strlen($part);
+        if (array_key_exists($partlen,$rp) && array_key_exists($part,$rp[$partlen])) {
+            $newpart[] = strtr($part,$rp[$partlen]);
+        } else {
+            $newpart[] = ucfirst($part);
+        }
+    }
     // Debug output
-    echo "<br>";
-    print_r($usedseps);
-    echo "<br>";
-    print_r($positions);
-    echo "<br>";
-    print_r($split);
-}
-
-if (isset($_GET['test']) && isset($_POST['whole'])) {
-    echo lettersize($_POST['inci']);
+    if (false) {
+        if (!empty($usedseps)) echo "Used separators: " . implode(" | ",$usedseps); else echo "No separators";
+        echo "<br>";
+        if (!empty($positions)) echo "Positions of separators: " . implode(" | ",$positions) . "<br>";
+        echo "Splitted text: " . implode(" | ",$split) . "<br>";
+        echo "Corrected text: " . implode($newpart);
+    }
+    // Return corrected 
+    return implode($newpart);
 }
 
 function wyszukajpodpowiedz($text,$array) {
@@ -150,7 +76,7 @@ function wyszukajpodpowiedz($text,$array) {
         }
     }, ARRAY_FILTER_USE_BOTH);
     foreach ($raw as $inci) {
-        $podpowiedz[] = '<span class="user-select-all" ondblclick="copyInci(this)">' . wielkoscliterinci($inci) . '</span>';
+        $podpowiedz[] = '<span class="user-select-all" ondblclick="copyInci(this)">' . lettersize($inci) . '</span>';
     }
     if (!isset($podpowiedz)) {
         $answer = null;
@@ -762,7 +688,7 @@ if (isset($_GET['random'])) {
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post">
-            <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? wielkoscliterinci(str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci'])) : ""; ?></textarea>
+            <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? lettersize(str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci'])) : ""; ?></textarea>
             <div class="d-flex gap-3 mt-3">
                 <button type="submit" class="btn btn-outline-light px-5" name="whole">Sprawdź</button>
                 <button type="button" class="btn btn-outline-danger px-5" onclick="wyczysc()">Wyczyść</button>
@@ -821,7 +747,7 @@ if (isset($_GET['random'])) {
                         }
                     ?>
                         <tr>
-                            <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyInci(this)"><?php echo wielkoscliterinci($ingredient); ?></span></th>
+                            <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyInci(this)"><?php echo lettersize($ingredient); ?></span></th>
                             <?php if ($fail): ?>
                             <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
                             <?php else: ?>
