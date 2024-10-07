@@ -78,6 +78,7 @@ if (false) {
                 $line[6] = implode(" | ",$data[$line[1]]['function']);
             }
         } else {
+            $line[6] = "";
             echo $line[1] . "<br>";
         }
         // Write to file
