@@ -326,5 +326,9 @@
     "pH ADJUSTERS": {
         "pl": "regulator pH",
         "en": "pH adjusters"
+    },
+    "UNKNOWN": {
+        "pl": "nieznana",
+        "en": "unknown"
     }
 }
