@@ -26,7 +26,9 @@
         "cd":"CD",
         "rh":"rh",
         "4a":"4A",
-        "ol":"ol"
+        "ol":"ol",
+        "ma":"MA",
+        "1h":"1H"
     },
     "3":{
         "bht":"BHT",
@@ -54,7 +56,8 @@
         "14m":"14M",
         "tmp":"TMP",
         "20s":"20S",
-        "hiv":"HIV"
+        "hiv":"HIV",
+        "pvm":"PVM"
     },
     "4":{
         "edta":"EDTA",
