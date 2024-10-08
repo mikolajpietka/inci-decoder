@@ -79,26 +79,27 @@ if (isset($_GET['test']) && isset($_POST['inci'])) {
     echo lettersize($_POST['inci'],null,true);
 }
 
-function wyszukajpodpowiedz($text,$array) {
+function suggestinci($text,$array,$attempt=1) {
     $text = strtoupper($text);
-    $raw = array_filter($array, function($v,$k) use ($text) {
-        if (str_starts_with($v,substr($text,0))) {
+    // echo $attempt;
+    if ($attempt > 10) return "Brak podpowiedzi";
+    $perclimit = 75 - ($attempt-1)*5;
+    $raw = array_filter($array, function($v,$k) use ($text,$perclimit) {
+        if (similar_text($text,$v,$perc) && $perc > $perclimit) {
             return $v;
         }
     }, ARRAY_FILTER_USE_BOTH);
-    foreach ($raw as $inci) {
-        $podpowiedz[] = '<span class="user-select-all" ondblclick="copyInci(this)">' . lettersize($inci) . '</span>';
+    if (!empty($raw) && count($raw) > 2) {
+        foreach ($raw as $inci) {
+            similar_text($text,$inci,$perc);
+            $suggestion[] = '<span class="user-select-all" ondblclick="correctmistake(this)" title="Podobny w '.round($perc,2).'%">' . lettersize($inci) . '</span>';
+        }
+        if (!empty($suggestion)) {
+            $answer = implode(', ',$suggestion);
+            return $answer;
+        }
     }
-    if (!isset($podpowiedz)) {
-        $answer = null;
-    } else {
-        $answer = implode(', ',$podpowiedz);
-    }
-    if ($answer == null) {
-        return wyszukajpodpowiedz(substr($text,0,-2),$array);
-    } else {
-        return $answer;
-    }
+    return suggestinci($text,$array,$attempt+1);
 }
 
 if (isset($_GET['anx'])) {
@@ -704,7 +705,7 @@ if (isset($_GET['random'])) {
                     <option value="difsep" <?php if (isset($_POST['separator']) && $_POST['separator'] == "difsep") echo "selected"; ?>>Inny</option>
                 </select>
                 <input type="text" class="form-control w-20" name="difsep" id="difsep" placeholder="Inny separator" <?php if (!empty($_POST['difsep']) && (isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo 'value="' . $_POST['difsep'] . '"'; if (!(isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo " disabled" ?>>
-                <button type="button" class="btn btn-outline-danger w-20" onclick="wyczysc()">Wyczyść</button>
+                <button type="button" class="btn btn-outline-danger w-20" onclick="cleartextarea()">Wyczyść</button>
             </div>
         </form>
     </div>
@@ -725,7 +726,7 @@ if (isset($_GET['random'])) {
                     <tr>
                         <th scope="col" class="dwn">INCI</th>
                         <?php if ($fail): ?>
-                        <th scope="col">Podpowiedź</th>
+                        <th scope="col">Podpowiedź <small>(podwójne kliknięcie zamienia błędny składnik na wybrany)</small></th>
                         <?php else: ?>
                         <th scope="col" class="dwn">Nr CAS</th>
                         <th scope="col" class="dwn">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
@@ -747,7 +748,7 @@ if (isset($_GET['random'])) {
                                 $key = array_search(strtoupper($temping),$slownik);
                             } else {
                                 $test = false;
-                                $podpowiedz = wyszukajpodpowiedz($temping,$slownik);
+                                $podpowiedz = suggestinci($temping,$slownik);
                             }
                         } else {
                             if (in_array(strtoupper($ingredient),$slownik)) {
@@ -755,7 +756,7 @@ if (isset($_GET['random'])) {
                                 $key = array_search(strtoupper($ingredient),$slownik);
                             } else {
                                 $test = false;
-                                $podpowiedz = wyszukajpodpowiedz($ingredient,$slownik);
+                                $podpowiedz = suggestinci($ingredient,$slownik);
                             }
                         }
                     ?>
@@ -911,13 +912,13 @@ if (isset($_GET['random'])) {
     <div class="position-fixed start-50 translate-middle-x top-0 mt-5">
         <div class="toast fade text-bg-light" role="alert" data-bs-delay="1500">
             <div class="toast-body fw-bold fs-6 text-center">
-                <p class="mb-1">Skopiowano do schowka:</p>
+                <p class="mb-1"></p>
                 <span class="fst-italic"></span>
             </div>
         </div>
     </div>
     <script>
-        function wyczysc() {
+        function cleartextarea() {
             const inci = document.querySelector('#inci');
             inci.innerText = '';
             inci.value = '';
@@ -925,6 +926,7 @@ if (isset($_GET['random'])) {
         function copyInci(span) {
             navigator.clipboard.writeText(span.innerText);
             const toast = document.querySelector('.toast');
+            toast.querySelector('p').innerText = "Skopiowano do schowka:";
             toast.querySelector('span').innerText = span.innerText;
             toastOn = bootstrap.Toast.getOrCreateInstance(toast);
             toastOn.show();
@@ -1015,6 +1017,25 @@ if (isset($_GET['random'])) {
                 document.querySelector("#whole").click();
             }
         })
+
+        function correctmistake(span) {
+            let textto = span.innerText;
+            let textfrom = span.parentElement.parentElement.querySelector("th span").innerText;
+            span.parentElement.querySelectorAll("span").forEach(x => {
+                if (x.className == "user-select-all text-success") {
+                    textfrom = x.innerText;
+                }
+                x.className = "user-select-all";
+            })
+            span.className += " text-success";
+            const textareainci = document.querySelector("#inci");
+            textareainci.value = textareainci.value.replace(textfrom,textto);
+            const toast = document.querySelector('.toast');
+            toast.querySelector('p').innerText = "Zamieniono";
+            toast.querySelector('span').innerHTML = textfrom + "<br>na<br>" + textto;
+            toastOn = bootstrap.Toast.getOrCreateInstance(toast);
+            toastOn.show();
+        }
     </script>
 </body>
 </html>
