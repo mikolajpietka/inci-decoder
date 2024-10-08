@@ -692,9 +692,9 @@ if (isset($_GET['random'])) {
         <form method="post">
             <textarea class="form-control" id="inci" name="inci" rows="12"><?php if (isset($recreate)) echo lettersize($recreate,$mainseparator); ?></textarea>
             <div class="d-flex gap-3 mt-3">
-                <button type="submit" class="btn btn-outline-light w-20" name="whole">Sprawdź</button>
+                <button type="submit" class="btn btn-outline-light w-20" name="whole" id="whole">Sprawdź</button>
                 <div class="btn-group w-20" role="group">
-                    <input type="checkbox" class="btn-check" name="connector" id="connector">
+                    <input type="checkbox" class="btn-check" name="connector" id="connector" <?php if (isset($_POST['connector'])) echo "checked"; ?>>
                     <label class="btn btn-outline-primary" for="connector">Zamień <i class="bi bi-arrow-return-left"></i> na separator</label>
                 </div>
                 <select class="form-select w-20" name="separator" id="separator">
@@ -719,7 +719,7 @@ if (isset($_GET['random'])) {
         <?php endif; ?>
         <div class="m-4">
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
-            <div><small>Podwójne kliknięcie na składnik, nr CAS lub nr WE kopiuje go do schowka</small></div>
+            <div><small>Podwójne kliknięcie na tekst kopiuje go do schowka</small></div>
             <table class="table table-hover table-sm align-middle">
                 <thead>
                     <tr>
@@ -777,7 +777,7 @@ if (isset($_GET['random'])) {
                                     echo $ingredients[$key]['annex']; 
                                 }
                             ?></td>
-                            <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
+                            <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyInci(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
                             <td class="dwn visually-hidden"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
                             <td class="text-center"><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
                             <?php endif; ?>
@@ -1009,6 +1009,12 @@ if (isset($_GET['random'])) {
                 }
             })
         }
+
+        document.addEventListener("keydown",event=>{
+            if (event.ctrlKey && event.keyCode === 13) {
+                document.querySelector("#whole").click();
+            }
+        })
     </script>
 </body>
 </html>
