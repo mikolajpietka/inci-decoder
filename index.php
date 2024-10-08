@@ -10,7 +10,12 @@ function lettersize($text,$additional_separator=null,$debug=false) {
     $separators = [",",".","-","+","(",")"," ","/","&",":","'"];
     // If additional separator in provided
     if ($additional_separator != null) {
-        $separators[] = $additional_separator;
+        $processeps = str_split($additional_separator);
+        foreach ($processeps as $processsep) {
+            if (!in_array($processsep,$separators)) {
+                $separators[] = $processsep;
+            }
+        }
     }
     // Check what separators are included in checked text
     foreach ($separators as $sep) {
@@ -579,11 +584,24 @@ $funcdict = json_decode(file_get_contents('functions.json'),true);
 
 if (isset($_POST['whole'])) {
     if (!empty($_POST['inci'])) {
-        //  Different separators to add
-        $inciexp = explode(', ',str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci']));
+        // Different separators
+        if ($_POST['separator'] == "difsep") {
+            $mainseparator = $_POST['difsep'];
+        } else {
+            $mainseparator = $_POST['separator'];
+        }
+        // Connector space or separator
+        if (isset($_POST['connector'])) {
+            $connector = $mainseparator;
+        } else {
+            $connector = " ";
+        }
+        $inciexp = explode($mainseparator,str_replace(array("\r\n", "\n", "\r"),$connector,$_POST['inci']));
         foreach ($inciexp as $ingredient) {
+            if (empty($ingredient)) continue;
             $incitest[] = trim($ingredient);
         }
+        $recreate = implode($mainseparator,$incitest);
         $fail = 0;
         foreach ($incitest as $ingredient) { 
             // Test for nano ingredients
@@ -645,7 +663,7 @@ if (isset($_GET['random'])) {
     <!-- Material icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <!-- Page CSS -->
-    <link href="styles.css?ver=2.2.inci" rel="stylesheet">
+    <link href="styles.css?ver=2.3.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -669,19 +687,24 @@ if (isset($_GET['random'])) {
     if (!isset($_GET['single'])):
     ?>
     <div class="container my-3">
-        <?php if (!empty($done)): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>Twoja uwaga została zapisana!</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post">
-            <textarea class="form-control" id="inci" name="inci" rows="9"><?php echo !empty($_POST['inci']) ? lettersize(str_replace(array("\r\n", "\n", "\r")," ",$_POST['inci'])) : ""; ?></textarea>
+            <textarea class="form-control" id="inci" name="inci" rows="12"><?php if (isset($recreate)) echo lettersize($recreate,$mainseparator); ?></textarea>
             <div class="d-flex gap-3 mt-3">
-                <button type="submit" class="btn btn-outline-light px-5" name="whole">Sprawdź</button>
-                <button type="button" class="btn btn-outline-danger px-5" onclick="wyczysc()">Wyczyść</button>
+                <button type="submit" class="btn btn-outline-light w-20" name="whole">Sprawdź</button>
+                <div class="btn-group w-20" role="group">
+                    <input type="checkbox" class="btn-check" name="connector" id="connector">
+                    <label class="btn btn-outline-primary" for="connector">Zamień <i class="bi bi-arrow-return-left"></i> na separator</label>
+                </div>
+                <select class="form-select w-20" name="separator" id="separator">
+                    <option value=", " <?php if ((isset($_POST['separator']) && $_POST['separator'] == ", ") || !isset($_POST['separator'])) echo "selected"; ?>>Separator: ", "</option>
+                    <option value=" • " <?php if (isset($_POST['separator']) && $_POST['separator'] == " • ") echo "selected"; ?>>"•"</option>
+                    <option value="; " <?php if (isset($_POST['separator']) && $_POST['separator'] == "; ") echo "selected"; ?>>"; "</option>
+                    <option value="difsep" <?php if (isset($_POST['separator']) && $_POST['separator'] == "difsep") echo "selected"; ?>>Inny</option>
+                </select>
+                <input type="text" class="form-control w-20" name="difsep" id="difsep" placeholder="Inny separator" <?php if (!empty($_POST['difsep']) && (isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo 'value="' . $_POST['difsep'] . '"'; if (!(isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo " disabled" ?>>
+                <button type="button" class="btn btn-outline-danger w-20" onclick="wyczysc()">Wyczyść</button>
             </div>
         </form>
     </div>
@@ -973,6 +996,18 @@ if (isset($_GET['random'])) {
             } else {
                 document.querySelector('#annex .modal-body').innerHTML = '<h2>Wybierz załącznik...</h2>'
             }
+        }
+
+        const separator = document.querySelector("#separator");
+        const difsep = document.querySelector("#difsep");
+        if (separator) {
+            separator.addEventListener("change",event => {
+                if (separator.value == "difsep") {
+                    difsep.disabled = false;
+                } else {
+                    difsep.disabled = true;
+                }
+            })
         }
     </script>
 </body>
