@@ -7,7 +7,7 @@ $pagetitle = "Sprawdzanie INCI";
 function lettersize($text,$additional_separator=null,$debug=false) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
-    $separators = [",",".","-","+","(",")"," ","/","&",":","'"];
+    $separators = [",",".","-","+","(",")"," ","/","&",":","'","•",";"];
     // If additional separator in provided
     if ($additional_separator != null) {
         $processeps = str_split($additional_separator);
@@ -690,7 +690,7 @@ if (isset($_GET['random'])) {
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
-            <textarea class="form-control" id="inci" name="inci" rows="12"><?php if (isset($recreate)) echo lettersize($recreate,$mainseparator); ?></textarea>
+            <textarea class="form-control" id="inci" name="inci" rows="12"><?php if (isset($recreate)) echo lettersize($recreate); ?></textarea>
             <div class="d-flex gap-3 mt-3">
                 <button type="submit" class="btn btn-outline-light w-20" name="whole" id="whole">Sprawdź</button>
                 <div class="btn-group w-20" role="group">
