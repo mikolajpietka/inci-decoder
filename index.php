@@ -691,7 +691,7 @@ if (isset($_GET['random'])) {
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
-            <textarea class="form-control" id="inci" name="inci" rows="12"><?php if (isset($recreate)) echo lettersize($recreate); ?></textarea>
+            <textarea class="form-control" id="inci" name="inci" rows="12" <?php if (!isset($recreate) && !isset($_GET['random'])) echo "autofocus"; ?>><?php if (isset($recreate)) echo lettersize($recreate); ?></textarea>
             <div class="d-flex gap-3 mt-3">
                 <button type="submit" class="btn btn-outline-light w-20" name="whole" id="whole">Sprawdź</button>
                 <div class="btn-group w-20" role="group">
@@ -878,6 +878,7 @@ if (isset($_GET['random'])) {
                 <div class="modal-body">
                     <h3>Informacje</h3>
                     <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku. <a href="https://eur-lex.europa.eu/legal-content/pl/TXT/?uri=CELEX%3A32022D0677" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a><br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009. <a href="https://eur-lex.europa.eu/legal-content/PL/TXT/?uri=CELEX:02009R1223-20240424" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></p>
+                    <p>Na stronie działają skróty klawiszowe: <br> <kbd>Ctrl + Enter</kbd> - skrót do przycisku Sprawdź <br> <kbd>Ctrl + Delete</kbd> - skrót do przycisku Wyczyść</p>
                     <h3>Aktualizacje plików</h3>
                     <table class="table">
                         <tr>
@@ -922,6 +923,7 @@ if (isset($_GET['random'])) {
             const inci = document.querySelector('#inci');
             inci.innerText = '';
             inci.value = '';
+            inci.focus();
         }
         function copyInci(span) {
             navigator.clipboard.writeText(span.innerText);
@@ -1015,6 +1017,9 @@ if (isset($_GET['random'])) {
         document.addEventListener("keydown",event=>{
             if (event.ctrlKey && event.keyCode === 13) {
                 document.querySelector("#whole").click();
+            }
+            if (event.ctrlKey && event.keyCode === 46) {
+                cleartextarea();
             }
         })
 
