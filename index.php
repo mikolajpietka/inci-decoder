@@ -647,7 +647,12 @@ if (isset($_POST['single'])) {
 }
 // Showing random ingredient for testing
 if (isset($_GET['random'])) {
-    $incitest = array_rand(array_flip($slownik),1);
+    if (!empty($_GET['random']) && is_numeric($_GET['random'])) {
+        $rndnum = intval($_GET['random'],10);
+    } else {
+        $rndnum = 1;
+    }
+    $incitest = array_rand(array_flip($slownik),$rndnum);
     if (is_string($incitest)) $incitest = array($incitest);
     $fail = false;
 }
@@ -679,12 +684,12 @@ if (isset($_GET['random'])) {
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
                 <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
-                <a href="?single" class="nav-link visually-hidden disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
+                <a href="?single" class="nav-link visually-hidden<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
-                <a href="#alling" data-bs-toggle="modal" class="nav-link visually-hidden">Słownik INCI</a>
+                <a href="?random" class="nav-link<?php if (isset($_GET['random'])) echo " active"; ?>">Losowy składnik</a>
+                <a href="?additional" class="nav-link visually-hidden<?php if (isset($_GET['additional'])) echo " active"; ?>">Dodatkowe opcje</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
-                <a href="?random" class="nav-link">Losowy składnik</a>
             </div>
         </div>
     </nav>
@@ -695,8 +700,58 @@ if (isset($_GET['random'])) {
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
-            <textarea class="form-control" id="inci" name="inci" rows="12" <?php if (!isset($recreate) && !isset($_GET['random'])) echo "autofocus"; ?>><?php if (isset($recreate)) echo $recreate; ?></textarea>
-            <div class="row row-cols-lg-3 row-cols-1 g-3 mt-3">
+            <textarea class="form-control" id="inci" name="inci" <?php if (isset($_GET['random']) || isset($_GET['alling'])) echo 'rows="1"'; else echo 'rows="12"'; if (!isset($recreate) && !isset($_GET['random'])) echo " autofocus"; ?>><?php if (isset($recreate)) echo $recreate; ?></textarea>
+            <?php if (isset($_GET['additional'])) : ?>
+            <div class="card w-100 mt-3 p-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Kolumna</th>
+                            <th scope="col">Pokaż</th>
+                            <th scope="col">Pobierz</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <th scope="row">Nr CAS</th>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Nr WE</th>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Załącznik Rozp. 1223/2009</th>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Funkcja (PL)</th>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Funkcja (EN)</th>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Odnośnik do CosIng</th>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Mikroplastik wg ECHA 520-scenario</th>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <?php endif; ?>
+            <div class="row row-cols-lg-3 row-cols-1 g-3 mt-2">
                 <div class="col">
                     <button type="submit" class="btn btn-outline-light w-100" name="whole" id="whole"><i class="bi bi-check2-square"></i> Sprawdź</button>
                 </div>
@@ -806,12 +861,6 @@ if (isset($_GET['random'])) {
     </div>
     <?php else: ?>
     <div class="container">
-        <?php if (!empty($done)): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>Twoja uwaga została zapisana!</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
         <h1 class="text-center">Pojedynczy składnik</h1>
         <div class="card col-lg-4 mx-auto p-3 mt-3">
             <form method="post" class="text-center">
@@ -850,25 +899,6 @@ if (isset($_GET['random'])) {
                 </div>
                 <div class="modal-body">
                     <div class="annexes">
-                        <div class="text-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Ładowanie...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="alling" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Wszystkie składniki w słowniku</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alling">
                         <div class="text-center">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Ładowanie...</span>
