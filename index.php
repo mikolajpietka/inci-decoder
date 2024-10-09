@@ -679,6 +679,7 @@ if (isset($_GET['random'])) {
                 <a href="?single" class="nav-link visually-hidden disabled<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
+                <a href="#alling" data-bs-toggle="modal" class="nav-link visually-hidden">Słownik INCI</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
                 <a href="?random" class="nav-link">Losowy składnik</a>
             </div>
@@ -856,6 +857,25 @@ if (isset($_GET['random'])) {
             </div>
         </div>
     </div>
+    <div class="modal fade" id="alling" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Wszystkie składniki w słowniku</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alling">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Ładowanie...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="annex" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
             <div class="modal-content">
@@ -934,6 +954,12 @@ if (isset($_GET['random'])) {
             const inci = document.querySelector('#inci');
             inci.innerText = '';
             inci.value = '';
+            const connector = document.querySelector('#connector');
+            connector.checked = false;
+            const separator = document.querySelector('#separator');
+            separator.selectedIndex = 0;
+            const difsep = document.querySelector('#difsep');
+            difsep.value = '';
             inci.focus();
         }
         function copyInci(span) {
@@ -1032,6 +1058,9 @@ if (isset($_GET['random'])) {
             if (event.ctrlKey && event.keyCode === 46 && document.activeElement !== document.querySelector("#inci")) {
                 cleartextarea();
             }
+            if (event.keyCode === 27) {
+                document.activeElement.blur();
+            }
         })
 
         function correctmistake(span) {
@@ -1057,7 +1086,7 @@ if (isset($_GET['random'])) {
 
         function ctrlz() {
             const textarea = document.querySelector("#inci");
-            const prevtext = <?php if (!empty($_POST['inci'])) echo json_encode($_POST['inci']); ?>;
+            const prevtext = <?php if (!empty($_POST['inci'])) echo json_encode($_POST['inci']); else echo '""'; ?>;
             textarea.value = prevtext;
         }
     </script>
