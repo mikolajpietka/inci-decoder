@@ -1046,6 +1046,8 @@ if (isset($_GET['random'])) {
             span.className += " text-success";
             const textareainci = document.querySelector("#inci");
             textareainci.value = textareainci.value.replace(textfrom,textto);
+            window.getSelection().removeAllRanges();
+            // Notification
             const toast = document.querySelector('.toast');
             toast.querySelector('p').innerText = "Zamieniono";
             toast.querySelector('span').innerHTML = textfrom + "<br>na<br>" + textto;
