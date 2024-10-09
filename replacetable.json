@@ -30,7 +30,6 @@
         "ol":"ol",
         "ma":"MA",
         "1h":"1H",
-        "di":"di",
         "ii":"II"
     },
     "3":{
@@ -90,12 +89,15 @@
         "tmhdi":"TMHDI",
         "hedta":"HEDTA",
         "dmapa":"DMAPA",
-        "dsrna":"dsRNA"
+        "dsrna":"dsRNA",
+        "edtmp":"EDTMP"
     },
     "6":{
         "cniiic":"CnIIIC"
     },
     "except":{
-        "ma-yuen":{"ma":"Ma"}
+        "ma-yuen":{"ma":"Ma"},
+        "o-phosphoserine":{"o":"O"},
+        "tea tree":{"tea":"Tea"}
     }
 }
