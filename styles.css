@@ -1,4 +1,4 @@
-/* CSS ver. 2.3.inci */
+/* CSS ver. 2.4.inci */
 .icon {
     font-size: 1em;
     vertical-align: -0.125rem;
@@ -15,6 +15,10 @@
 
 .keepformat {
     white-space: pre-wrap !important;
+}
+
+.nowrap {
+    white-space: nowrap !important;
 }
 
 .piktogram {

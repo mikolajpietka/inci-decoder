@@ -4,19 +4,10 @@ date_default_timezone_set('Europe/Warsaw');
 error_reporting(0);
 $pagetitle = "Sprawdzanie INCI";
 
-function lettersize($text,$additional_separator=null,$debug=false) {
+function lettersize($text,$debug=false) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
     $separators = [",",".","-","+","(",")"," ","/","&",":","'","•",";"];
-    // If additional separator in provided
-    if ($additional_separator != null) {
-        $processeps = str_split($additional_separator);
-        foreach ($processeps as $processsep) {
-            if (!in_array($processsep,$separators)) {
-                $separators[] = $processsep;
-            }
-        }
-    }
     // Check what separators are included in checked text
     foreach ($separators as $sep) {
         if (str_contains($text,$sep)) {
@@ -52,11 +43,23 @@ function lettersize($text,$additional_separator=null,$debug=false) {
         }
     }
     if (empty($split)) $split[0] = $text;
+    // Check for exceptions
+    foreach ($rp['except'] as $exc => $table) {
+        if (str_contains($text,$exc)) {
+            foreach ($table as $tk => $tv) {
+                $exceptions[$tk] = $tv;
+            }
+        }
+    }
     // Make uppercase when needed
     foreach ($split as $part) {
         $partlen = strlen($part);
         if (array_key_exists($partlen,$rp) && array_key_exists($part,$rp[$partlen])) {
-            $newpart[] = strtr($part,$rp[$partlen]);
+            if (isset($exceptions) && array_key_exists($part,$exceptions)) {
+                $newpart[] = strtr($part,$exceptions);
+            } else {
+                $newpart[] = strtr($part,$rp[$partlen]);
+            }
         } else {
             $newpart[] = ucfirst($part);
         }
@@ -76,7 +79,7 @@ function lettersize($text,$additional_separator=null,$debug=false) {
 }
 
 if (isset($_GET['test']) && isset($_POST['inci'])) {
-    echo lettersize($_POST['inci'],null,true);
+    echo lettersize($_POST['inci'],true);
 }
 
 function suggestinci($text,$array,$attempt=1) {
@@ -92,7 +95,7 @@ function suggestinci($text,$array,$attempt=1) {
     if (!empty($raw) && count($raw) > 2) {
         foreach ($raw as $inci) {
             similar_text($text,$inci,$perc);
-            $suggestion[] = '<span class="user-select-all" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.round($perc,2).'%" ondblclick="correctmistake(this)">' . lettersize($inci) . '</span>';
+            $suggestion[] = '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.round($perc,2).'%" ondblclick="correctmistake(this)">' . lettersize($inci) . '</span>';
         }
         if (!empty($suggestion)) {
             $answer = implode(', ',$suggestion);
@@ -600,7 +603,7 @@ if (isset($_POST['whole'])) {
         $inciexp = explode($mainseparator,str_replace(array("\r\n", "\n", "\r"),$connector,$_POST['inci']));
         foreach ($inciexp as $ingredient) {
             if (empty($ingredient)) continue;
-            $incitest[] = trim($ingredient);
+            $incitest[] = lettersize(trim($ingredient));
         }
         $recreate = implode($mainseparator,$incitest);
         $fail = 0;
@@ -664,7 +667,7 @@ if (isset($_GET['random'])) {
     <!-- Material icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <!-- Page CSS -->
-    <link href="styles.css?ver=2.3.inci" rel="stylesheet">
+    <link href="styles.css?ver=2.4.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -692,7 +695,7 @@ if (isset($_GET['random'])) {
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
-            <textarea class="form-control" id="inci" name="inci" rows="12" <?php if (!isset($recreate) && !isset($_GET['random'])) echo "autofocus"; ?>><?php if (isset($recreate)) echo lettersize($recreate); ?></textarea>
+            <textarea class="form-control" id="inci" name="inci" rows="12" <?php if (!isset($recreate) && !isset($_GET['random'])) echo "autofocus"; ?>><?php if (isset($recreate)) echo $recreate; ?></textarea>
             <div class="row row-cols-lg-3 row-cols-1 g-3 mt-3">
                 <div class="col">
                     <button type="submit" class="btn btn-outline-light w-100" name="whole" id="whole"><i class="bi bi-check2-square"></i> Sprawdź</button>
@@ -1067,10 +1070,10 @@ if (isset($_GET['random'])) {
             let textto = span.innerText;
             let textfrom = span.parentElement.parentElement.querySelector("th span").innerText;
             span.parentElement.querySelectorAll("span").forEach(x => {
-                if (x.className == "user-select-all text-success") {
+                if (x.className == "user-select-all nowrap text-success") {
                     textfrom = x.innerText;
                 }
-                x.className = "user-select-all";
+                x.className = "user-select-all nowrap";
             })
             span.className += " text-success";
             const textareainci = document.querySelector("#inci");

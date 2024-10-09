@@ -63,7 +63,10 @@
         "pvm":"PVM",
         "iii":"III",
         "dbm":"DBM",
-        "nta":"NTA"
+        "nta":"NTA",
+        "dna":"DNA",
+        "rna":"RNA",
+        "and":"and"
     },
     "4":{
         "edta":"EDTA",
@@ -86,9 +89,13 @@
     "5":{
         "tmhdi":"TMHDI",
         "hedta":"HEDTA",
-        "dmapa":"DMAPA"
+        "dmapa":"DMAPA",
+        "dsrna":"dsRNA"
     },
     "6":{
         "cniiic":"CnIIIC"
+    },
+    "except":{
+        "ma-yuen":{"ma":"Ma"}
     }
 }
