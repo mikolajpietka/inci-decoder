@@ -692,20 +692,31 @@ if (isset($_GET['random'])) {
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
             <textarea class="form-control" id="inci" name="inci" rows="12" <?php if (!isset($recreate) && !isset($_GET['random'])) echo "autofocus"; ?>><?php if (isset($recreate)) echo lettersize($recreate); ?></textarea>
-            <div class="d-flex gap-3 mt-3">
-                <button type="submit" class="btn btn-outline-light w-20" name="whole" id="whole">Sprawdź</button>
-                <div class="btn-group w-20" role="group">
+            <div class="row row-cols-lg-3 row-cols-1 g-3 mt-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-outline-light w-100" name="whole" id="whole"><i class="bi bi-check2-square"></i> Sprawdź</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-outline-danger w-100" onclick="cleartextarea()"><i class="bi bi-trash3-fill"></i> Wyczyść</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-outline-success w-100<?php if (empty($_POST['inci'])) echo " disabled"; ?>" onclick="ctrlz()"><i class="bi bi-arrow-counterclockwise"></i> Cofnij zmiany</button>
+                </div>
+                <div class="btn-group col" role="group">
                     <input type="checkbox" class="btn-check" name="connector" id="connector" <?php if (isset($_POST['connector'])) echo "checked"; ?>>
                     <label class="btn btn-outline-primary" for="connector">Zamień <i class="bi bi-arrow-return-left"></i> na separator</label>
                 </div>
-                <select class="form-select w-20" name="separator" id="separator">
-                    <option value=", " <?php if ((isset($_POST['separator']) && $_POST['separator'] == ", ") || !isset($_POST['separator'])) echo "selected"; ?>>Separator: ", "</option>
-                    <option value=" • " <?php if (isset($_POST['separator']) && $_POST['separator'] == " • ") echo "selected"; ?>>"•"</option>
-                    <option value="; " <?php if (isset($_POST['separator']) && $_POST['separator'] == "; ") echo "selected"; ?>>"; "</option>
-                    <option value="difsep" <?php if (isset($_POST['separator']) && $_POST['separator'] == "difsep") echo "selected"; ?>>Inny</option>
-                </select>
-                <input type="text" class="form-control w-20" name="difsep" id="difsep" placeholder="Inny separator" <?php if (!empty($_POST['difsep']) && (isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo 'value="' . $_POST['difsep'] . '"'; if (!(isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo " disabled" ?>>
-                <button type="button" class="btn btn-outline-danger w-20" onclick="cleartextarea()">Wyczyść</button>
+                <div class="col">
+                    <select class="form-select" name="separator" id="separator">
+                        <option value=", " <?php if ((isset($_POST['separator']) && $_POST['separator'] == ", ") || !isset($_POST['separator'])) echo "selected"; ?>>Separator: ", "</option>
+                        <option value=" • " <?php if (isset($_POST['separator']) && $_POST['separator'] == " • ") echo "selected"; ?>>"•"</option>
+                        <option value="; " <?php if (isset($_POST['separator']) && $_POST['separator'] == "; ") echo "selected"; ?>>"; "</option>
+                        <option value="difsep" <?php if (isset($_POST['separator']) && $_POST['separator'] == "difsep") echo "selected"; ?>>Inny</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="difsep" id="difsep" placeholder="Inny separator" <?php if (!empty($_POST['difsep']) && (isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo 'value="' . $_POST['difsep'] . '"'; if (!(isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo " disabled" ?>>
+                </div>
             </div>
         </form>
     </div>
@@ -878,7 +889,7 @@ if (isset($_GET['random'])) {
                 <div class="modal-body">
                     <h3>Informacje</h3>
                     <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku. <a href="https://eur-lex.europa.eu/legal-content/pl/TXT/?uri=CELEX%3A32022D0677" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a><br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009. <a href="https://eur-lex.europa.eu/legal-content/PL/TXT/?uri=CELEX:02009R1223-20240424" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></p>
-                    <p>Na stronie działają skróty klawiszowe: <br> <kbd>Ctrl + Enter</kbd> - skrót do przycisku Sprawdź <br> <kbd>Ctrl + Delete</kbd> - skrót do przycisku Wyczyść</p>
+                    <p>Na stronie działają skróty klawiszowe: <br> <kbd>Ctrl + <i class="bi bi-arrow-return-left"></i></kbd> - skrót do przycisku Sprawdź <br> <kbd>Ctrl + Del</kbd> - skrót do przycisku Wyczyść</p>
                     <h3>Aktualizacje plików</h3>
                     <table class="table">
                         <tr>
@@ -1018,7 +1029,7 @@ if (isset($_GET['random'])) {
             if (event.ctrlKey && event.keyCode === 13) {
                 document.querySelector("#whole").click();
             }
-            if (event.ctrlKey && event.keyCode === 46) {
+            if (event.ctrlKey && event.keyCode === 46 && document.activeElement !== document.querySelector("#inci")) {
                 cleartextarea();
             }
         })
@@ -1040,6 +1051,12 @@ if (isset($_GET['random'])) {
             toast.querySelector('span').innerHTML = textfrom + "<br>na<br>" + textto;
             toastOn = bootstrap.Toast.getOrCreateInstance(toast);
             toastOn.show();
+        }
+
+        function ctrlz() {
+            const textarea = document.querySelector("#inci");
+            const prevtext = <?php if (!empty($_POST['inci'])) echo json_encode($_POST['inci']); ?>;
+            textarea.value = prevtext;
         }
     </script>
 </body>
