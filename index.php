@@ -92,7 +92,7 @@ function suggestinci($text,$array,$attempt=1) {
     if (!empty($raw) && count($raw) > 2) {
         foreach ($raw as $inci) {
             similar_text($text,$inci,$perc);
-            $suggestion[] = '<span class="user-select-all" ondblclick="correctmistake(this)" title="Podobny w '.round($perc,2).'%">' . lettersize($inci) . '</span>';
+            $suggestion[] = '<span class="user-select-all" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.round($perc,2).'%" ondblclick="correctmistake(this)">' . lettersize($inci) . '</span>';
         }
         if (!empty($suggestion)) {
             $answer = implode(', ',$suggestion);
@@ -587,7 +587,7 @@ if (isset($_POST['whole'])) {
     if (!empty($_POST['inci'])) {
         // Different separators
         if ($_POST['separator'] == "difsep") {
-            $mainseparator = $_POST['difsep'];
+            $mainseparator = " " . trim($_POST['difsep']) . " ";
         } else {
             $mainseparator = $_POST['separator'];
         }
@@ -708,9 +708,9 @@ if (isset($_GET['random'])) {
                 </div>
                 <div class="col">
                     <select class="form-select" name="separator" id="separator">
-                        <option value=", " <?php if ((isset($_POST['separator']) && $_POST['separator'] == ", ") || !isset($_POST['separator'])) echo "selected"; ?>>Separator: ", "</option>
-                        <option value=" • " <?php if (isset($_POST['separator']) && $_POST['separator'] == " • ") echo "selected"; ?>>"•"</option>
-                        <option value="; " <?php if (isset($_POST['separator']) && $_POST['separator'] == "; ") echo "selected"; ?>>"; "</option>
+                        <option value=", " <?php if ((isset($_POST['separator']) && $_POST['separator'] == ", ") || !isset($_POST['separator'])) echo "selected"; ?>>Separator: ","</option>
+                        <option value=" • " <?php if (isset($_POST['separator']) && $_POST['separator'] == " • ") echo "selected"; ?>>Separator: "•"</option>
+                        <option value=" (and) " <?php if (isset($_POST['separator']) && $_POST['separator'] == " (and) ") echo "selected"; ?>>Separator: "(and)"</option>
                         <option value="difsep" <?php if (isset($_POST['separator']) && $_POST['separator'] == "difsep") echo "selected"; ?>>Inny</option>
                     </select>
                 </div>
