@@ -790,72 +790,74 @@ if (isset($_GET['random'])) {
         <?php endif; ?>
         <div class="m-4">
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
-            <div><small>Podwójne kliknięcie na tekst kopiuje go do schowka</small></div>
-            <table class="table table-hover table-sm align-middle">
-                <thead>
-                    <tr>
-                        <th scope="col" class="dwn">INCI</th>
-                        <?php if ($fail): ?>
-                        <th scope="col">Podpowiedź <small>(podwójne kliknięcie zamienia błędny składnik na wybrany)</small></th>
-                        <?php else: ?>
-                        <th scope="col" class="dwn">Nr CAS</th>
-                        <th scope="col" class="dwn">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
-                        <th scope="col">Zał. 1223/2009</th>
-                        <th scope="col" class="dwn">Funkcja</th>
-                        <th scope="col" class="dwn visually-hidden">Function</th>
-                        <th scope="col" class="text-center">CosIng</th>
-                        <?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody class="table-group-divider">
-                    <?php foreach ($incitest as $ingredient) { 
-                        // If nano...
-                        if (str_contains($ingredient,"(nano)")) {
-                            // If yes then cut-off nano part and check if ingredient is correct
-                            $temping = trim(str_replace("(nano)","",$ingredient));
-                            if (in_array(strtoupper($temping),$slownik)) {
-                                $test = true;
-                                $key = array_search(strtoupper($temping),$slownik);
-                            } else {
-                                $test = false;
-                                $podpowiedz = suggestinci($temping,$slownik);
-                            }
-                        } else {
-                            if (in_array(strtoupper($ingredient),$slownik)) {
-                                $test = true;
-                                $key = array_search(strtoupper($ingredient),$slownik);
-                            } else {
-                                $test = false;
-                                $podpowiedz = suggestinci($ingredient,$slownik);
-                            }
-                        }
-                    ?>
+            <div class="table-responsive-md">
+                <table class="table table-hover table-sm align-middle caption-top">
+                    <caption>Podwójne kliknięcie na tekst kopiuje go do schowka. Podwójne kliknięcia na podpowiedź powoduje zamianę błednęgo składnika na kliknięty.</caption>
+                    <thead>
                         <tr>
-                            <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyInci(this)"><?php echo lettersize($ingredient); ?></span></th>
+                            <th scope="col" class="dwn">INCI</th>
                             <?php if ($fail): ?>
-                            <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
+                            <th scope="col" class="col-10">Podpowiedź <small>(podwójne kliknięcie zamienia błędny składnik na wybrany)</small></th>
                             <?php else: ?>
-                            <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['cas']; ?></span></td>
-                            <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['we']; ?></span></td>
-                            <td><?php 
-                                if (str_contains($ingredients[$key]['annex'],"I/") || str_contains($ingredients[$key]['annex'],"V/")) {
-                                    if (str_contains($ingredients[$key]['annex'],'#')) {
-                                        echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($ingredients[$key]['annex'],0,strpos($ingredients[$key]['annex'],'#'))) .'</a> '. substr($ingredients[$key]['annex'],strpos($ingredients[$key]['annex'],'#'));
-                                    } else {
-                                        echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $ingredients[$key]['annex'] .'</a>';
-                                    }
-                                } else {
-                                    echo $ingredients[$key]['annex']; 
-                                }
-                            ?></td>
-                            <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyInci(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
-                            <td class="dwn visually-hidden"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
-                            <td class="text-center"><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
+                            <th scope="col" class="dwn col-2">Nr CAS</th>
+                            <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
+                            <th scope="col" class="col-1">1223/2009</th>
+                            <th scope="col" class="dwn col-2">Funkcja</th>
+                            <th scope="col" class="dwn visually-hidden">Function</th>
+                            <th scope="col" class="text-center col-1">CosIng</th>
                             <?php endif; ?>
                         </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <?php foreach ($incitest as $ingredient) { 
+                            // If nano...
+                            if (str_contains($ingredient,"(nano)")) {
+                                // If yes then cut-off nano part and check if ingredient is correct
+                                $temping = trim(str_replace("(nano)","",$ingredient));
+                                if (in_array(strtoupper($temping),$slownik)) {
+                                    $test = true;
+                                    $key = array_search(strtoupper($temping),$slownik);
+                                } else {
+                                    $test = false;
+                                    $podpowiedz = suggestinci($temping,$slownik);
+                                }
+                            } else {
+                                if (in_array(strtoupper($ingredient),$slownik)) {
+                                    $test = true;
+                                    $key = array_search(strtoupper($ingredient),$slownik);
+                                } else {
+                                    $test = false;
+                                    $podpowiedz = suggestinci($ingredient,$slownik);
+                                }
+                            }
+                        ?>
+                            <tr>
+                                <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyInci(this)"><?php echo lettersize($ingredient); ?></span></th>
+                                <?php if ($fail): ?>
+                                <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
+                                <?php else: ?>
+                                <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['cas']; ?></span></td>
+                                <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['we']; ?></span></td>
+                                <td><?php 
+                                    if (str_contains($ingredients[$key]['annex'],"I/") || str_contains($ingredients[$key]['annex'],"V/")) {
+                                        if (str_contains($ingredients[$key]['annex'],'#')) {
+                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($ingredients[$key]['annex'],0,strpos($ingredients[$key]['annex'],'#'))) .'</a> '. substr($ingredients[$key]['annex'],strpos($ingredients[$key]['annex'],'#'));
+                                        } else {
+                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $ingredients[$key]['annex'] .'</a>';
+                                        }
+                                    } else {
+                                        echo $ingredients[$key]['annex']; 
+                                    }
+                                ?></td>
+                                <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyInci(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
+                                <td class="dwn visually-hidden"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
+                                <td class="text-center"><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <?php endif; ?>
     </div>
@@ -1121,6 +1123,15 @@ if (isset($_GET['random'])) {
             const textarea = document.querySelector("#inci");
             const prevtext = <?php if (!empty($_POST['inci'])) echo json_encode($_POST['inci']); else echo '""'; ?>;
             textarea.value = prevtext;
+            const separator = document.querySelector("#separator");
+            const prevseparator = <?php if (!empty($_POST['separator'])) echo json_encode($_POST['separator']); else echo '", "'; ?>;
+            separator.value = prevseparator;
+            const difsep = document.querySelector("#difsep");
+            const prevdifsep = <?php if (!empty($_POST['difsep'])) echo json_encode($_POST['difsep']); else echo '""'; ?>;
+            difsep.value = prevdifsep;
+            const connector = document.querySelector("#connector");
+            const prevconnector = <?php if (isset($_POST['connector'])) echo "true"; else echo "false"; ?>;
+            connector.checked = prevconnector;
         }
     </script>
 </body>
