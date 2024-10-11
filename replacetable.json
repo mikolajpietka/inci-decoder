@@ -30,7 +30,8 @@
         "ol":"ol",
         "ma":"MA",
         "1h":"1H",
-        "ii":"II"
+        "ii":"II",
+        "sx":"SX"
     },
     "3":{
         "bht":"BHT",
@@ -65,7 +66,8 @@
         "nta":"NTA",
         "dna":"DNA",
         "rna":"RNA",
-        "and":"and"
+        "and":"and",
+        "mdi":"MDI"
     },
     "4":{
         "edta":"EDTA",

@@ -605,6 +605,7 @@ if (isset($_POST['whole'])) {
             if (empty($ingredient)) continue;
             $incitest[] = lettersize(trim($ingredient));
         }
+        // Recreate ingredients with correct lettersize
         $recreate = implode($mainseparator,$incitest);
         $fail = 0;
         foreach ($incitest as $ingredient) { 
@@ -622,13 +623,17 @@ if (isset($_POST['whole'])) {
                 }
             }
         }
-
+        // Check for duplicates
         $counted = array_count_values(array_map('strtoupper',$incitest));
         foreach ($counted as $key => $value) {
             if ($value > 1) {
                 $duplicates[] = $key;
             }
         }
+    }
+    // Make array with additional parameters
+    if (isset($_GET['additional'])) {
+        $options = $_POST['options'];
     }
 }
 // Single ingredient search (paused part of project)
@@ -708,44 +713,37 @@ if (isset($_GET['random'])) {
                         <tr>
                             <th scope="col">Kolumna</th>
                             <th scope="col">Pokaż</th>
-                            <th scope="col">Pobierz</th>
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
                         <tr>
                             <th scope="row">Nr CAS</th>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="options[cas]" <?php if (isset($options) && isset($options['cas'])) echo "checked"; ?>></td>
                         </tr>
                         <tr>
                             <th scope="row">Nr WE</th>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="options[we]" <?php if (isset($options) && isset($options['we'])) echo "checked"; ?>></td>
                         </tr>
                         <tr>
                             <th scope="row">Załącznik Rozp. 1223/2009</th>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="options[anx]" <?php if (isset($options) && isset($options['anx'])) echo "checked"; ?>></td>
                         </tr>
                         <tr>
                             <th scope="row">Funkcja (PL)</th>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="options[funcpl]" <?php if (isset($options) && isset($options['funcpl'])) echo "checked"; ?>></td>
                         </tr>
                         <tr>
                             <th scope="row">Funkcja (EN)</th>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="options[funcen]" <?php if (isset($options) && isset($options['funcen'])) echo "checked"; ?>></td>
                         </tr>
                         <tr>
                             <th scope="row">Odnośnik do CosIng</th>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="options[cosing]" <?php if (isset($options) && isset($options['cosing'])) echo "checked"; ?>></td>
+                            <td></td>
                         </tr>
                         <tr>
                             <th scope="row">Mikroplastik wg ECHA 520-scenario</th>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
-                            <td><input type="checkbox" class="form-check-input" name="" id=""></td>
+                            <td><input type="checkbox" class="form-check-input" name="options[micropl]" <?php if (isset($options) && isset($options['micropl'])) echo "checked"; ?>></td>
                         </tr>
                     </tbody>
                 </table>
@@ -1018,7 +1016,7 @@ if (isset($_GET['random'])) {
             });
             let csvData = csvRow.join('\n');
 
-            csvFile = new Blob([csvData],{type: "tex/csv"});
+            csvFile = new Blob([csvData],{type: "text/csv"});
             let tempLink = document.createElement("a");
             let d = new Date;
             tempLink.download = "Ingredients-" + d.getFullYear() + ((d.getMonth()+1 < 10) ? "0"+(d.getMonth()+1) : (d.getMonth()+1)) + ((d.getDate() < 10) ? "0"+d.getDate() : d.getDate()) + "-" + ((d.getHours() < 10) ? "0"+d.getHours() : d.getHours()) + ((d.getMinutes() < 10) ? "0"+d.getMinutes() : d.getMinutes()) + ((d.getSeconds() < 10) ? "0"+d.getSeconds() : d.getSeconds()) + ".csv";
