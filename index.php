@@ -7,7 +7,7 @@ $pagetitle = "Sprawdzanie INCI";
 function lettersize($text,$debug=false) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
-    $separators = [",",".","-","+","(",")"," ","/","&",":","'","•",";"];
+    $separators = [",",".","-","+","(",")"," ","/","&",":","'","•",";","\\","|"];
     // Check what separators are included in checked text
     foreach ($separators as $sep) {
         if (str_contains($text,$sep)) {
@@ -745,6 +745,10 @@ if (isset($_GET['random'])) {
                             <th scope="row">Mikroplastik wg ECHA 520-scenario</th>
                             <td><input type="checkbox" class="form-check-input" name="options[micropl]" <?php if (isset($options) && isset($options['micropl'])) echo "checked"; ?>></td>
                         </tr>
+                        <tr>
+                            <th scope="row">Opinie SCCS</th>
+                            <td><input type="checkbox" class="form-check-input" name="options[sccs]" <?php if (isset($options) && isset($options['sccs'])) echo "checked"; ?>></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -802,6 +806,8 @@ if (isset($_GET['random'])) {
                             <th scope="col" class="col-1">1223/2009</th>
                             <th scope="col" class="dwn col-2">Funkcja</th>
                             <th scope="col" class="dwn visually-hidden">Function</th>
+                            <th scope="col" class="visually-hidden">Mikroplastik ECHA-520</th>
+                            <th scope="col" class="visually-hidden">Opinie SCCS</th>
                             <th scope="col" class="text-center col-1">CosIng</th>
                             <?php endif; ?>
                         </tr>
@@ -849,6 +855,8 @@ if (isset($_GET['random'])) {
                                 ?></td>
                                 <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyInci(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
                                 <td class="dwn visually-hidden"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
+                                <td class="visually-hidden">Mikroplastik</td>
+                                <td class="visually-hidden">Opinia SCCS</td>
                                 <td class="text-center"><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
                                 <?php endif; ?>
                             </tr>
