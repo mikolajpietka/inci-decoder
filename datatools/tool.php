@@ -182,4 +182,11 @@ if (false) {
     }
     fclose($openfile);
 }
+
+// List all CAS numbers where are not separated by " / "
+if (false) {
+    $file = "INCI.csv";
+    $oldinci = array_map('str_getcsv',file($file,FILE_IGNORE_NEW_LINES));
+    // $updatedincifile = fopen($file,'w');
+}
 ?>
