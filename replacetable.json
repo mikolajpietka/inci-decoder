@@ -31,7 +31,21 @@
         "ma":"MA",
         "1h":"1H",
         "ii":"II",
-        "sx":"SX"
+        "sx":"SX",
+        "ag":"AG",
+        "as":"AS",
+        "ng":"NG",
+        "ns":"NS",
+        "8a":"8A",
+        "9b":"9B",
+        "2h":"2H",
+        "3h":"3H",
+        "5h":"5H",
+        "3a":"3A",
+        "7m":"7M",
+        "1m":"1M",
+        "2m":"2M",
+        "5m":"5M"
     },
     "3":{
         "bht":"BHT",
@@ -48,7 +62,6 @@
         "45m":"45M",
         "pca":"PCA",
         "pvp":"PVP",
-        "n,n":"N,N",
         "pna":"PNA",
         "mdm":"MDM",
         "tea":"TEA",
@@ -67,7 +80,12 @@
         "dna":"DNA",
         "rna":"RNA",
         "and":"and",
-        "mdi":"MDI"
+        "mdi":"MDI",
+        "eos":"EOS",
+        "65m":"65M",
+        "20m":"20M",
+        "23m":"23M",
+        "25m":"25M"
     },
     "4":{
         "edta":"EDTA",
@@ -85,14 +103,22 @@
         "nano":"nano",
         "amps":"AMPS",
         "ptfe":"PTFE",
-        "taed":"TAED"
+        "taed":"TAED",
+        "142b":"142B",
+        "134a":"134A",
+        "152a":"152A",
+        "115m":"115M",
+        "160m":"160M",
+        "180m":"180M"
     },
     "5":{
         "tmhdi":"TMHDI",
         "hedta":"HEDTA",
         "dmapa":"DMAPA",
         "dsrna":"dsRNA",
-        "edtmp":"EDTMP"
+        "edtmp":"EDTMP",
+        "227ea":"227EA",
+        "2638a":"2638A"
     },
     "6":{
         "cniiic":"CnIIIC"
