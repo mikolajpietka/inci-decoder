@@ -13,8 +13,8 @@
     <link rel="icon" type="image/x-icon" href="../favicon.ico">
 </head>
 <body class="bg-dark">
-    <div class="container-fluid">
-        <h1>Tool for data modification</h1>
+<div class="container-fluid">
+<h1 class="m-3 mb-5">Tool for data modification</h1>
 <?php
 // Tool to update INCI.csv
 
@@ -200,20 +200,21 @@ if (false) {
     fclose($openfile);
 }
 
-// List all CAS numbers where are not separated by " / "
-if (true) {
+// List all CAS & WE numbers where are not separated by " / "
+if (false) {
     $file = "../INCI.csv";
     $oldinci = array_map('str_getcsv',file($file,FILE_IGNORE_NEW_LINES));
     // $updatedincifile = fopen($file,'w');
     echo '<table class="table">';
+    $exceptions = ["ETHYL CYSTEINATE HCL"];
     foreach ($oldinci as $line) {
-        if ((substr_count($line[2],"-") > 2 && !str_contains($line[2]," / ")) || (substr_count($line[3],"-") > 2 && !str_contains($line[3]," / ")) || (str_contains($line[2],";")) || (str_contains($line[3],";")) || (str_contains($line[2],",")) || (str_contains($line[3],","))) {
+        if (((substr_count($line[2],"-") > 2 && !str_contains($line[2]," / ")) || (substr_count($line[3],"-") > 2 && !str_contains($line[3]," / ")) || (str_contains($line[2],";")) || (str_contains($line[3],";")) || (str_contains($line[2],",")) || (str_contains($line[3],","))) && !in_array($line[1],$exceptions)) {
             echo "<tr><td><span onclick=\"navigator.clipboard.writeText(this.innerText)\" class=\"user-select-all\">". $line[1] ."</span></td><td>". $line[2] ."</td><td>". $line[3] ."</td></tr>";
         }
     }
     echo '</table>';
 }
 ?>
-    </div>
+</div>
 </body>
 </html>
