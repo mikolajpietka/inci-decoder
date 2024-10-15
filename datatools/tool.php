@@ -1,3 +1,20 @@
+<!DOCTYPE HTML>
+<html lang="pl" data-bs-theme="dark">
+<head>   
+    <title>Tool script</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mikołaj Piętka">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+</head>
+<body class="bg-dark">
+    <div class="container-fluid">
+        <h1>Tool for data modification</h1>
 <?php
 // Tool to update INCI.csv
 
@@ -184,9 +201,19 @@ if (false) {
 }
 
 // List all CAS numbers where are not separated by " / "
-if (false) {
-    $file = "INCI.csv";
+if (true) {
+    $file = "../INCI.csv";
     $oldinci = array_map('str_getcsv',file($file,FILE_IGNORE_NEW_LINES));
     // $updatedincifile = fopen($file,'w');
+    echo '<table class="table">';
+    foreach ($oldinci as $line) {
+        if ((substr_count($line[2],"-") > 2 && !str_contains($line[2]," / ")) || (substr_count($line[3],"-") > 2 && !str_contains($line[3]," / ")) || (str_contains($line[2],";")) || (str_contains($line[3],";")) || (str_contains($line[2],",")) || (str_contains($line[3],","))) {
+            echo "<tr><td><span onclick=\"navigator.clipboard.writeText(this.innerText)\" class=\"user-select-all\">". $line[1] ."</span></td><td>". $line[2] ."</td><td>". $line[3] ."</td></tr>";
+        }
+    }
+    echo '</table>';
 }
 ?>
+    </div>
+</body>
+</html>
