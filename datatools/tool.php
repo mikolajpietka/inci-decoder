@@ -214,6 +214,15 @@ if (false) {
     }
     echo '</table>';
 }
+
+// Convert echa520.csv into json
+if (false) {
+    $file = "echa520.csv";
+    $data = array_map("str_getcsv",file($file,FILE_IGNORE_NEW_LINES));
+    $listtoconvert = array_column($data,0);
+    sort($listtoconvert);
+    file_put_contents("../echa520.json",json_encode($listtoconvert));
+}
 ?>
 </div>
 </body>
