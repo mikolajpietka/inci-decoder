@@ -840,8 +840,8 @@ if (isset($_GET['random'])) {
                                 <?php if ($fail): ?>
                                 <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
                                 <?php else: ?>
-                                <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['cas']; ?></span></td>
-                                <td class="dwn"><span class="user-select-all font-monospace" ondblclick="copyInci(this)"><?php echo $ingredients[$key]['we']; ?></span></td>
+                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['cas']) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyInci(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
+                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['we']) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyInci(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
                                 <td><?php 
                                     if (str_contains($ingredients[$key]['annex'],"I/") || str_contains($ingredients[$key]['annex'],"V/")) {
                                         if (str_contains($ingredients[$key]['annex'],'#')) {
