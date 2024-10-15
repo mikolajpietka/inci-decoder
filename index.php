@@ -107,7 +107,7 @@ function suggestinci($text,$array,$attempt=1) {
 
 if (isset($_GET['micro'])) {
     $echa520 = json_decode(file_get_contents("echa520.json",true)); ?>
-    <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" oninput="search(this)" id="search">
+    <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" oninput="setTimeout(search(this),500)" id="search">
     <ul class="list-group list-group-flush mt-3">
     <?php foreach ($echa520 as $ing) {
         echo '<li class="list-group-item">' . lettersize($ing) . '</li>'; 
