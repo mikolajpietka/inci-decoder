@@ -105,6 +105,17 @@ function suggestinci($text,$array,$attempt=1) {
     return suggestinci($text,$array,$attempt+1);
 }
 
+if (isset($_GET['micro'])) {
+    $echa520 = json_decode(file_get_contents("echa520.json",true)); ?>
+    <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" oninput="search(this)" id="search">
+    <ul class="list-group list-group-flush mt-3">
+    <?php foreach ($echa520 as $ing) {
+        echo '<li class="list-group-item">' . lettersize($ing) . '</li>'; 
+    } ?>
+    </ul>
+    <?php exit;
+}
+
 if (isset($_GET['anx'])) {
     $request = urldecode($_GET['anx']);
 
@@ -692,6 +703,7 @@ if (isset($_GET['random'])) {
                 <a href="?single" class="nav-link visually-hidden<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
+                <a href="#microplastics" data-bs-toggle="modal" class="nav-link">Mikroplastiki ECHA 520</a>
                 <a href="?random" class="nav-link<?php if (isset($_GET['random'])) echo " active"; ?>">Losowy składnik</a>
                 <a href="?additional" class="nav-link visually-hidden<?php if (isset($_GET['additional'])) echo " active"; ?>">Dodatkowe opcje</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
@@ -940,6 +952,17 @@ if (isset($_GET['random'])) {
             </div>
         </div>
     </div>
+    <div class="modal fade" id="microplastics" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Lista mikroplastików wg ECHA 520-scenario</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="info" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -1138,6 +1161,32 @@ if (isset($_GET['random'])) {
             const connector = document.querySelector("#connector");
             const prevconnector = <?php if (isset($_POST['connector'])) echo "true"; else echo "false"; ?>;
             connector.checked = prevconnector;
+        }
+
+        const microplastics = document.querySelector("#microplastics");
+        if (microplastics) {
+            microplastics.addEventListener("show.bs.modal",event => {
+                const xhttp = new XMLHttpRequest();
+                xhttp.onload = function() {
+                    microplastics.querySelector(".modal-body").innerHTML = xhttp.responseText;
+                }
+                xhttp.open('GET',"?micro");
+                xhttp.send();
+            })
+        }
+
+        function search(input) {
+        let request = input.value.toLowerCase();
+            const microplasticsList = document.querySelector("#microplastics .modal-body ul");
+            if (microplasticsList) {
+                microplasticsList.querySelectorAll("li").forEach(x => {
+                    if (x.innerText.toLowerCase().includes(request)) {
+                        x.style.display = "";
+                    } else {
+                        x.style.display = "none";
+                    }
+                })
+            }
         }
     </script>
 </body>
