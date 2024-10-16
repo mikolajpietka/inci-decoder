@@ -2,7 +2,6 @@
 setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
 error_reporting(0);
-$pagetitle = "Sprawdzanie INCI";
 
 function lettersize($text,$debug=false) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
@@ -213,55 +212,54 @@ foreach ($csv as $key => $ingredient) {
 $slownik = array_column($ingredients,'name');
 $funcdict = json_decode(file_get_contents('functions.json'),true);
 
-if (isset($_POST['whole'])) {
-    if (!empty($_POST['inci'])) {
-        // Different separators
-        if ($_POST['separator'] == "difsep") {
-            $mainseparator = " " . trim($_POST['difsep']) . " ";
-        } else {
-            $mainseparator = $_POST['separator'];
-        }
-        // Connector space or separator
-        if (isset($_POST['connector'])) {
-            $connector = $mainseparator;
-        } else {
-            $connector = " ";
-        }
-        $inciexp = explode($mainseparator,str_replace(array("\r\n", "\n", "\r"),$connector,$_POST['inci']));
-        foreach ($inciexp as $ingredient) {
-            if (empty($ingredient)) continue;
-            $incitest[] = lettersize(trim($ingredient));
-        }
-        // Recreate ingredients with correct lettersize
-        $recreate = implode($mainseparator,$incitest);
-        $fail = 0;
-        foreach ($incitest as $ingredient) { 
-            // Test for nano ingredients
-            if (str_contains($ingredient,"(nano)")) {
-                // If yes then cut-off nano part and check if ingredient is correct
-                $temping = trim(str_replace("(nano)","",$ingredient));
-                if (!in_array(strtoupper($temping),$slownik)) {
-                    $fail = 1;
-                }
-            } else {
-                // If no just check
-                if (!in_array(strtoupper($ingredient),$slownik)) {
-                    $fail = 1;
-                }
+
+if (!empty($_POST['inci'])) {
+    // Different separators
+    if ($_POST['separator'] == "difsep") {
+        $mainseparator = " " . trim($_POST['difsep']) . " ";
+    } else {
+        $mainseparator = $_POST['separator'];
+    }
+    // Connector space or separator
+    if (isset($_POST['connector'])) {
+        $connector = $mainseparator;
+    } else {
+        $connector = " ";
+    }
+    $inciexp = explode($mainseparator,str_replace(array("\r\n", "\n", "\r"),$connector,$_POST['inci']));
+    foreach ($inciexp as $ingredient) {
+        if (empty($ingredient)) continue;
+        $incitest[] = lettersize(trim($ingredient));
+    }
+    // Recreate ingredients with correct lettersize
+    $recreate = implode($mainseparator,$incitest);
+    $fail = 0;
+    foreach ($incitest as $ingredient) { 
+        // Test for nano ingredients
+        if (str_contains($ingredient,"(nano)")) {
+            // If yes then cut-off nano part and check if ingredient is correct
+            $temping = trim(str_replace("(nano)","",$ingredient));
+            if (!in_array(strtoupper($temping),$slownik)) {
+                $fail = 1;
             }
-        }
-        // Check for duplicates
-        $counted = array_count_values(array_map('strtoupper',$incitest));
-        foreach ($counted as $key => $value) {
-            if ($value > 1) {
-                $duplicates[] = $key;
+        } else {
+            // If no just check
+            if (!in_array(strtoupper($ingredient),$slownik)) {
+                $fail = 1;
             }
         }
     }
-    // Make array with additional parameters
-    if (isset($_GET['additional'])) {
-        $options = $_POST['options'];
+    // Check for duplicates
+    $counted = array_count_values(array_map('strtoupper',$incitest));
+    foreach ($counted as $key => $value) {
+        if ($value > 1) {
+            $duplicates[] = $key;
+        }
     }
+}
+// Make array with additional parameters
+if (isset($_GET['additional']) && isset($_POST['inci'])) {
+    $options = $_POST['options'];
 }
 // Showing random ingredient for testing
 if (isset($_GET['random'])) {
@@ -278,7 +276,7 @@ if (isset($_GET['random'])) {
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
 <head>   
-    <title><?php echo $pagetitle." | ".$_SERVER['HTTP_HOST']; ?></title>
+    <title>Sprawdzanie INCI | <?php echo $_SERVER['HTTP_HOST']; ?></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Mikołaj Piętka">
@@ -287,8 +285,6 @@ if (isset($_GET['random'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- Material icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <!-- Page CSS -->
     <link href="styles.css?ver=2.5.inci" rel="stylesheet">
     <!-- Favicon -->
@@ -302,7 +298,6 @@ if (isset($_GET['random'])) {
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
                 <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
-                <a href="?single" class="nav-link visually-hidden<?php if (isset($_GET['single'])) echo " active"; ?>">Pojedynczy składnik</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#microplastics" data-bs-toggle="modal" class="nav-link">Mikroplastiki ECHA 520</a>
@@ -365,7 +360,7 @@ if (isset($_GET['random'])) {
             <?php endif; ?>
             <div class="row row-cols-lg-3 row-cols-1 g-3 mt-2">
                 <div class="col">
-                    <button type="submit" class="btn btn-outline-light w-100" name="whole" id="whole"><i class="bi bi-check2-square"></i> Sprawdź</button>
+                    <button type="submit" class="btn btn-outline-light w-100"><i class="bi bi-check2-square"></i> Sprawdź</button>
                 </div>
                 <div class="col">
                     <button type="button" class="btn btn-outline-danger w-100" onclick="cleartextarea()"><i class="bi bi-trash3-fill"></i> Wyczyść</button>
