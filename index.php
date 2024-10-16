@@ -78,13 +78,9 @@ function lettersize($text,$debug=false) {
     return implode($newpart);
 }
 
-if (isset($_GET['test']) && isset($_POST['inci'])) {
-    echo lettersize($_POST['inci'],true);
-}
-
 function suggestinci($text,$array,$attempt=1) {
     $text = strtoupper($text);
-    // echo $attempt;
+    // If more than 10 attempts then abort (less than 25% od similarity) -each is looking for at least 3 suggestions
     if ($attempt > 10) return "Brak podpowiedzi";
     $perclimit = 75 - ($attempt-1)*5;
     $raw = array_filter($array, function($v,$k) use ($text,$perclimit) {
@@ -95,19 +91,23 @@ function suggestinci($text,$array,$attempt=1) {
     if (!empty($raw) && count($raw) > 2) {
         foreach ($raw as $inci) {
             similar_text($text,$inci,$perc);
+            // Create span with tooltip and change effect
             $suggestion[] = '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.round($perc,2).'%" ondblclick="correctmistake(this)">' . lettersize($inci) . '</span>';
             $possibility[] = $perc;
         }
         if (!empty($suggestion)) {
             array_multisort($possibility,SORT_DESC,$suggestion);
             $answer = implode(', ',$suggestion);
+            // Return ready answer
             return $answer;
         }
     }
+    // If less than 3 suggestion then recurence with less similarity
     return suggestinci($text,$array,$attempt+1);
 }
 
 if (isset($_GET['micro'])) {
+    // Microplastics response for JS request in modal (whole and searched/filtered due to slow JS reaction)
     $echa520 = json_decode(file_get_contents("echa520.json",true));
     foreach ($echa520 as $ing) {
         if (str_contains(strtolower($ing),urldecode($_GET['micro']))) {
@@ -118,13 +118,14 @@ if (isset($_GET['micro'])) {
 }
 
 if (isset($_GET['anx'])) {
+    // Response to annex request
     $request = urldecode($_GET['anx']);
     if (str_contains($request,',')) {
         $annexes = explode(', ',$request);
     } else {
         $annexes[] = $request;
     }
-    // New version of display annexes
+    // Choose right file and title for each annex
     foreach ($annexes as $anx) {
         $annex = explode('/',$anx);
         switch ($annex[0]) {
@@ -153,6 +154,7 @@ if (isset($_GET['anx'])) {
             echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
             exit;
         }
+        // Show response - whole and for each position 
         echo "<h3>" . $anxtitle . "</h3>";
         echo "<table class=\"table mt-2\">";
         if ($annex[1] == "all"): ?>
@@ -181,14 +183,14 @@ if (isset($_GET['anx'])) {
             </thead>
             <tbody class="table-group-divider">
                 <?php
-                    $anxfileconv = array_combine(array_column($fileraw,0),$fileraw);
-                    foreach ($fileraw[0] as $key => $cell) { ?>
-                        <tr>
-                            <th scope="row"><?php echo $cell; ?></th>
-                            <td><?php echo $anxfileconv[$annex[1]][$key]; ?></td>
-                        </tr>
-                    <?php }
-                ?>
+                // Convert annex array so ids are keys
+                $anxfileconv = array_combine(array_column($fileraw,0),$fileraw);
+                foreach ($fileraw[0] as $key => $cell) { ?>
+                    <tr>
+                        <th scope="row"><?php echo $cell; ?></th>
+                        <td><?php echo $anxfileconv[$annex[1]][$key]; ?></td>
+                    </tr>
+                <?php } ?>
             </tbody>
         <?php endif;
         echo "</table>";
@@ -261,20 +263,6 @@ if (isset($_POST['whole'])) {
         $options = $_POST['options'];
     }
 }
-// Single ingredient search (paused part of project)
-if (isset($_POST['single'])) {
-    if (!empty($_POST['inci']) && empty($_POST['cas'])) {
-        if (array_search(strtoupper($_POST['inci']),array_column($ingredients,'name')) !== false) {
-            $searchedkeys[] = array_search(strtoupper($_POST['inci']),array_column($ingredients,'name'));
-        } else {
-
-        }
-    } elseif (empty($_POST['inci']) && !empty($_POST['cas'])) {
-
-    } else {
-
-    }
-}
 // Showing random ingredient for testing
 if (isset($_GET['random'])) {
     if (!empty($_GET['random']) && is_numeric($_GET['random'])) {
@@ -324,9 +312,6 @@ if (isset($_GET['random'])) {
             </div>
         </div>
     </nav>
-    <?php 
-    if (!isset($_GET['single'])):
-    ?>
     <div class="container my-3">
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
@@ -492,37 +477,6 @@ if (isset($_GET['random'])) {
         </div>
         <?php endif; ?>
     </div>
-    <?php else: ?>
-    <div class="container">
-        <h1 class="text-center">Pojedynczy składnik</h1>
-        <div class="card col-lg-4 mx-auto p-3 mt-3">
-            <form method="post" class="text-center">
-                <div class="card-body">
-                    <div class="row g-4 align-items-center text-end">
-                        <label for="inci-name" class="form-label col-3 fw-bold">INCI</label>
-                        <div class="col-9">
-                            <input type="text" class="form-control" name="inci" id="inci"<?php echo !empty($_POST['inci']) ? 'value="'.$_POST['inci'].'"': ''; ?>>
-                        </div>
-                        <label for="cas" class="form-label col-3 fw-bold">CAS</label>
-                        <div class="col-9">
-                            <input type="text" class="form-control" name="cas" id="cas"<?php echo !empty($_POST['cas']) ? 'value="'.$_POST['cas'].'"': ''; ?>>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary mt-3 w-50" name="single">Sprawdź</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="container-fluid">
-        <?php
-        foreach ($searchedkeys as $key) {
-            foreach ($ingredients[$key] as $value) {
-                echo $value . "<br>";
-            }
-        }
-        ?>
-    </div>
-    <?php endif; ?>
     <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
             <div class="modal-content">
