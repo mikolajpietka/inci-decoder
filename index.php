@@ -119,466 +119,79 @@ if (isset($_GET['micro'])) {
 
 if (isset($_GET['anx'])) {
     $request = urldecode($_GET['anx']);
-
     if (str_contains($request,',')) {
         $annexes = explode(', ',$request);
     } else {
         $annexes[] = $request;
     }
+    // New version of display annexes
     foreach ($annexes as $anx) {
         $annex = explode('/',$anx);
         switch ($annex[0]) {
-            case 'II':
-                if (file_exists('A2.csv') && !empty($fileraw = array_map('str_getcsv', file('A2.csv')))) {
-                    if ($annex[1] == 'all') {
-                        ?>
-                        <h3>Załącznik II: Wykaz substancji zakazanych w produktach kosmetycznych</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                            <?php
-                                foreach ($fileraw as $key => $row) {
-                                    if ($key == 0) continue;
-                                    echo '<tr>';
-                                    foreach ($row as $cell) {
-                                        echo '<td>'. $cell .'</td>';
-                                    }
-                                    echo '</tr>';
-                                }
-                            ?>
-                            </tbody>
-                        </table>
-                        <?php
-                    } else {
-                        foreach ($fileraw as $row) {
-                            $file[$row[0]] = [
-                                'substance' => $row[1],
-                                'CAS' => $row[2],
-                                'WE' => $row[3]
-                            ];
-                        } ?>
-                        <div class="mb-5">
-                            <h3>Załącznik II: Wykaz substancji zakazanych w produktach kosmetycznych</h3>
-                            <table class="table mt-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-4">Kolumna</th>
-                                        <th scope="col" class="col-8">Treść</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-group-divider">
-                                    <tr>
-                                        <th scope="row">Numer porządkowy</th>
-                                        <td><?php echo $annex[1]; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa chemiczna / INN</th>
-                                        <td><?php echo $file[$annex[1]]['substance']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr CAS</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['CAS']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr WE</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['WE']; ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php
-                    }
-                } else {
-                    echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
-                    exit;
-                }
+            case "II":
+                $anxfile = "A2.csv";
+                $anxtitle = "Załącznik II: Wykaz substancji zakazanych w produktach kosmetycznych";
                 break;
-            case 'III':
-                if (file_exists('A3.csv') && !empty($fileraw = array_map('str_getcsv', file('A3.csv')))) {
-                    if ($annex[1] == 'all') {
-                        ?>
-                        <h3>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                            <?php
-                                foreach ($fileraw as $key => $row) {
-                                    if ($key == 0) continue;
-                                    echo '<tr>';
-                                    foreach ($row as $cell) {
-                                        echo '<td>'. $cell .'</td>';
-                                    }
-                                    echo '</tr>';
-                                }
-                            ?>
-                            </tbody>
-                        </table>
-                        <?php
-                    } else {
-                        foreach ($fileraw as $row) {
-                            $file[$row[0]] = [
-                                'inn' => $row[1],
-                                'inci' => $row[2],
-                                'cas' => $row[3],
-                                'we' => $row[4],
-                                'type' => $row[5],
-                                'max' => $row[6],
-                                'other' => $row[7],
-                                'conditions' => $row[8]
-                            ];
-                        } ?>
-                        <div class="mb-5">
-                            <h3>Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń</h3>
-                            <table class="table mt-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-4">Kolumna</th>
-                                        <th scope="col" class="col-8">Treść</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-group-divider">
-                                    <tr>
-                                        <th scope="row">Numer porządkowy (a)</th>
-                                        <td><?php echo $annex[1]; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa chemiczna / INN (b)</th>
-                                        <td><?php echo $file[$annex[1]]['inn']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa w słowniku wspólnych nazw / INCI (c)</th>
-                                        <td><?php echo $file[$annex[1]]['inci']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr CAS (d)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['cas']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr WE (e)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['we']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Rodzaj produktu, części ciała (f)</th>
-                                        <td><?php echo $file[$annex[1]]['type']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia (g)</th>
-                                        <td><?php echo $file[$annex[1]]['max']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Inne (h)</th>
-                                        <td><?php echo $file[$annex[1]]['other']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Warunki i ostrzeżenia na opakowaniach (i)</th>
-                                        <td><?php echo $file[$annex[1]]['conditions']; ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php
-                    }
-                } else {
-                    echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
-                    exit;
-                }
+            case "III":
+                $anxfile = "A3.csv";
+                $anxtitle = "Załącznik III: Wykaz substancji, które mogą być zawarte w produktach kosmetycznych wyłącznie z zastrzeżeniem określonych ograniczeń";
                 break;
-            case 'IV':
-                if (file_exists('A4.csv') && !empty($fileraw = array_map('str_getcsv', file('A4.csv')))) {
-                    if ($annex[1] == 'all') {
-                        ?>
-                        <h3>Załącznik IV: Wykaz barwników dopuszczonych w produktach kosmetycznych</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                            <?php
-                                foreach ($fileraw as $key => $row) {
-                                    if ($key == 0) continue;
-                                    echo '<tr>';
-                                    foreach ($row as $cell) {
-                                        echo '<td>'. $cell .'</td>';
-                                    }
-                                    echo '</tr>';
-                                }
-                            ?>
-                            </tbody>
-                        </table>
-                        <?php
-                    } else {
-                        foreach ($fileraw as $row) {
-                            $file[$row[0]] = [
-                                'name' => $row[1],
-                                'ci' => $row[2],
-                                'cas' => $row[3],
-                                'we' => $row[4],
-                                'colour' => $row[5],
-                                'type' => $row[6],
-                                'max' => $row[7],
-                                'other' => $row[8],
-                                'conditions' => $row[9]
-                            ];
-                        } ?>
-                        <div class="mb-5">
-                            <h3>Załącznik IV: Wykaz barwników dopuszczonych w produktach kosmetycznych</h3>
-                            <table class="table mt-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-4">Kolumna</th>
-                                        <th scope="col" class="col-8">Treść</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-group-divider">
-                                    <tr>
-                                        <th scope="row">Numer porządkowy (a)</th>
-                                        <td><?php echo $annex[1]; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa chemiczna (b)</th>
-                                        <td><?php echo $file[$annex[1]]['name']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Numer/nazwa wg wykazu barwników zawartego w słowniku (c)</th>
-                                        <td><?php echo $file[$annex[1]]['ci']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr CAS (d)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['cas']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr WE (e)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['we']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Kolor (f)</th>
-                                        <td><?php echo $file[$annex[1]]['colour']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Rodzaj produktu, części ciała (g)</th>
-                                        <td><?php echo $file[$annex[1]]['type']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia (h)</th>
-                                        <td><?php echo $file[$annex[1]]['max']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Inne (i)</th>
-                                        <td><?php echo $file[$annex[1]]['other']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Brzmienie warunków stosowania i ostrzeżeń (j)</th>
-                                        <td><?php echo $file[$annex[1]]['conditions']; ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php
-                    }
-                } else {
-                    echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
-                    exit;
-                }
+            case "IV":
+                $anxfile = "A4.csv";
+                $anxtitle = "Załącznik IV: Wykaz barwników dopuszczonych w produktach kosmetycznych";
                 break;
-            case 'V':
-                if (file_exists('A5.csv') && !empty($fileraw = array_map('str_getcsv', file('A5.csv')))) {
-                    if ($annex[1] == 'all') {
-                        ?>
-                        <h3>Załącznik V: Wykaz substancji konserwujących dozwolonych w produktach kosmetycznych</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                            <?php
-                                foreach ($fileraw as $key => $row) {
-                                    if ($key == 0) continue;
-                                    echo '<tr>';
-                                    foreach ($row as $cell) {
-                                        echo '<td>'. $cell .'</td>';
-                                    }
-                                    echo '</tr>';
-                                }
-                            ?>
-                            </tbody>
-                        </table>
-                        <?php
-                    } else {
-                        foreach ($fileraw as $row) {
-                            $file[$row[0]] = [
-                                'name' => $row[1],
-                                'inci' => $row[2],
-                                'cas' => $row[3],
-                                'we' => $row[4],
-                                'type' => $row[5],
-                                'max' => $row[6],
-                                'other' => $row[7],
-                                'conditions' => $row[8]
-                            ];
-                        } ?>
-                        <div class="mb-5">
-                            <h3>Załącznik V: Wykaz substancji konserwujących dozwolonych w produktach kosmetycznych</h3>
-                            <table class="table mt-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-4">Kolumna</th>
-                                        <th scope="col" class="col-8">Treść</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-group-divider">
-                                    <tr>
-                                        <th scope="row">Numer porządkowy (a)</th>
-                                        <td><?php echo $annex[1]; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa chemiczna/INN (b)</th>
-                                        <td><?php echo $file[$annex[1]]['name']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa w glosariuszu wspólnych nazw składników (c)</th>
-                                        <td><?php echo $file[$annex[1]]['inci']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr CAS (d)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['cas']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr WE (e)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['we']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Rodzaj produktu, części ciała (f)</th>
-                                        <td><?php echo $file[$annex[1]]['type']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia (g)</th>
-                                        <td><?php echo $file[$annex[1]]['max']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Inne (h)</th>
-                                        <td><?php echo $file[$annex[1]]['other']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Określenie warunków stosowania i ostrzeżeń (i)</th>
-                                        <td><?php echo $file[$annex[1]]['conditions']; ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php
-                    }
-                } else {
-                    echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
-                    exit;
-                }
+            case "V":
+                $anxfile = "A5.csv";
+                $anxtitle = "Załącznik V: Wykaz substancji konserwujących dozwolonych w produktach kosmetycznych";
                 break;
-            case 'VI':
-                if (file_exists('A6.csv') && !empty($fileraw = array_map('str_getcsv', file('A6.csv')))) {
-                    if ($annex[1] == 'all') {
-                        ?>
-                        <h3>Załącznik VI: Wykaz substancji promieniochronnych dozwolonych w produktach kosmetycznych</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                            <?php
-                                foreach ($fileraw as $key => $row) {
-                                    if ($key == 0) continue;
-                                    echo '<tr>';
-                                    foreach ($row as $cell) {
-                                        echo '<td>'. $cell .'</td>';
-                                    }
-                                    echo '</tr>';
-                                }
-                            ?>
-                            </tbody>
-                        </table>
-                        <?php
-                    } else {
-                        foreach ($fileraw as $row) {
-                            $file[$row[0]] = [
-                                'inn' => $row[1],
-                                'inci' => $row[2],
-                                'cas' => $row[3],
-                                'we' => $row[4],
-                                'type' => $row[5],
-                                'max' => $row[6],
-                                'other' => $row[7],
-                                'conditions' => $row[8]
-                            ];
-                        } ?>
-                        <div class="mb-5">
-                            <h3>Załącznik VI: Wykaz substancji promieniochronnych dozwolonych w produktach kosmetycznych</h3>
-                            <table class="table mt-3">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-4">Kolumna</th>
-                                        <th scope="col" class="col-8">Treść</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-group-divider">
-                                    <tr>
-                                        <th scope="row">Numer porządkowy (a)</th>
-                                        <td><?php echo $annex[1]; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa chemiczna / INN / XAN (b)</th>
-                                        <td><?php echo $file[$annex[1]]['inn']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nazwa w słowniku wspólnych nazw / INCI (c)</th>
-                                        <td><?php echo $file[$annex[1]]['inci']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr CAS (d)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['cas']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">nr WE (e)</th>
-                                        <td class="font-monospace"><?php echo $file[$annex[1]]['we']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Rodzaj produktu, części ciała (f)</th>
-                                        <td><?php echo $file[$annex[1]]['type']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Maksymalne stężenie w preparacie gotowym do użycia (g)</th>
-                                        <td><?php echo $file[$annex[1]]['max']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Inne (h)</th>
-                                        <td><?php echo $file[$annex[1]]['other']; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Określenie warunków stosowania i ostrzeżeń (i)</th>
-                                        <td><?php echo $file[$annex[1]]['conditions']; ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php
-                    }
-                } else {
-                    echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
-                    exit;
-                }
+            case "VI":
+                $anxfile = "A6.csv";
+                $anxtitle = "Załącznik VI: Wykaz substancji promieniochronnych dozwolonych w produktach kosmetycznych";
                 break;
         }
+        if (!file_exists($anxfile) || empty($fileraw = array_map('str_getcsv', file($anxfile)))) {
+            echo 'Błąd odczytu pliku! Odśwież stronę i spróbuj ponownie';
+            exit;
+        }
+        echo "<h3>" . $anxtitle . "</h3>";
+        echo "<table class=\"table mt-2\">";
+        if ($annex[1] == "all"): ?>
+            <thead>
+                <tr>
+                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+            <?php
+                foreach ($fileraw as $key => $row) {
+                    if ($key == 0) continue;
+                    echo '<tr>';
+                    foreach ($row as $cell) {
+                        echo '<td>'. $cell .'</td>';
+                    }
+                    echo '</tr>';
+                }
+            ?>
+        <?php else: ?>
+            <thead>
+                <tr>
+                    <th scope="col" class="col-4">Kolumna</th>
+                    <th scope="col" class="col-8">Treść</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                <?php
+                    $anxfileconv = array_combine(array_column($fileraw,0),$fileraw);
+                    foreach ($fileraw[0] as $key => $cell) { ?>
+                        <tr>
+                            <th scope="row"><?php echo $cell; ?></th>
+                            <td><?php echo $anxfileconv[$annex[1]][$key]; ?></td>
+                        </tr>
+                    <?php }
+                ?>
+            </tbody>
+        <?php endif;
+        echo "</table>";
     }
     exit;
 }
