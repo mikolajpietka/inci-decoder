@@ -113,7 +113,8 @@
         "115m":"115M",
         "160m":"160M",
         "180m":"180M",
-        "ampd":"AMPD"
+        "ampd":"AMPD",
+        "tert":"tert"
     },
     "5":{
         "tmhdi":"TMHDI",

@@ -360,7 +360,7 @@ if (isset($_GET['random'])) {
             <?php endif; ?>
             <div class="row row-cols-lg-3 row-cols-1 g-3 mt-2">
                 <div class="col">
-                    <button type="submit" class="btn btn-outline-light w-100"><i class="bi bi-check2-square"></i> Sprawdź</button>
+                    <button type="submit" class="btn btn-outline-light w-100" id="submit"><i class="bi bi-check2-square"></i> Sprawdź</button>
                 </div>
                 <div class="col">
                     <button type="button" class="btn btn-outline-danger w-100" onclick="cleartextarea()"><i class="bi bi-trash3-fill"></i> Wyczyść</button>
@@ -684,7 +684,7 @@ if (isset($_GET['random'])) {
 
         document.addEventListener("keydown",event=>{
             if (event.ctrlKey && event.keyCode === 13) {
-                document.querySelector("#whole").click();
+                document.querySelector("#submit").click();
             }
             if (event.ctrlKey && event.keyCode === 46 && document.activeElement !== document.querySelector("#inci")) {
                 cleartextarea();
