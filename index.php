@@ -96,8 +96,10 @@ function suggestinci($text,$array,$attempt=1) {
         foreach ($raw as $inci) {
             similar_text($text,$inci,$perc);
             $suggestion[] = '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.round($perc,2).'%" ondblclick="correctmistake(this)">' . lettersize($inci) . '</span>';
+            $possibility[] = $perc;
         }
         if (!empty($suggestion)) {
+            array_multisort($possibility,SORT_DESC,$suggestion);
             $answer = implode(', ',$suggestion);
             return $answer;
         }
@@ -687,7 +689,7 @@ if (isset($_GET['random'])) {
     <!-- Material icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
     <!-- Page CSS -->
-    <link href="styles.css?ver=2.4.inci" rel="stylesheet">
+    <link href="styles.css?ver=2.5.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -804,12 +806,12 @@ if (isset($_GET['random'])) {
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
             <div class="table-responsive-md">
                 <table class="table table-hover table-sm align-middle caption-top">
-                    <caption>Podwójne kliknięcie na tekst kopiuje go do schowka. Podwójne kliknięcia na podpowiedź powoduje zamianę błednęgo składnika na kliknięty.</caption>
+                    <caption><?php if ($fail) echo "Podwójne kliknięcia na podpowiedź powoduje zamianę błędnego składnika na zaznaczony."; else echo "Podwójne kliknięcie na tekst kopiuje go do schowka."; ?></caption>
                     <thead>
                         <tr>
                             <th scope="col" class="dwn">INCI</th>
                             <?php if ($fail): ?>
-                            <th scope="col" class="col-10">Podpowiedź <small>(podwójne kliknięcie zamienia błędny składnik na wybrany)</small></th>
+                            <th scope="col" class="col-10">Podpowiedź składnika</th>
                             <?php else: ?>
                             <th scope="col" class="dwn col-2">Nr CAS</th>
                             <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
