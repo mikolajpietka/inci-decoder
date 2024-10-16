@@ -106,14 +106,13 @@ function suggestinci($text,$array,$attempt=1) {
 }
 
 if (isset($_GET['micro'])) {
-    $echa520 = json_decode(file_get_contents("echa520.json",true)); ?>
-    <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" oninput="setTimeout(search(this),500)" id="search">
-    <ul class="list-group list-group-flush mt-3">
-    <?php foreach ($echa520 as $ing) {
-        echo '<li class="list-group-item">' . lettersize($ing) . '</li>'; 
-    } ?>
-    </ul>
-    <?php exit;
+    $echa520 = json_decode(file_get_contents("echa520.json",true));
+    foreach ($echa520 as $ing) {
+        if (str_contains(strtolower($ing),urldecode($_GET['micro']))) {
+            echo '<li class="list-group-item user-select-all" onclick=(copyText(this))>' . lettersize($ing) . '</li>'; 
+        }
+    } 
+    exit;
 }
 
 if (isset($_GET['anx'])) {
@@ -751,7 +750,6 @@ if (isset($_GET['random'])) {
                         <tr>
                             <th scope="row">Odnośnik do CosIng</th>
                             <td><input type="checkbox" class="form-check-input" name="options[cosing]" <?php if (isset($options) && isset($options['cosing'])) echo "checked"; ?>></td>
-                            <td></td>
                         </tr>
                         <tr>
                             <th scope="row">Mikroplastik wg ECHA 520-scenario</th>
@@ -848,12 +846,12 @@ if (isset($_GET['random'])) {
                             }
                         ?>
                             <tr>
-                                <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyInci(this)"><?php echo lettersize($ingredient); ?></span></th>
+                                <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this)"><?php echo lettersize($ingredient); ?></span></th>
                                 <?php if ($fail): ?>
                                 <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
                                 <?php else: ?>
-                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['cas']) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyInci(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
-                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['we']) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyInci(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
+                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['cas']) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
+                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['we']) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
                                 <td><?php 
                                     if (str_contains($ingredients[$key]['annex'],"I/") || str_contains($ingredients[$key]['annex'],"V/")) {
                                         if (str_contains($ingredients[$key]['annex'],'#')) {
@@ -865,7 +863,7 @@ if (isset($_GET['random'])) {
                                         echo $ingredients[$key]['annex']; 
                                     }
                                 ?></td>
-                                <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyInci(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
+                                <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
                                 <td class="dwn visually-hidden"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
                                 <td class="visually-hidden">Mikroplastik</td>
                                 <td class="visually-hidden">Opinia SCCS</td>
@@ -959,7 +957,10 @@ if (isset($_GET['random'])) {
                     <h3 class="modal-title">Lista mikroplastików wg ECHA 520-scenario</h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body"></div>
+                <div class="modal-body">
+                    <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" id="search">
+                    <ul class="list-group list-group-flush mt-3"></ul>
+                </div>
             </div>
         </div>
     </div>
@@ -1005,8 +1006,8 @@ if (isset($_GET['random'])) {
             </div>
         </div>
     </div>
-    <div class="position-fixed start-50 translate-middle-x top-0 mt-5">
-        <div class="toast fade text-bg-light" role="alert" data-bs-delay="1500">
+    <div class="position-fixed start-50 translate-middle-x top-0 mt-5" style="z-index: 2000;">
+        <div class="toast fade text-bg-light" role="alert" data-bs-delay="1200">
             <div class="toast-body fw-bold fs-6 text-center">
                 <p class="mb-1"></p>
                 <span class="fst-italic"></span>
@@ -1026,7 +1027,7 @@ if (isset($_GET['random'])) {
             difsep.value = '';
             inci.focus();
         }
-        function copyInci(span) {
+        function copyText(span) {
             navigator.clipboard.writeText(span.innerText);
             const toast = document.querySelector('.toast');
             toast.querySelector('p').innerText = "Skopiowano do schowka:";
@@ -1163,30 +1164,28 @@ if (isset($_GET['random'])) {
             connector.checked = prevconnector;
         }
 
+        const search = document.querySelector("#search");
+        search.addEventListener("input",event => {
+            const request = search.value.toLowerCase();
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                document.querySelector("#microplastics ul").innerHTML = xhttp.responseText;
+            }
+            xhttp.open("GET","?micro="+encodeURI(request));
+            xhttp.send();
+        })
+
         const microplastics = document.querySelector("#microplastics");
         if (microplastics) {
             microplastics.addEventListener("show.bs.modal",event => {
                 const xhttp = new XMLHttpRequest();
                 xhttp.onload = function() {
-                    microplastics.querySelector(".modal-body").innerHTML = xhttp.responseText;
+                    microplastics.querySelector("ul").innerHTML = xhttp.responseText;
                 }
                 xhttp.open('GET',"?micro");
                 xhttp.send();
+                search.value = "";
             })
-        }
-
-        function search(input) {
-        let request = input.value.toLowerCase();
-            const microplasticsList = document.querySelector("#microplastics .modal-body ul");
-            if (microplasticsList) {
-                microplasticsList.querySelectorAll("li").forEach(x => {
-                    if (x.innerText.toLowerCase().includes(request)) {
-                        x.style.display = "";
-                    } else {
-                        x.style.display = "none";
-                    }
-                })
-            }
         }
     </script>
 </body>
