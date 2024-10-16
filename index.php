@@ -111,7 +111,7 @@ if (isset($_GET['micro'])) {
     $echa520 = json_decode(file_get_contents("echa520.json",true));
     foreach ($echa520 as $ing) {
         if (str_contains(strtolower($ing),urldecode($_GET['micro']))) {
-            echo '<li class="list-group-item user-select-all" onclick=(copyText(this))>' . lettersize($ing) . '</li>'; 
+            echo '<li class="list-group-item user-select-all" ondblclick=(copyText(this))>' . lettersize($ing) . '</li>'; 
         }
     } 
     exit;
@@ -961,7 +961,8 @@ if (isset($_GET['random'])) {
                 </div>
                 <div class="modal-body">
                     <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" id="search">
-                    <ul class="list-group list-group-flush mt-3"></ul>
+                    <p class="ms-2 mt-3"></p>
+                    <ul class="list-group list-group-flush"></ul>
                 </div>
             </div>
         </div>
@@ -1036,6 +1037,7 @@ if (isset($_GET['random'])) {
             toast.querySelector('span').innerText = span.innerText;
             toastOn = bootstrap.Toast.getOrCreateInstance(toast);
             toastOn.show();
+            window.getSelection().removeAllRanges();
         }
         function downloadTable() {
             let tableRows = document.querySelectorAll('.ingredients tr');
@@ -1167,22 +1169,23 @@ if (isset($_GET['random'])) {
         }
 
         const search = document.querySelector("#search");
+        const microplastics = document.querySelector("#microplastics");
         search.addEventListener("input",event => {
             const request = search.value.toLowerCase();
             const xhttp = new XMLHttpRequest();
             xhttp.onload = function() {
-                document.querySelector("#microplastics ul").innerHTML = xhttp.responseText;
+                microplastics.querySelector("ul").innerHTML = xhttp.responseText;
+                microplastics.querySelector("p").innerText = "Znalezionych składników: " + microplastics.querySelectorAll("li").length;
             }
             xhttp.open("GET","?micro="+encodeURI(request));
             xhttp.send();
         })
-
-        const microplastics = document.querySelector("#microplastics");
         if (microplastics) {
             microplastics.addEventListener("show.bs.modal",event => {
                 const xhttp = new XMLHttpRequest();
                 xhttp.onload = function() {
                     microplastics.querySelector("ul").innerHTML = xhttp.responseText;
+                    microplastics.querySelector("p").innerText = "";
                 }
                 xhttp.open('GET',"?micro");
                 xhttp.send();
