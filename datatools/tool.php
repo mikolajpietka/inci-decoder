@@ -223,6 +223,19 @@ if (false) {
     sort($listtoconvert);
     file_put_contents("../echa520.json",json_encode($listtoconvert));
 }
+
+// Check what microplastics are not in INCI.csv
+if (false) {
+    $file = "../INCI.csv";
+    $echa520file = "../echa520.json";
+    $dictionary = array_column(array_map("str_getcsv",file($file,FILE_IGNORE_NEW_LINES)),1);
+    $echa520 = json_decode(file_get_contents($echa520file,true));
+    foreach ($echa520 as $polymer) {
+        if (!in_array($polymer,$dictionary)) {
+            echo $polymer . "<br>";
+        }
+    }
+}
 ?>
 </div>
 </body>
