@@ -114,7 +114,8 @@
         "160m":"160M",
         "180m":"180M",
         "ampd":"AMPD",
-        "tert":"tert"
+        "tert":"tert",
+        "tipa":"TIPA"
     },
     "5":{
         "tmhdi":"TMHDI",
