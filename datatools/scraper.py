@@ -24,7 +24,7 @@ def webscrap(url,driver):
         return table_data
 
     except Exception as error:
-        print(error)
+        # print(error)
         return None
 
 def rangescrap(fromno,tono):
@@ -36,7 +36,7 @@ def rangescrap(fromno,tono):
         if (scraped != None):
             scraped.append(number)
             with open("scraped.csv", mode='a', newline='', encoding='utf-8') as file:  # Append mode
-                writer = csv.writer(file,dialect='unix')
+                writer = csv.writer(file,dialect='excel')
                 writer.writerow(scraped)
         else:
             print("Empty page")
