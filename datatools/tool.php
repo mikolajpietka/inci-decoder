@@ -277,6 +277,52 @@ if (false) {
     // echo "</table>";
     fclose($of);
 }
+
+// Add scraped ingredients into INCI.csv
+if (false) {
+    $incifile = "../INCI.csv";
+    $scrapedf = "scraped.csv";
+    // Backup file
+    copy($incifile,"../INCI-backup.csv");
+    // Get data frmo csv files
+    $oldinci = array_map("str_getcsv",file($incifile,FILE_IGNORE_NEW_LINES));
+    $incidictionary = array_column($oldinci,1);
+    $of = fopen($incifile,'a');
+    $newdata = array_map("str_getcsv",file($scrapedf,FILE_IGNORE_NEW_LINES));
+    // Get last number of ingredient in INCI.csv
+    $numbers = array_column($oldinci,0);
+    $lastnumber = array_pop($numbers);
+    // All new names of ingredients
+    $newinci = array_column($newdata,0);
+    foreach ($newinci as $key => $ing) {
+        if (!in_array($ing,$incidictionary)) {
+            // Increase last number
+            $lastnumber++;
+            // All data for row
+            $data[] = $lastnumber;
+            $data[] = $newdata[$key][0];
+            $data[] = !empty($newdata[$key][2]) ? $newdata[$key][2] : "-";
+            $data[] = !empty($newdata[$key][3]) ? $newdata[$key][3] : "-";
+            $data[] = !empty($newdata[$key][5]) ? $newdata[$key][5] . " #CosIng" : "#CosIng";
+            $data[] = $newdata[$key][8];
+            $data[] = !empty($newdata[$key][6]) ? $newdata[$key][6] : "UNKNOWN";
+            // Quote non empty cells
+            foreach ($data as $k => $v) {
+                if (!empty($v)) {
+                    $data[$k] = '"' . $v . '"';
+                }
+            }
+            // Create line to add
+            $line = implode(",",$data) . "\n";
+            unset($data);
+            // write new line
+            fwrite($of,$line);
+        }
+    }
+
+    // Close file
+    fclose($of);
+}
 ?>
 </div>
 </body>
