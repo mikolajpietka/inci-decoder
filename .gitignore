@@ -3,3 +3,4 @@ reports.csv
 .htaccess
 geninci.php
 INCI-backup.csv
+datatools/scraped.csv
