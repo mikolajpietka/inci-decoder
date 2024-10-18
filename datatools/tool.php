@@ -236,6 +236,47 @@ if (false) {
         }
     }
 }
+
+// Check and add missing ingredients from CosIng into INCI.csv
+if (false) {
+    $incifile = "../INCI.csv";
+    // Backup file
+    copy($incifile,"../INCI-backup.csv");
+    $cosing = "cosing.json";
+    $oldinci = array_map("str_getcsv",file($incifile,FILE_IGNORE_NEW_LINES));
+    $cosingarray = json_decode(file_get_contents($cosing),true);
+    $dictionary = array_column($oldinci,1);
+    $numbers = array_column($oldinci,0);
+    $lastnumber = array_pop($numbers);
+    $cosingnames = array_keys($cosingarray);
+    $of = fopen($incifile,'a');
+
+    // echo "<table class=\"table\">";
+    foreach ($cosingnames as $inci) {
+        if (!in_array($inci,$dictionary)) {
+            $lastnumber++;
+            $data[] = $lastnumber;
+            $data[] = $inci;
+            $data[] = !empty($cosingarray[$inci]['casno']) ? $cosingarray[$inci]['casno'] : "-";
+            $data[] = !empty($cosingarray[$inci]['ecno']) ? $cosingarray[$inci]['ecno'] : "-";
+            $data[] = !empty($cosingarray[$inci]['anx']) ? $cosingarray[$inci]['anx'] . " #CosIng" : "#CosIng";
+            $data[] = $cosingarray[$inci]['refno'];
+            $data[] = !empty($cosingarray[$inci]['function']) ? implode(" | ",$cosingarray[$inci]['function']) : "UNKNOWN";
+
+            foreach ($data as $k => $v) {
+                if (!empty($v)) {
+                    $data[$k] = '"' . $v . '"';
+                }
+            }
+            $line = implode(",",$data);
+            unset($data);
+            fwrite($of,$line."\n");
+            // echo "<tr><td>$lastnumber</td><td>$inci</td><td>$cas</td><td>$we</td><td>$anx</td><td>$refno</td><td>$functions</td></tr>";
+        }
+    }
+    // echo "</table>";
+    fclose($of);
+}
 ?>
 </div>
 </body>
