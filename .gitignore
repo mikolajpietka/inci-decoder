@@ -4,3 +4,4 @@ reports.csv
 geninci.php
 INCI-backup.csv
 datatools/scraped.csv
+datatools/data/*
