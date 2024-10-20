@@ -14,7 +14,17 @@ def filecheck():
                     print(f"Deleted {file}")
 
 def addtocsv():
+    csvfile = "rawdata.csv"
+    with open(csvfile,"r+",encoding="utf-8") as cf:
+        cf.close()
+    for file in os.listdir("data"):
+        file = "data/" + file
+        with open(file,"r",encoding="utf-8") as of:
+            data = json.load(of)
+
+            of.close()
     # Work in progress
     print()
 
-filecheck()
+# filecheck()
+addtocsv()
