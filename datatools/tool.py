@@ -16,18 +16,31 @@ def filecheck():
             os.remove(file)
             print("File deleted - empty")
 
-def addtocsv():
-    csvfile = "rawdata.csv"
-    with open(csvfile,"r+",encoding="utf-8") as cf:
-        cf.close()
-    for file in os.listdir("data"):
-        file = "data/" + file
-        with open(file,"r",encoding="utf-8") as of:
-            data = json.load(of)
+def summjson():
+    jsonfile = "rawdata.json"
+    dir = "test/"
+    with open(jsonfile,"w",encoding="utf-8") as jf:
+        datatowrite = {}
+        i = 1
+        for file in os.listdir(dir):
+            file = dir + file
+            print(f"Getting info from: {file}")
+            with open(file,"r",encoding="utf-8") as of:
+                dataall = json.load(of)
+                data = dataall["results"][0]["metadata"]
+                if data["itemType"][0] == "ingredient":
+                    collected = {}
+                    collected["refNo"] = data["substanceId"][0]
+                    collected["inci"] = data["inciName"][0]
+                    if len(data["casNo"]) != 0:
+                        collected["casNo"] = data["casNo"][0]
+                    else:
+                        collected["casNo"] = "-"
+                    datatowrite[i] = collected
+                    i += 1
+                of.close()
+        json.dump(datatowrite,jf,indent=2)
+        jf.close()
 
-            of.close()
-    # Work in progress
-    print()
-
-filecheck()
-# addtocsv()
+# filecheck()
+summjson()
