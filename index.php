@@ -3,7 +3,7 @@ setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
 error_reporting(0);
 
-function lettersize($text,$debug=false) {
+function lettersize($text) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
     $separators = [",",".","-","+","(",")"," ","/","&",":","'","•",";","\\","|"];
@@ -63,16 +63,6 @@ function lettersize($text,$debug=false) {
             $newpart[] = ucfirst($part);
         }
     }
-    // Debug output
-    if ($debug) {
-        echo "Separators to check: " . implode(" | ",$separators) . "<br>";
-        if (!empty($usedseps)) echo "Used separators in text: " . implode(" | ",$usedseps); else echo "No separators";
-        echo "<br>";
-        if (!empty($positions)) echo "Sorted positions of separators: " . implode(" | ",$positions) . "<br>";
-        echo "Splitted text: " . implode(" | ",$split) . "<br>";
-        echo "Splitted corrected text: " . implode(" | ",$newpart) . "<br>";
-        echo "Corrected text: " . implode($newpart);
-    }
     // Return corrected 
     return implode($newpart);
 }
@@ -103,6 +93,29 @@ function suggestinci($text,$array,$attempt=1) {
     }
     // If less than 3 suggestion then recurence with less similarity
     return suggestinci($text,$array,$attempt+1);
+}
+
+function showdifferences($model,$tocompare) {
+    if (strcasecmp($model,$tocompare)==0) return false;
+    $fbase = strlen($model) == strlen($tocompare) ? $tocompare : (strlen($model) > strlen($tocompare) ? $model : $tocompare);
+    $tbase = strlen($model) == strlen($tocompare) ? $model : (strlen($model) < strlen($tocompare) ? $model : $tocompare);
+    $fbsplit = str_split($fbase);
+    $tbsplit = str_split($tbase);
+    $differences = [];
+    for ($i=0; $i < strlen($fbase); $i++) {
+        if ((isset($tbsplit[$i]) && strcasecmp($fbsplit[$i],$tbsplit[$i]) != 0)) {
+            $differences[] = $i;
+        }
+    }
+    if (strlen($fbase) != strlen($tbase)) { // empty($differences) && 
+        for ($i = strlen($tbase); $i < strlen($fbase); $i++) {
+            $differences[] = $i;
+        }
+    }
+    foreach ($differences as $pos) {
+        $fbsplit[$pos] = '<span class="text-danger">' . $fbsplit[$pos] . "</span>";
+    }
+    return implode($fbsplit); 
 }
 
 if (isset($_GET['micro'])) {
@@ -261,6 +274,55 @@ if (!empty($_POST['inci'])) {
 if (isset($_GET['additional']) && isset($_POST['inci'])) {
     $options = $_POST['options'];
 }
+// Comparing mode
+if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) {
+    // Remove double spaces and eol for both inci inputs
+    $incimodel = str_replace(["\r\n", "\n", "\r", "  "]," ",$_POST["inci-model"]);
+    $incicompare = str_replace(["\r\n", "\n", "\r", "  "]," ",$_POST["inci-compare"]);
+    // Check if both strings are the same (case-insensitive)
+    if (strcasecmp($incimodel,$incicompare) == 0) {
+        $comparison = true;
+    } else {
+        $comparison = false;
+        $marked = showdifferences($incimodel,$incicompare);
+    }
+    // Different separators
+    if ($_POST['separator'] == "difsep") {
+        $mainseparator = " " . trim($_POST['difsep']) . " ";
+    } else {
+        $mainseparator = $_POST['separator'];
+    }
+    // Exploded inci-model to analyze ingredients
+    $inciexp = explode($mainseparator,$_POST['inci-model']);
+    foreach ($inciexp as $ingredient) {
+        if (empty($ingredient)) continue;
+        $incitest[] = lettersize(trim($ingredient));
+    }
+    // Recreate ingredients with correct lettersize
+    $fail = 0;
+    foreach ($incitest as $ingredient) { 
+        // Test for nano ingredients
+        if (str_contains($ingredient,"(nano)")) {
+            // If yes then cut-off nano part and check if ingredient is correct
+            $temping = trim(str_replace("(nano)","",$ingredient));
+            if (!in_array(strtoupper($temping),$slownik)) {
+                $fail = 1;
+            }
+        } else {
+            // If no just check
+            if (!in_array(strtoupper($ingredient),$slownik)) {
+                $fail = 1;
+            }
+        }
+    }
+    // Check for duplicates
+    $counted = array_count_values(array_map('strtoupper',$incitest));
+    foreach ($counted as $key => $value) {
+        if ($value > 1) {
+            $duplicates[] = $key;
+        }
+    }
+}
 // Showing random ingredient for testing
 if (isset($_GET['random'])) {
     if (!empty($_GET['random']) && is_numeric($_GET['random'])) {
@@ -297,7 +359,8 @@ if (isset($_GET['random'])) {
         </button>
         <div class="collapse navbar-collapse" id="navbar">
             <div class="navbar-nav nav-underline">
-                <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Cały skład</a>
+                <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Weryfikacja</a>
+                <a href="?compare" class="nav-link<?php if (isset($_GET['compare'])) echo " active"; ?>">Porównanie</a>
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#microplastics" data-bs-toggle="modal" class="nav-link">Mikroplastiki ECHA 520</a>
@@ -308,11 +371,28 @@ if (isset($_GET['random'])) {
         </div>
     </nav>
     <div class="container my-3">
+        <?php if (!isset($_GET['compare'])): ?>
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
+        <?php else: ?>
+        <h2>Porównanie składów i weryfikacja</h2>
+        <?php endif; ?>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
+            <?php if (!isset($_GET['compare'])): ?>
             <textarea class="form-control" id="inci" name="inci" <?php if (isset($_GET['random']) || isset($_GET['alling'])) echo 'rows="1"'; else echo 'rows="12"'; if (!isset($recreate) && !isset($_GET['random'])) echo " autofocus"; ?>><?php if (isset($recreate)) echo $recreate; ?></textarea>
-            <?php if (isset($_GET['additional'])) : ?>
+            <?php else: ?>
+            <div class="row row-cols-1 row-cols-lg-2 g-3">
+                <div class="col">
+                    <h5>Zaakceptowany skład</h5>
+                    <textarea class="form-control" rows="9" id="inci-model" name="inci-model" <?php if (empty($_POST['inci-model'])) echo "autofocus"; ?> required><?php if (!empty($incimodel)) echo $incimodel; ?></textarea>
+                </div>
+                <div class="col">
+                    <h5>Skład do porównania</h5>
+                    <textarea class="form-control" rows="9" id="inci-compare" name="inci-compare" required><?php if (!empty($incicompare)) echo $incicompare; ?></textarea>
+                </div>
+            </div>
+            <?php endif;
+            if (isset($_GET['additional'])) : ?>
             <div class="card w-100 mt-3 p-3">
                 <table class="table">
                     <thead>
@@ -366,10 +446,10 @@ if (isset($_GET['random'])) {
                     <button type="button" class="btn btn-outline-danger w-100" onclick="cleartextarea()"><i class="bi bi-trash3-fill"></i> Wyczyść</button>
                 </div>
                 <div class="col">
-                    <button type="button" class="btn btn-outline-success w-100<?php if (empty($_POST['inci'])) echo " disabled"; ?>" onclick="ctrlz()"><i class="bi bi-arrow-counterclockwise"></i> Cofnij zmiany</button>
+                    <button type="button" class="btn btn-outline-success w-100<?php if (empty($_POST['inci']) || isset($_GET['compare'])) echo " disabled"; ?>" onclick="ctrlz()"><i class="bi bi-arrow-counterclockwise"></i> Cofnij zmiany</button>
                 </div>
                 <div class="btn-group col" role="group">
-                    <input type="checkbox" class="btn-check" name="connector" id="connector" <?php if (isset($_POST['connector'])) echo "checked"; ?>>
+                    <input type="checkbox" class="btn-check" name="connector" id="connector" <?php if (isset($_POST['connector'])) echo "checked"; if (isset($_GET['compare'])) echo "disabled"; ?>>
                     <label class="btn btn-outline-primary" for="connector">Zamień <i class="bi bi-arrow-return-left"></i> na separator</label>
                 </div>
                 <div class="col">
@@ -394,7 +474,13 @@ if (isset($_GET['random'])) {
             <h3 class="text-success fw-bold my-2 ms-5">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></h3>
         <?php else: ?>
             <h3 class="text-warning fw-bold my-2 ms-5">INCI zawiera powtórzenia <i class="bi bi-exclamation-triangle"></i></h3>
-        <?php endif; ?>
+        <?php endif; 
+        if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])):  if ($comparison): ?>
+            <h3 class="text-success fw-bold my-2 ms-5">Indentyczne składy <i class="bi bi-hand-thumbs-up-fill"></i></h3>
+        <?php else: ?>
+            <h3 class="text-danger fw-bold my-2 ms-5">Składy nie są Indentyczne <i class="bi bi-emoji-frown-fill"></i></h3>
+            <div class="d-flex gap-2 mx-5"><strong class="text-danger">Różnice:</strong><span><?php echo $marked; ?></span></div>
+        <?php endif; endif; ?>
         <div class="m-4">
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
             <div class="table-responsive-md">
@@ -581,16 +667,23 @@ if (isset($_GET['random'])) {
     </div>
     <script>
         function cleartextarea() {
-            const inci = document.querySelector('#inci');
-            inci.innerText = '';
-            inci.value = '';
+            const inci = document.querySelectorAll('textarea');
+            inci.forEach(x => {
+                x.innerText = '';
+                x.value = '';
+            })
             const connector = document.querySelector('#connector');
             connector.checked = false;
             const separator = document.querySelector('#separator');
             separator.selectedIndex = 0;
             const difsep = document.querySelector('#difsep');
             difsep.value = '';
-            inci.focus();
+            if (tofocus = document.querySelector("#inci")) {
+                tofocus.focus();
+            }
+            if (tofocus = document.querySelector("#inci-model")) {
+                tofocus.focus();
+            }   
         }
         function copyText(span) {
             navigator.clipboard.writeText(span.innerText);
@@ -704,7 +797,7 @@ if (isset($_GET['random'])) {
                 x.className = "user-select-all nowrap";
             })
             span.className += " text-success";
-            const textareainci = document.querySelector("#inci");
+            const textareainci = document.querySelector("#inci,#inci-model");
             textareainci.value = textareainci.value.replace(textfrom,textto);
             window.getSelection().removeAllRanges();
             // Notification
