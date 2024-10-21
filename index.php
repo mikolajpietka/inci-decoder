@@ -375,7 +375,7 @@ if (isset($_GET['random'])) {
         <h2>Sprawdzanie INCI</h2>
         <h5>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h5>
         <?php else: ?>
-        <h2>Porównanie składów i weryfikacja</h2>
+        <h2>Porównanie składów i weryfikacja (prototyp)</h2>
         <?php endif; ?>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
             <?php if (!isset($_GET['compare'])): ?>
