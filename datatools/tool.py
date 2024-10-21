@@ -12,6 +12,9 @@ def filecheck():
                 if len(data["results"]) == 0:
                     os.remove(file)
                     print(f"Deleted {file}")
+        else:
+            os.remove(file)
+            print("File deleted - empty")
 
 def addtocsv():
     csvfile = "rawdata.csv"
@@ -26,5 +29,5 @@ def addtocsv():
     # Work in progress
     print()
 
-# filecheck()
-addtocsv()
+filecheck()
+# addtocsv()
