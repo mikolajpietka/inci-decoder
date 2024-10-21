@@ -35,4 +35,4 @@ def rangescrapjson(fromno,tono):
     driver.quit()
 
 # rangescrapjson(27920, 106000) # All ingredients
-rangescrapjson(59065,106000) # Partial due to pauses
+rangescrapjson(97621,106000) # Partial due to pauses
