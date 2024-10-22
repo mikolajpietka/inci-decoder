@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 def filecheck():
     for file in os.listdir("data"):
@@ -17,8 +18,8 @@ def filecheck():
             print("File deleted - empty")
 
 def summjson():
-    jsonfile = "rawdata.json"
-    dir = "test/"
+    jsonfile = "datatools/rawdata.json"
+    dir = "datatools/data/"
     with open(jsonfile,"w",encoding="utf-8") as jf:
         datatowrite = {}
         i = 1
@@ -36,6 +37,29 @@ def summjson():
                         collected["casNo"] = data["casNo"][0]
                     else:
                         collected["casNo"] = "-"
+                    if len(data["ecNo"]) != 0:
+                        collected["ecNo"] = data["ecNo"][0]
+                    else:
+                        collected["ecNo"] = "-"
+                    if len(data["cosmeticRestriction"]) != 0:
+                        if "Please consider whether entry 419 of Annex II" in data["cosmeticRestriction"][0]:
+                            collected["anx"] = "II/419 #Do oceny"
+                        else:
+                            rawtxt = str(data["cosmeticRestriction"][0])
+                            rawtxt = re.sub("\([a-zA-Z0-9\s\;\:]+\)|\ ","",rawtxt)
+                            rawtxt = rawtxt.replace("\r\n",", ")
+                            collected["anx"] = rawtxt
+                    else:
+                        if len(data["annexNo"]) != 0 and len(data["refNo_digit"]) != 0:
+                            collected["anx"] = f"{data["annexNo"][0]}/{data["refNo_digit"][0]}"
+                        else:
+                            collected["anx"] = ""
+                    collected["function"] = data["functionName"]
+                    if len(data["chemicalDescription"]) != 0:
+                        collected["description"] = data["chemicalDescription"][0]
+                    else:
+                        collected["description"] = ""
+
                     datatowrite[i] = collected
                     i += 1
                 of.close()

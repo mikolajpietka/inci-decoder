@@ -24,7 +24,7 @@ def rangescrapjson(fromno,tono):
         if (scraped != None):
             data = json.loads(scraped[0])
             if (len(data["results"]) != 0):
-                with open(f"data/{number}.json","w",encoding="utf-8") as f:
+                with open(f"datatools/data/{number}.json","w",encoding="utf-8") as f:
                     json.dump(data,f,indent=4)
                     f.close()
             else:
@@ -34,5 +34,27 @@ def rangescrapjson(fromno,tono):
         del driver.requests
     driver.quit()
 
+def singleing(number):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--log-level=3")
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    driver = webdriver.Chrome(options=options)
+    driver.minimize_window()
+    url = f"https://ec.europa.eu/growth/tools-databases/cosing/details/{number}"
+    print(f"Scraping json data from reference number: {number}")
+    scraped = webscrapjson(url,driver)
+    if (scraped != None):
+        data = json.loads(scraped[0])
+        if (len(data["results"]) != 0):
+            with open(f"datatools/data/{number}.json","w",encoding="utf-8") as f:
+                json.dump(data,f,indent=4)
+                f.close()
+                print("Done!")
+        else:
+            print("Empty page")
+    else:
+        print("Timeout")
+    del driver.requests
+    driver.quit()
 # rangescrapjson(27920, 106000) # All ingredients
-rangescrapjson(97621,106000) # Partial due to pauses
+singleing(int(input("Enter reference number to scrap: ")))

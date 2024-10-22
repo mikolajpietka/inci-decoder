@@ -1,212 +1,373 @@
 {
   "1": {
-    "refNo": "100000",
-    "inci": "ARNICA MONTANA FLOWER/RHIZOME/ROOT POWDER",
-    "casNo": "-"
+    "refNo": "105104",
+    "inci": "BIMATOPROST",
+    "casNo": "155206-00-1",
+    "ecNo": "-",
+    "anx": "",
+    "function": [
+      "EYELASH CONDITIONING"
+    ],
+    "description": "Bimatoprost is the organic compound that conforms to the formula"
   },
   "2": {
-    "refNo": "100001",
-    "inci": "BERBERIS VULGARIS RHIZOME/ROOT POWDER",
-    "casNo": "-"
+    "refNo": "32700",
+    "inci": "CI 11920",
+    "casNo": "2051-85-6",
+    "ecNo": "218-131-9",
+    "anx": "IV/7, II/1343",
+    "function": [
+      "COLORANT"
+    ],
+    "description": "CI 11920 is classed chemically as a monoazo colour. It conforms to the formula:"
   },
   "3": {
-    "refNo": "100002",
-    "inci": "CRYPTOCARYA MASSOY BARK EXTRACT",
-    "casNo": "85085-26-3"
+    "refNo": "32857",
+    "inci": "CITRAL",
+    "casNo": "5392-40-5",
+    "ecNo": "226-394-6",
+    "anx": "III/70",
+    "function": [
+      "FRAGRANCE",
+      "PERFUMING",
+      "FLAVOURING"
+    ],
+    "description": "Citral is the aldehyde that conforms to the formula:"
   },
   "4": {
-    "refNo": "100003",
-    "inci": "EUPHRASIA OFFICINALIS POWDER",
-    "casNo": "-"
+    "refNo": "32858",
+    "inci": "CITRIC ACID",
+    "casNo": "77-92-9 / 5949-29-1",
+    "ecNo": "201-069-1",
+    "anx": "",
+    "function": [
+      "BUFFERING",
+      "CHELATING",
+      "FRAGRANCE"
+    ],
+    "description": "Citric Acid is the organic acid that conforms to the formula:"
   },
   "5": {
-    "refNo": "100004",
-    "inci": "FRANGULA ALNUS POWDER",
-    "casNo": "-"
+    "refNo": "32859",
+    "inci": "CITROBACTER/SOY PROTEIN FERMENT",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": "Citrobacter/Soy Protein Ferment is the product obtained by fermentation of soy protein by the microorganism Citrobacter"
   },
   "6": {
-    "refNo": "100005",
-    "inci": "SAMBUCUS NIGRA FLOWER POWDER",
-    "casNo": "84603-58-7 (generic)"
+    "refNo": "32861",
+    "inci": "CITRONELLOL",
+    "casNo": "106-22-9 / 26489-01-0 / 7540-51-4 / 1117-61-9",
+    "ecNo": "203-375-0 / 247-737-6 / 231-415-7 / 214-250-5",
+    "anx": "III/86",
+    "function": [
+      "PERFUMING"
+    ],
+    "description": ""
   },
   "7": {
-    "refNo": "100006",
-    "inci": "SANGUINARIA CANADENSIS POWDER",
-    "casNo": "-"
+    "refNo": "32863",
+    "inci": "CITRULLINE",
+    "casNo": "372-75-8",
+    "ecNo": "206-759-6",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": ""
   },
   "8": {
-    "refNo": "100007",
-    "inci": "VIBURNUM PRUNIFOLIUM POWDER",
-    "casNo": "-"
+    "refNo": "32869",
+    "inci": "CITRUS AURANTIFOLIA JUICE",
+    "casNo": "90063-52-8",
+    "ecNo": "290-010-3",
+    "anx": "II/358",
+    "function": [
+      "CLEANSING",
+      "HAIR CONDITIONING",
+      "SKIN CONDITIONING",
+      "TONIC"
+    ],
+    "description": "Citrus Aurantifolia Juice is the liquid expressed from the fresh pulp of the Lime, Citrus aurantifolia, Rutaceae"
   },
   "9": {
-    "refNo": "100008",
-    "inci": "YUCCA BREVIFOLIA POWDER",
-    "casNo": "90147-57-2 (generic)/91722-59-7"
+    "refNo": "32871",
+    "inci": "CITRUS AURANTIFOLIA PEEL EXTRACT",
+    "casNo": "90063-52-8",
+    "ecNo": "290-010-3",
+    "anx": "II/358",
+    "function": [
+      "CLEANSING",
+      "HAIR CONDITIONING",
+      "SKIN CONDITIONING",
+      "TONIC",
+      "PERFUMING"
+    ],
+    "description": "Citrus Aurantifolia Peel Extract is an extract of the peel of the Lime, Citrus aurantifolia, Rutaceae"
   },
   "10": {
-    "refNo": "100009",
-    "inci": "POGOSTEMON CABLIN OIL",
-    "casNo": "8014-09-3"
+    "refNo": "32880",
+    "inci": "CITRUS AURANTIUM DULCIS FLOWER EXTRACT",
+    "casNo": "8028-48-6",
+    "ecNo": "232-433-8",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": "Citrus Aurantium Dulcis Flower Extract is an extract of the flowers of the Sweet Orange, Citrus aurantium L. var. dulcis L., Rutaceae"
   },
   "11": {
-    "refNo": "100010",
-    "inci": "CHAMAECYPARIS OBTUSA POWDER",
-    "casNo": "91745-97-0 (generic)"
+    "refNo": "32882",
+    "inci": "CITRUS AURANTIUM DULCIS FLOWER WATER",
+    "casNo": "8028-48-6",
+    "ecNo": "232-433-8",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": "Citrus Aurantium Dulcis Flower Water is an aqueous solution of the odoriferous principles of the flowers of the Sweet Orange, Citrus aurantium L. var. dulcis L., Rutaceae"
   },
   "12": {
-    "refNo": "100011",
-    "inci": "IRIS FLORENTINA ROOT POWDER",
-    "casNo": "-"
+    "refNo": "32884",
+    "inci": "CITRUS AURANTIUM DULCIS PEEL CERA",
+    "casNo": "8028-48-6",
+    "ecNo": "232-433-8",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING - EMOLLIENT",
+      "SKIN CONDITIONING"
+    ],
+    "description": "Citrus Aurantium Dulcis Peel Cera is the wax obtained from the peel of the fruit of the Sweet Orange, Citrus aurantium L. var. dulcis L., Rutaceae"
   },
   "13": {
-    "refNo": "100012",
-    "inci": "ACORUS CALAMUS ROOT POWDER",
-    "casNo": "-"
+    "refNo": "32886",
+    "inci": "CITRUS AURANTIUM DULCIS SEED EXTRACT",
+    "casNo": "8028-48-6",
+    "ecNo": "232-433-8",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": "Citrus Aurantium Dulcis Seed Extract is an extract of the seeds of the Sweet Orange, Citrus aurantium L. var. dulcis L., Rutaceae"
   },
   "14": {
-    "refNo": "100013",
-    "inci": "VALERIANA WALLICHII ROOT POWDER",
-    "casNo": "-"
+    "refNo": "32889",
+    "inci": "CITRUS GRANDIS JUICE",
+    "casNo": "90045-43-5 / 8016-20-4",
+    "ecNo": "289-904-6 / -",
+    "anx": "II/358",
+    "function": [
+      "ASTRINGENT",
+      "SKIN CONDITIONING",
+      "TONIC"
+    ],
+    "description": "Citrus Grandis Juice is the liquid expressed from the fresh pulp of the Grapefruit, Citrus grandis, Rutaceae"
   },
   "15": {
-    "refNo": "100014",
-    "inci": "BOSWELLIA CARTERII BARK POWDER",
-    "casNo": "89957-98-2 (generic)/1491152-64-7 (generic)"
+    "refNo": "32893",
+    "inci": "CITRUS GRANDIS SEED EXTRACT",
+    "casNo": "90045-43-5 / 8016-20-4",
+    "ecNo": "289-904-6 / -",
+    "anx": "II/358",
+    "function": [
+      "ASTRINGENT",
+      "SKIN CONDITIONING",
+      "TONIC",
+      "PERFUMING"
+    ],
+    "description": "Citrus Grandis Seed Extract is an extract of the seeds of the Grapefruit, Citrus grandis, Rutaceae"
   },
   "16": {
-    "refNo": "100015",
-    "inci": "BERBERIS ARISTATA STEM POWDER",
-    "casNo": "-"
+    "refNo": "32897",
+    "inci": "CITRUS MEDICA LIMONUM JUICE EXTRACT",
+    "casNo": "92346-89-9 / 84929-31-7",
+    "ecNo": "296-174-2 / 284-515-8",
+    "anx": "",
+    "function": [
+      "TONIC"
+    ],
+    "description": "Citrus Medica Limonum Juice Extract is an extract of the juice of the Lemon, Citrus medica L. ssp. limonum, Rutaceae"
   },
   "17": {
-    "refNo": "100016",
-    "inci": "PAVONIA ODORATA ROOT POWDER",
-    "casNo": "-"
+    "refNo": "37595",
+    "inci": "SALICYLIC ACID",
+    "casNo": "69-72-7",
+    "ecNo": "200-712-3",
+    "anx": "III/98, V/3",
+    "function": [
+      "ANTI-SEBORRHEIC",
+      "HAIR CONDITIONING",
+      "KERATOLYTIC",
+      "FRAGRANCE",
+      "PRESERVATIVE",
+      "SKIN CONDITIONING"
+    ],
+    "description": "Salicylic Acid is the aromatic acid that conforms to the formula:"
   },
   "18": {
-    "refNo": "100017",
-    "inci": "INULA RACEMOSA ROOT POWDER",
-    "casNo": "-"
+    "refNo": "38617",
+    "inci": "TITANIUM DIOXIDE",
+    "casNo": "13463-67-7",
+    "ecNo": "236-675-5",
+    "anx": "IV/143, VI/27, VI/27a",
+    "function": [
+      "COLORANT",
+      "OPACIFYING",
+      "UV ABSORBER",
+      "UV FILTER"
+    ],
+    "description": "Titanium Dioxide is the inorganic oxide.\r\nTo identify the colourant meeting the requirements for labelling purposes in the EU, the INCI Name 77891 must be used.\r\nIt conforms generally to the formula:"
   },
   "19": {
-    "refNo": "100018",
-    "inci": "CAESALPINIA SAPPAN STEM POWDER",
-    "casNo": "-"
+    "refNo": "41387",
+    "inci": "CITRUS AURANTIFOLIA PEEL OIL EXPRESSED",
+    "casNo": "90063-52-8",
+    "ecNo": "290-010-3",
+    "anx": "II/358",
+    "function": [
+      "PERFUMING"
+    ],
+    "description": "\"Lime Oil\". Essential oil expressed from the epicarps of the Lime, Citrus aurantifolia, Rutaceae. It contains chiefly mainly D-limonene and 5% citral (low terpineol)"
   },
   "20": {
-    "refNo": "100019",
-    "inci": "MORINDA CITRIFOLIA FRUIT POWDER",
-    "casNo": "-"
+    "refNo": "59781",
+    "inci": "TOLUENE-2,6-DIAMINE",
+    "casNo": "823-40-5",
+    "ecNo": "212-513-9",
+    "anx": "II/413",
+    "function": [
+      "HAIR DYEING"
+    ],
+    "description": "Toluene-2,6-Diamine is the substituted aromatic amine that conforms to the formula:"
   },
   "21": {
-    "refNo": "100020",
-    "inci": "POLYAMINOPROPYL BIGUANIDE STEARATE",
-    "casNo": "-"
+    "refNo": "92396",
+    "inci": "EGG",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "II/419 #Do oceny",
+    "function": [
+      "HAIR CONDITIONING",
+      "SKIN CONDITIONING"
+    ],
+    "description": "Egg is the entire content of chicken eggs"
   },
   "22": {
-    "refNo": "100021",
-    "inci": "CAMELLIA OLEIFERA LEAF POWDER",
-    "casNo": "-"
+    "refNo": "92397",
+    "inci": "EGG OIL",
+    "casNo": "8001-17-0",
+    "ecNo": "232-271-8",
+    "anx": "II/419 #Do oceny",
+    "function": [
+      "HAIR CONDITIONING",
+      "SKIN CONDITIONING"
+    ],
+    "description": "Egg Oil is the oil obtained by extraction of the yolks of fresh chicken eggs."
   },
   "23": {
-    "refNo": "100022",
-    "inci": "AGASTACHE FOENICULUM POWDER",
-    "casNo": "-"
+    "refNo": "92398",
+    "inci": "EGG POWDER",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "II/419 #Do oceny",
+    "function": [
+      "HAIR CONDITIONING"
+    ],
+    "description": "Egg Powder is a powder obtained from the dried, ground whole chicken egg."
   },
   "24": {
-    "refNo": "100023",
-    "inci": "LITHIUM FLUORIDE",
-    "casNo": "7789-24-4"
+    "refNo": "92399",
+    "inci": "EGG YOLK EXTRACT",
+    "casNo": "91080-17-0",
+    "ecNo": "293-508-9",
+    "anx": "II/419 #Do oceny",
+    "function": [
+      "SURFACTANT - EMULSIFYING",
+      "SURFACTANT - CLEANSING"
+    ],
+    "description": "Egg Yolk Extract is the extract of chicken egg yolk."
   },
   "25": {
-    "refNo": "100024",
-    "inci": "MELISSA OFFICINALIS EXTRACT",
-    "casNo": "84082-61-1 (generic)"
+    "refNo": "97621",
+    "inci": "PROPANOYLRESORCINOL",
+    "casNo": "5792-36-9",
+    "ecNo": "227-329-4",
+    "anx": "",
+    "function": [
+      "ANTIOXIDANT"
+    ],
+    "description": "Propanoylresorcinol is the organic compound that conforms to the formula"
   },
   "26": {
-    "refNo": "100025",
-    "inci": "ARTEMISIA PRINCEPS LEAF POWDER",
-    "casNo": "223747-95-3 (generic)"
+    "refNo": "97623",
+    "inci": "ISOBUTYL OLEATE",
+    "casNo": "10024-47-2",
+    "ecNo": "233-022-6",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING - EMOLLIENT",
+      "SKIN CONDITIONING"
+    ],
+    "description": "Isobutyl Oleate is the ester of isobutyl alcohol and Oleic Acid. It conforms to the formula"
   },
   "27": {
-    "refNo": "100026",
-    "inci": "ARTEMISIA MONTANA LEAF POWDER",
-    "casNo": "-"
+    "refNo": "97624",
+    "inci": "OLIGOPEPTIDE-177 TRIFLUOROACETATE",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "",
+    "function": [
+      "SKIN PROTECTING"
+    ],
+    "description": "Oligopeptide-177 Trifluoroacetate is the trifluoroacetate salt of Oligopeptide-177."
   },
   "28": {
-    "refNo": "100027",
-    "inci": "BETULA ALBA BARK POWDER",
-    "casNo": "-"
+    "refNo": "97625",
+    "inci": "OLIGOPEPTIDE-133 TRIPEPTIDE-44 PENTAPEPTIDE-68",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": "Oligopeptide-133 Tripeptide-44 Pentapeptide-68 is the synthetic peptide containing 34 amino acids consisting of Oligopeptide-133, Tripeptide-44 and Pentapeptide-68."
   },
   "29": {
-    "refNo": "100028",
-    "inci": "CAPRYLTYROSINAMIDE",
-    "casNo": "823817-10-3"
+    "refNo": "97626",
+    "inci": "HYDROLYZED PHAEODACTYLUM TRICORNUTUM EXTRACT",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": "Hydrolyzed Phaeodactylum Tricornutum Extract is the extract of the hydrolysate of Phaeodactylum tricornutum derived by acid, enzyme or other method of hydrolysis."
   },
   "30": {
-    "refNo": "100029",
-    "inci": "ADAMANTANYLCARBOXAMIDO HYDROXYLBENZAMIDE",
-    "casNo": "847249-61-0"
+    "refNo": "97627",
+    "inci": "LEONTOPODIUM ALPINUM CALLUS EXTRACT",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "",
+    "function": [
+      "SKIN CONDITIONING"
+    ],
+    "description": "Leontopodium Alpinum Callus Extract is the extract of the callus of Leontopodium alpinum grown in culture."
   },
   "31": {
-    "refNo": "100030",
-    "inci": "ADAMANTANYL HYDROXYLTEREPHTHALAMIDE",
-    "casNo": "-"
-  },
-  "32": {
-    "refNo": "100031",
-    "inci": "PAPAVER RHOEAS SEED EXTRACT",
-    "casNo": "84696-43-5 (generic)"
-  },
-  "33": {
-    "refNo": "100032",
-    "inci": "KRAMERIA TRIANDRA ROOT POWDER",
-    "casNo": "-"
-  },
-  "34": {
-    "refNo": "100033",
-    "inci": "CURCUMA XANTHORRHIZA ROOT EXTRACT",
-    "casNo": "-"
-  },
-  "35": {
-    "refNo": "100034",
-    "inci": "XANTHORRHIZOL",
-    "casNo": "30199-26-9"
-  },
-  "36": {
-    "refNo": "100035",
-    "inci": "CRATAEGUS OXYACANTHA LEAF",
-    "casNo": "-"
-  },
-  "37": {
-    "refNo": "100036",
-    "inci": "MACADAMIA TERNIFOLIA SEEDCAKE",
-    "casNo": "-"
-  },
-  "38": {
-    "refNo": "100037",
-    "inci": "DRYOPTERIS CRASSIRHIZOMA ROOT EXTRACT",
-    "casNo": "-"
-  },
-  "39": {
-    "refNo": "100038",
-    "inci": "EUCALYPTUS RADIATA LEAF OIL",
-    "casNo": "-"
-  },
-  "40": {
-    "refNo": "100039",
-    "inci": "HEMATITE",
-    "casNo": "1317-60-8"
-  },
-  "41": {
-    "refNo": "84676",
-    "inci": "HUMAN FIBROBLAST CONDITIONED MEDIA",
-    "casNo": "-"
-  },
-  "42": {
-    "refNo": "37482",
-    "inci": "RETINYL PALMITATE",
-    "casNo": "79-81-2"
+    "refNo": "97628",
+    "inci": "PANTOEA VAGANS/ERYNGIUM MARITIMUM CALLUS FERMENT EXTRACT FILTRATE",
+    "casNo": "-",
+    "ecNo": "-",
+    "anx": "",
+    "function": [
+      "HUMECTANT",
+      "SKIN CONDITIONING"
+    ],
+    "description": "Pantoea Vagans/Eryngium Maritimum Callus Ferment Extract Filtrate is a filtrate of the extract of the product obtained by the fermentation of the callus of Eryngium maritimum by the microorganism Pantoea vagans."
   }
 }
