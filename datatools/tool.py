@@ -22,7 +22,6 @@ def summjson():
     dir = "datatools/data/"
     with open(jsonfile,"w",encoding="utf-8") as jf:
         datatowrite = {}
-        i = 1
         for file in os.listdir(dir):
             file = dir + file
             print(f"Getting info from: {file}")
@@ -46,7 +45,7 @@ def summjson():
                             collected["anx"] = "II/419 #Do oceny"
                         else:
                             rawtxt = str(data["cosmeticRestriction"][0])
-                            rawtxt = re.sub("\([a-zA-Z0-9\s\;\:]+\)|\ ","",rawtxt)
+                            rawtxt = re.sub(r"\([a-zA-Z0-9\s\;\:]+\)|\ ","",rawtxt)
                             rawtxt = rawtxt.replace("\r\n",", ")
                             collected["anx"] = rawtxt
                     else:
@@ -60,10 +59,12 @@ def summjson():
                     else:
                         collected["description"] = ""
 
-                    datatowrite[i] = collected
-                    i += 1
+                    datatowrite[collected["inci"]] = collected
                 of.close()
-        json.dump(datatowrite,jf,indent=2)
+        keys = list(datatowrite.keys())
+        keys.sort()
+        sd = {i: datatowrite[i] for i in keys}
+        json.dump(sd,jf,indent=2)
         jf.close()
 
 # filecheck()
