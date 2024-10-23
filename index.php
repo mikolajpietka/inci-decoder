@@ -3,6 +3,20 @@ setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
 error_reporting(0);
 
+class INCI {
+    private $incifile;
+    public function __construct(protected string $filename) {
+        $this->incifile = $filename;
+    }
+    public $array = json_decode(file_get_contents($this->incifile),true);
+    public function get(string $ingredient, string $property) {
+        $ingredient = strtoupper($ingredient);
+        if (empty($this->array[$ingredient])) throw new Exception("There is no such ingredient!");
+        if (!($property == "refNo" || $property == "inci" || $property == "casNo" || $property == "ecNo")) throw new Exception("Wrong property of ingrediet!");
+        return $this->array[$ingredient][$property];
+    }
+}
+
 function lettersize($text) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
