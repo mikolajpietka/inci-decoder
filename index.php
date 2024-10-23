@@ -38,6 +38,9 @@ class INCI {
         if (!in_array($property,$this->properties)) return null;
         return $this->data[$inciname][$property];
     }
+    public function suggest($mistake) {
+        // TO-DO
+    }
 }
 
 function lettersize($text) {
