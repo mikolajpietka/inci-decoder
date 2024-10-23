@@ -4,16 +4,39 @@ date_default_timezone_set('Europe/Warsaw');
 error_reporting(0);
 
 class INCI {
-    private $incifile;
+    public string $file;
+    public array $data;
+    private array $properties;
+    public array $dictionary;
     public function __construct(protected string $filename) {
-        $this->incifile = $filename;
+        if (!file_exists($filename)) throw new Exception("This file does not exist");
+        $this->file = $filename;
+        $filetype = pathinfo($filename);
+        if ($filetype["extension"] == "csv") {
+            $csvarray = array_map("str_getcsv",file($filename));
+            $this->properties = $csvarray[0];
+            foreach ($csvarray as $lk => $lv) {
+                if ($lk == 0) continue;
+                $templine = [];
+                foreach ($lv as $ck => $cv) {
+                    $templine[$this->properties[$ck]] = $cv;
+                }
+                if (!empty($templine['function'])) $templine['function'] = explode(" | ",$templine['function']);
+                $this->data[$templine['inci']] = $templine;
+            }
+        } elseif ($filetype["extension"] == "json") {
+            $this->data = json_decode(file_get_contents($filename,FILE_IGNORE_NEW_LINES),true);
+            $this->properties = array_keys($this->data[array_rand($this->data)]);
+        } else {
+            throw new Exception("Wrong type of input file (required csv or json)");
+        }
+        $this->dictionary = array_keys($this->data);
     }
-    public $array = json_decode(file_get_contents($this->incifile),true);
-    public function get(string $ingredient, string $property) {
-        $ingredient = strtoupper($ingredient);
-        if (empty($this->array[$ingredient])) throw new Exception("There is no such ingredient!");
-        if (!($property == "refNo" || $property == "inci" || $property == "casNo" || $property == "ecNo")) throw new Exception("Wrong property of ingrediet!");
-        return $this->array[$ingredient][$property];
+    public function get($inciname,$property) {
+        $inciname = strtoupper($inciname);
+        if (!array_key_exists($inciname,$this->data)) return null;
+        if (!in_array($property,$this->properties)) return null;
+        return $this->data[$inciname][$property];
     }
 }
 
@@ -224,23 +247,14 @@ if (isset($_GET['anx'])) {
     exit;
 }
 
-$csv = array_map('str_getcsv', file('INCI.csv'));
-foreach ($csv as $key => $ingredient) {
-    if ($key == 0) continue;
-    $ingredients[] = [
-        'name' => $ingredient[1],
-        'cas' => $ingredient[2],
-        'we' => $ingredient[3],
-        'annex' => $ingredient[4],
-        'ref' => $ingredient[5],
-        'function' => $ingredient[6]
-    ];
-}
-$slownik = array_column($ingredients,'name');
-$funcdict = json_decode(file_get_contents('functions.json'),true);
-
-
 if (!empty($_POST['inci'])) {
+    try {
+        $inci = new INCI("INCI.csv");
+        $funcdict = json_decode(file_get_contents('functions.json'),true);
+    } catch (Exception $e) {
+        echo "Wystąpił błąd, odśwież stronę i spróbuj ponownie";
+        exit;
+    }
     // Different separators
     if ($_POST['separator'] == "difsep") {
         $mainseparator = " " . trim($_POST['difsep']) . " ";
@@ -266,12 +280,12 @@ if (!empty($_POST['inci'])) {
         if (str_contains($ingredient,"(nano)")) {
             // If yes then cut-off nano part and check if ingredient is correct
             $temping = trim(str_replace("(nano)","",$ingredient));
-            if (!in_array(strtoupper($temping),$slownik)) {
+            if (!in_array(strtoupper($temping),$inci->dictionary)) {
                 $fail = 1;
             }
         } else {
             // If no just check
-            if (!in_array(strtoupper($ingredient),$slownik)) {
+            if (!in_array(strtoupper($ingredient),$inci->dictionary)) {
                 $fail = 1;
             }
         }
@@ -319,12 +333,12 @@ if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) {
         if (str_contains($ingredient,"(nano)")) {
             // If yes then cut-off nano part and check if ingredient is correct
             $temping = trim(str_replace("(nano)","",$ingredient));
-            if (!in_array(strtoupper($temping),$slownik)) {
+            if (!in_array(strtoupper($temping),$inci->dictionary)) {
                 $fail = 1;
             }
         } else {
             // If no just check
-            if (!in_array(strtoupper($ingredient),$slownik)) {
+            if (!in_array(strtoupper($ingredient),$inci->dictionary)) {
                 $fail = 1;
             }
         }
@@ -344,7 +358,7 @@ if (isset($_GET['random'])) {
     } else {
         $rndnum = 1;
     }
-    $incitest = array_rand(array_flip($slownik),$rndnum);
+    $incitest = array_rand(array_flip($inci->dictionary),$rndnum);
     if (is_string($incitest)) $incitest = array($incitest);
     $fail = false;
 }
@@ -375,10 +389,9 @@ if (isset($_GET['random'])) {
             <div class="navbar-nav nav-underline">
                 <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Weryfikacja</a>
                 <a href="?compare" class="nav-link<?php if (isset($_GET['compare'])) echo " active"; ?>">Porównanie</a>
-                <a href="#annex" data-bs-toggle="modal" class="nav-link">Podgląd załączników</a>
+                <a href="#annex" data-bs-toggle="modal" class="nav-link">Załączniki</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
-                <a href="#microplastics" data-bs-toggle="modal" class="nav-link">Mikroplastiki ECHA 520</a>
-                <a href="?random" class="nav-link<?php if (isset($_GET['random'])) echo " active"; ?>">Losowy składnik</a>
+                <a href="#microplastics" data-bs-toggle="modal" class="nav-link">ECHA-520</a>
                 <a href="?additional" class="nav-link visually-hidden<?php if (isset($_GET['additional'])) echo " active"; ?>">Dodatkowe opcje</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
             </div>
@@ -523,20 +536,20 @@ if (isset($_GET['random'])) {
                             if (str_contains($ingredient,"(nano)")) {
                                 // If yes then cut-off nano part and check if ingredient is correct
                                 $temping = trim(str_replace("(nano)","",$ingredient));
-                                if (in_array(strtoupper($temping),$slownik)) {
+                                if (in_array(strtoupper($temping),$inci->dictionary)) {
                                     $test = true;
-                                    $key = array_search(strtoupper($temping),$slownik);
+                                    $key = array_search(strtoupper($temping),$inci->dictionary);
                                 } else {
                                     $test = false;
-                                    $podpowiedz = suggestinci($temping,$slownik);
+                                    $podpowiedz = suggestinci($temping,$inci->dictionary);
                                 }
                             } else {
-                                if (in_array(strtoupper($ingredient),$slownik)) {
+                                if (in_array(strtoupper($ingredient),$inci->dictionary)) {
                                     $test = true;
-                                    $key = array_search(strtoupper($ingredient),$slownik);
+                                    $key = array_search(strtoupper($ingredient),$inci->dictionary);
                                 } else {
                                     $test = false;
-                                    $podpowiedz = suggestinci($ingredient,$slownik);
+                                    $podpowiedz = suggestinci($ingredient,$inci->dictionary);
                                 }
                             }
                         ?>
@@ -545,24 +558,24 @@ if (isset($_GET['random'])) {
                                 <?php if ($fail): ?>
                                 <td class="font-sm"><?php if (!$test) echo $podpowiedz; ?></td>
                                 <?php else: ?>
-                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['cas']) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
-                                <td class="dwn"><?php foreach (explode(" / ",$ingredients[$key]['we']) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
+                                <td class="dwn"><?php foreach (explode(" / ",$inci->get($ingredient,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
+                                <td class="dwn"><?php foreach (explode(" / ",$inci->get($ingredient,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
                                 <td><?php 
-                                    if (str_contains($ingredients[$key]['annex'],"I/") || str_contains($ingredients[$key]['annex'],"V/")) {
-                                        if (str_contains($ingredients[$key]['annex'],'#')) {
-                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($ingredients[$key]['annex'],0,strpos($ingredients[$key]['annex'],'#'))) .'</a> '. substr($ingredients[$key]['annex'],strpos($ingredients[$key]['annex'],'#'));
+                                    if (str_contains($inci->get($ingredient,"anx"),"I/") || str_contains($inci->get($ingredient,"anx"),"V/")) {
+                                        if (str_contains($inci->get($ingredient,"anx"),'#')) {
+                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($ingredient,"anx"),0,strpos($inci->get($ingredient,"anx"),'#'))) .'</a> '. substr($inci->get($ingredient,"anx"),strpos($inci->get($ingredient,"anx"),'#'));
                                         } else {
-                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $ingredients[$key]['annex'] .'</a>';
+                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $inci->get($ingredient,"anx") .'</a>';
                                         }
                                     } else {
-                                        echo $ingredients[$key]['annex']; 
+                                        echo $inci->get($ingredient,"anx"); 
                                     }
                                 ?></td>
-                                <td class="dwn"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
-                                <td class="dwn visually-hidden"><?php foreach (explode(" | ",$ingredients[$key]['function']) as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
+                                <td class="dwn"><?php foreach ($inci->get($ingredient,"function") as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
+                                <td class="dwn visually-hidden"><?php foreach ($inci->get($ingredient,"function") as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
                                 <td class="visually-hidden">Mikroplastik</td>
                                 <td class="visually-hidden">Opinia SCCS</td>
-                                <td class="text-center"><?php if (!empty($ingredients[$key]['ref'])) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$ingredients[$key]['ref'].'"><i class="bi bi-info-circle"></i></a>';?></td>
+                                <td class="text-center"><?php if (!empty($inci->get($ingredient,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($ingredient,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
                                 <?php endif; ?>
                             </tr>
                         <?php } ?>
