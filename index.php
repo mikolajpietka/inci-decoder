@@ -365,6 +365,12 @@ if (isset($_GET['random'])) {
     if (is_string($incitest)) $incitest = array($incitest);
     $fail = false;
 }
+
+// Get exchange rates from today
+$jsoneur = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/eur/?format=json"),true);
+$exeur = round($jsoneur['rates'][0]['mid'],2);
+$jsonusd = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json"),true);
+$exusd = round($jsonusd['rates'][0]['mid'],2)
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -395,6 +401,7 @@ if (isset($_GET['random'])) {
                 <a href="#annex" data-bs-toggle="modal" class="nav-link">Załączniki</a>
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#microplastics" data-bs-toggle="modal" class="nav-link">ECHA-520</a>
+                <a href="#currency" data-bs-toggle="modal" class="nav-link">Kursy walut</a>
                 <a href="?additional" class="nav-link visually-hidden<?php if (isset($_GET['additional'])) echo " active"; ?>">Dodatkowe opcje</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
             </div>
@@ -645,6 +652,41 @@ if (isset($_GET['random'])) {
             </div>
         </div>
     </div>
+    <div class="modal fade" id="currency" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Przelicznik walut</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Przelicznik walut zgodny z dzisiejszą tabelą kursów NBP</p>
+                    <h4>Euro €</h4>
+                    <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
+                        <div class="col">
+                            <label for="eur">EUR</label>
+                            <input type="number" class="form-control" id="eur">
+                        </div>
+                        <div class="col">
+                            <label for="plneur">PLN</label>
+                            <input type="number" class="form-control" id="plneur">
+                        </div>
+                    </div>
+                    <h4>Dolar $</h4>
+                    <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
+                        <div class="col">
+                            <label for="usd">USD</label>
+                            <input type="number" class="form-control" id="usd">
+                        </div>
+                        <div class="col">
+                            <label for="plnusd">PLN</label>
+                            <input type="number" class="form-control" id="plnusd">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="info" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -877,6 +919,34 @@ if (isset($_GET['random'])) {
                 search.value = "";
             })
         }
+
+        const eur = document.querySelector("#eur");
+        const plneur = document.querySelector("#plneur");
+        const usd = document.querySelector("#usd");
+        const plnusd = document.querySelector("#plnusd");
+        const currency = document.querySelector("#currency");
+
+        const exeur = <?php echo $exeur; ?>;
+        const exusd = <?php echo $exusd; ?>;
+
+        eur.addEventListener("input",event => {
+            plneur.value = (eur.value * exeur).toFixed(2);
+        })
+        plneur.addEventListener("input",event => {
+            eur.value = (plneur.value / exeur).toFixed(2);
+        })
+        usd.addEventListener("input",event => {
+            plnusd.value = (usd.value * exusd).toFixed(2);
+        })
+        plnusd.addEventListener("input",event => {
+            usd.value = (plnusd.value / exusd).toFixed(2);
+        })
+        currency.addEventListener("show.bs.modal", event => {
+            eur.value = (1).toFixed(2);
+            plneur.value = exeur;
+            usd.value = (1).toFixed(2);
+            plnusd.value = exusd;
+        })
     </script>
 </body>
 </html>
