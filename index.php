@@ -69,6 +69,20 @@ class INCI {
     }
 }
 
+function printtable(array $array, string $tableclass = null): string {
+    // Small function to put visually data into table
+    $result = is_null($tableclass) ? "<table style=\"border: 1px solid black; border-collapse: collapse;\">" : "<table class=\"$tableclass\">";
+    foreach ($array as $line) {
+        $result .= is_null($tableclass) ? "<tr style=\"border: 1px solid black;\">" : "<tr>";
+        foreach ($line as $cell) {
+            $result .= is_null($tableclass) ? "<td style=\"border: 1px solid black; padding: .5rem;\">$cell</td>" : "<td>$cell</td>";
+        }
+        $result .= "</tr>";
+    }
+    $result .= "</table>";
+    return $result;
+}
+
 function lettersize(string $text) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
@@ -133,32 +147,8 @@ function lettersize(string $text) {
     return implode($newpart);
 }
 
-function showdifferences(string $model,string $tocompare) {
-    if (strcasecmp($model,$tocompare)==0) return false;
-    $fbase = strlen($model) == strlen($tocompare) ? $tocompare : (strlen($model) > strlen($tocompare) ? $model : $tocompare);
-    $tbase = strlen($model) == strlen($tocompare) ? $model : (strlen($model) < strlen($tocompare) ? $model : $tocompare);
-    $fbsplit = str_split($fbase);
-    $tbsplit = str_split($tbase);
-    $differences = [];
-    for ($i=0; $i < strlen($fbase); $i++) {
-        if ((isset($tbsplit[$i]) && strcasecmp($fbsplit[$i],$tbsplit[$i]) != 0)) {
-            $differences[] = $i;
-        }
-    }
-    if (strlen($fbase) != strlen($tbase)) { // empty($differences) && 
-        for ($i = strlen($tbase); $i < strlen($fbase); $i++) {
-            $differences[] = $i;
-        }
-    }
-    foreach ($differences as $pos) {
-        $fbsplit[$pos] = '<span class="text-danger">' . $fbsplit[$pos] . "</span>";
-    }
-    return implode($fbsplit); 
-}
-
-function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>") {
+function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>"): string {
     // LCS algorithm
-    // https://stackoverflow.com/questions/321294/highlight-the-difference-between-two-strings-in-php
     $a1 = str_split($string1);
     $a2 = str_split($string2);
     $n1 = count($a1);
@@ -167,12 +157,12 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
     $mask = [];
 
     for ($i=-1;$i<$n1;$i++) $dm[$i][-1] = 0;
-    for ($j=-1;$j<$n1;$j++) $dm[-1][$j] = 0;
+    for ($j=-1;$j<$n2;$j++) $dm[-1][$j] = 0;
 
     for ($i=0;$i<$n1;$i++) {
         for ($j=0;$j<$n2;$j++) {
             if ($a1[$i] == $a2[$j]) {
-                $ad = $dm[$i-1][$j];
+                $ad = $dm[$i-1][$j-1];
                 $dm[$i][$j] = $ad + 1;
             } else {
                 $x1 = $dm[$i-1][$j];
@@ -229,14 +219,8 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
 
 if (isset($_GET['debug']) && strtolower($_GET['debug']) == "test") {
     try {
-        $inci = new INCI("INCI.csv");
-        // $inci = new INCI("datatools/rawdata.json");
-        // Tests on INCI class
-        var_dump($inci->suggest("butylphenyl metylpropional")); echo "<br><br>";
-        print_r($inci->properties); echo "<br><br>";
-        print_r($inci->get("tocopherol","refNo"));
-        echo "<br><br>";
-        echo diff("abcdefg","acbdef");
+        // Tests should be here
+
     } catch (Exception $e) {
         echo $e->getMessage();
     }
@@ -488,7 +472,7 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
         <h2>Sprawdzanie INCI</h2>
         <h6>Weryfikacja poprawności składu ze słownikiem wspólnych nazw składników (INCI) <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Więcej szczegółów w odnośniku Informacje"><i class="bi bi-info-circle"></i></span></sup></h6>
         <?php else: ?>
-        <h2>Porównanie składów i weryfikacja (prototyp)</h2>
+        <h2>Porównanie składów i weryfikacja</h2>
         <h6>Porównanie nie koryguje składów! (wielkość liter, spacje itp.)</h6>
         <?php endif; ?>
         <form method="post" <?php if (isset($_GET['random'])) echo 'action="index.php"'; ?>>
