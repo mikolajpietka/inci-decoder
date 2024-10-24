@@ -147,7 +147,7 @@ function lettersize(string $text) {
     return implode($newpart);
 }
 
-function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>"): string {
+function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>", &$table = null): string {
     // LCS algorithm
     $a1 = str_split($string1);
     $a2 = str_split($string2);
@@ -171,6 +171,7 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
             }
         }
     }
+    $table = $dm;
     $i = $n1-1;
     $j = $n2-1;
     while ($i > -1 || $j > -1) {
@@ -220,7 +221,22 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
 if (isset($_GET['debug']) && strtolower($_GET['debug']) == "test") {
     try {
         // Tests should be here
-
+        $x = "abcdefghi";
+        $y = "abcedfgji";
+        $xs = str_split($x);
+        $ys = str_split($y);
+        $test = diff($x,$y,"<strong","</strong>",$table);
+        array_unshift($xs,"");
+        array_unshift($table,$xs);
+        array_unshift($ys,"","");
+        $i = 0;
+        $table = array_map(function($line) use ($ys,&$i) {
+            array_unshift($line,$ys[$i]);
+            $i++;
+            return $line;
+        },$table);
+        echo printtable($table);
+        echo $test;
     } catch (Exception $e) {
         echo $e->getMessage();
     }
