@@ -4,11 +4,12 @@ date_default_timezone_set('Europe/Warsaw');
 if (!isset($_GET["debug"])) error_reporting(0);
 
 class INCI {
+    /* Properties */
     public string $file;
     public array $data;
     public array $dictionary;
-    private array $properties;
-
+    public array $properties;
+    /* Methods */
     public function __construct(protected string $filename) {
         if (!file_exists($filename)) throw new Exception("This file does not exist");
         $this->file = $filename;
@@ -33,18 +34,18 @@ class INCI {
         }
         $this->dictionary = array_keys($this->data);
     }
-    public function get(string $inciname, string $property) {
+    public function get(string $inciname, string $property): string | array | null {
         $inciname = strtoupper($inciname);
         if (!array_key_exists($inciname,$this->data)) return null;
         if (!in_array($property,$this->properties)) return null;
         return $this->data[$inciname][$property];
     }
-    public function suggest(string $mistake) : array | null{
+    public function suggest(string $mistake, int $startsimilarity = 75) : array | null{
         $mistake = strtoupper($mistake);
         $attempt = 1;
         while ($attempt <= 10) {
             $suggestions = [];
-            $perclimit = 75 - ($attempt - 1) * 5;
+            $perclimit = $startsimilarity - ($attempt - 1) * 5;
             $rawsuggest = array_filter($this->dictionary,function($value) use ($mistake,$perclimit) {
                 similar_text($mistake,$value,$perc);
                 if ($perc >= $perclimit) return true;
@@ -155,13 +156,86 @@ function showdifferences(string $model,string $tocompare) {
     return implode($fbsplit); 
 }
 
-if (isset($_GET['debug']) && strtolower($_GET['debug']) == "inci") {
+function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>") {
+    // LCS algorithm
+    $a1 = str_split($string1);
+    $a2 = str_split($string2);
+    $n1 = count($a1);
+    $n2 = count($a2);
+    $values = [];
+    $mask = [];
+
+    for ($i=-1;$i<$n1;$i++) $dm[$i][-1] = 0;
+    for ($j=-1;$j<$n1;$j++) $dm[-1][$j] = 0;
+
+    for ($i=0;$i<$n1;$i++) {
+        for ($j=0;$j<$n2;$j++) {
+            if ($a1[$i] == $a2[$j]) {
+                $ad = $dm[$i-1][$j];
+                $dm[$i][$j] = $ad + 1;
+            } else {
+                $x1 = $dm[$i-1][$j];
+                $x2 = $dm[$i][$j-1];
+                $dm[$i][$j] = max($x1,$x2);
+            }
+        }
+    }
+    $i = $n1-1;
+    $j = $n2-1;
+    while ($i > -1 || $j > -1) {
+        if ($j > -1) {
+            if ($dm[$i][$j-1] == $dm[$i][$j]) {
+                $values[] = $a2[$j];
+                $mask[] = true;
+                $j--;
+                continue;
+            }
+        }
+        if ($i > -1) {
+            if ($dm[$i-1][$j] == $dm[$i][$j]) {
+                $values[] = $a1[$i];
+                $mask[] = true;
+                $i--;
+                continue;
+            }
+        }
+        $values[] = $a1[$i];
+        $mask[] = false;
+        $i--;
+        $j--;
+    }
+    $values = array_reverse($values);
+    $mask = array_reverse($mask);
+    // Show result as highlighted differences
+    $pmc = 0;
+    $result = "";
+    foreach ($mask as $k => $mc) {
+        if ($mc != $pmc) {
+            if ($pmc) {
+                $result .= $closetag;
+            }
+            if ($mc) {
+                $result .= $opentag;
+            }
+        }
+        $result .= $values[$k];
+        $pmc = $mc;
+    }
+    if ($pmc) $result .= $closetag;
+
+    return $result;
+}
+
+if (isset($_GET['debug']) && strtolower($_GET['debug']) == "test") {
     try {
         $inci = new INCI("INCI.csv");
+        // $inci = new INCI("datatools/rawdata.json");
         // Tests on INCI class
-        $test = $inci->suggest("rabarbar");
-
-        var_dump($test);
+        var_dump($inci->suggest("butylphenyl metylpropional")); echo "<br><br>";
+        print_r($inci->properties); echo "<br><br>";
+        print_r($inci->get("tocopherol","refNo"));
+        echo "<br><br>";
+        echo diff("abcdefg","acbdef");
     } catch (Exception $e) {
         echo $e->getMessage();
     }
@@ -320,7 +394,8 @@ if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) {
         $comparison = true;
     } else {
         $comparison = false;
-        $marked = showdifferences($incimodel,$incicompare);
+        // $marked = showdifferences($incimodel,$incicompare);
+        $marked = diff($incimodel,$incicompare,'<span class="text-danger">','</span>');
     }
     // Different separators
     if ($_POST['separator'] == "difsep") {
@@ -385,7 +460,7 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page CSS -->
-    <link href="styles.css?ver=2.5.inci" rel="stylesheet">
+    <link href="styles.css?ver=2.6.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -528,7 +603,8 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                         <tr>
                             <th scope="col" class="dwn">INCI</th>
                             <?php if ($fail): ?>
-                            <th scope="col" class="col-10">Podpowiedź składnika</th>
+                            <th scope="col" class="col-9">Podpowiedzi składników</th>
+                            <th scope="col" class="col-1 visually-hidden">za mało...</th>
                             <?php else: ?>
                             <th scope="col" class="dwn col-2">Nr CAS</th>
                             <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
@@ -550,6 +626,7 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                             } else {
                                 $test = false;
                                 $suggestionsraw = $inci->suggest($temping);
+                                $sugred = [];
                                 foreach ($suggestionsraw as $s) {
                                     $sugred[] = '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
                                 }
@@ -560,6 +637,7 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                                 <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this)"><?php echo lettersize($ingredient); ?></span></th>
                                 <?php if ($fail): ?>
                                 <td class="font-sm"><?php if (!$test) echo $suggestions; ?></td>
+                                <td class="visually-hidden"><?php if (!$test) echo '<button type="button" class="btn btn-tiny btn-outline-light">Pokaż więcej</button>'; ?></td>
                                 <?php else: ?>
                                 <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
                                 <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>

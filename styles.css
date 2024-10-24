@@ -1,4 +1,4 @@
-/* CSS ver. 2.5.inci */
+/* CSS ver. 2.6.inci */
 .icon {
     font-size: 1em;
     vertical-align: -0.125rem;
@@ -31,4 +31,10 @@ i {
 
 .w-20 {
     width: 20% !important;
+}
+
+.btn-tiny {
+    --bs-btn-padding-y: 0.25rem;
+    --bs-btn-padding-x: 0.5rem;
+    --bs-btn-font-size: 0.75rem;
 }
