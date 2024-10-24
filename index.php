@@ -489,52 +489,6 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                     <textarea class="form-control" rows="9" id="inci-compare" name="inci-compare" required><?php if (!empty($incicompare)) echo $incicompare; ?></textarea>
                 </div>
             </div>
-            <?php endif;
-            if (isset($_GET['additional'])) : ?>
-            <div class="card w-100 mt-3 p-3">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Kolumna</th>
-                            <th scope="col">Pokaż</th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-group-divider">
-                        <tr>
-                            <th scope="row">Nr CAS</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[cas]" <?php if (isset($options) && isset($options['cas'])) echo "checked"; ?>></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Nr WE</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[we]" <?php if (isset($options) && isset($options['we'])) echo "checked"; ?>></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Załącznik Rozp. 1223/2009</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[anx]" <?php if (isset($options) && isset($options['anx'])) echo "checked"; ?>></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Funkcja (PL)</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[funcpl]" <?php if (isset($options) && isset($options['funcpl'])) echo "checked"; ?>></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Funkcja (EN)</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[funcen]" <?php if (isset($options) && isset($options['funcen'])) echo "checked"; ?>></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Odnośnik do CosIng</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[cosing]" <?php if (isset($options) && isset($options['cosing'])) echo "checked"; ?>></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Mikroplastik wg ECHA 520-scenario</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[micropl]" <?php if (isset($options) && isset($options['micropl'])) echo "checked"; ?>></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Opinie SCCS</th>
-                            <td><input type="checkbox" class="form-check-input" name="options[sccs]" <?php if (isset($options) && isset($options['sccs'])) echo "checked"; ?>></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
             <?php endif; ?>
             <div class="row row-cols-lg-3 row-cols-1 g-3 mt-2">
                 <div class="col">
@@ -583,21 +537,18 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
             <div class="table-responsive-md">
                 <table class="table table-hover table-sm align-middle caption-top">
-                    <caption><?php if ($fail) echo "Podwójne kliknięcia na podpowiedź powoduje zamianę błędnego składnika na zaznaczony."; else echo "Podwójne kliknięcie na tekst kopiuje go do schowka."; ?></caption>
+                    <caption><?php if ($fail && !isset($_GET["compare"])) echo "Podwójne kliknięcia na podpowiedź powoduje zamianę błędnego składnika na zaznaczony."; else echo "Podwójne kliknięcie na tekst kopiuje go do schowka."; ?></caption>
                     <thead>
                         <tr>
                             <th scope="col" class="dwn">INCI</th>
                             <?php if ($fail): ?>
-                            <th scope="col" class="col-9">Podpowiedzi składników</th>
-                            <th scope="col" class="col-1 visually-hidden">za mało...</th>
+                            <th scope="col" class="col-10">Podpowiedzi składników</th>
                             <?php else: ?>
                             <th scope="col" class="dwn col-2">Nr CAS</th>
                             <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
                             <th scope="col" class="col-1">1223/2009</th>
                             <th scope="col" class="dwn col-2">Funkcja</th>
                             <th scope="col" class="dwn visually-hidden">Function</th>
-                            <th scope="col" class="visually-hidden">Mikroplastik ECHA-520</th>
-                            <th scope="col" class="visually-hidden">Opinie SCCS</th>
                             <th scope="col" class="text-center col-1">CosIng</th>
                             <?php endif; ?>
                         </tr>
@@ -613,7 +564,7 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                                 $suggestionsraw = $inci->suggest($temping);
                                 $sugred = [];
                                 foreach ($suggestionsraw as $s) {
-                                    $sugred[] = '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
+                                    $sugred[] = (isset($_GET['compare'])) ? lettersize($s["inci"]) : '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
                                 }
                                 $suggestions = implode($mainseparator,$sugred);
                             }
@@ -622,7 +573,6 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                                 <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this)"><?php echo lettersize($ingredient); ?></span></th>
                                 <?php if ($fail): ?>
                                 <td class="font-sm"><?php if (!$test) echo $suggestions; ?></td>
-                                <td class="visually-hidden"><?php if (!$test) echo '<button type="button" class="btn btn-tiny btn-outline-light">Pokaż więcej</button>'; ?></td>
                                 <?php else: ?>
                                 <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
                                 <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
@@ -639,8 +589,6 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                                 ?></td>
                                 <td class="dwn"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
                                 <td class="dwn visually-hidden"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
-                                <td class="visually-hidden">Mikroplastik</td>
-                                <td class="visually-hidden">Opinia SCCS</td>
                                 <td class="text-center"><?php if (!empty($inci->get($temping,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($temping,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
                                 <?php endif; ?>
                             </tr>
