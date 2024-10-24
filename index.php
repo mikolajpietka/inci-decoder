@@ -158,6 +158,7 @@ function showdifferences(string $model,string $tocompare) {
 
 function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>") {
     // LCS algorithm
+    // https://stackoverflow.com/questions/321294/highlight-the-difference-between-two-strings-in-php
     $a1 = str_split($string1);
     $a2 = str_split($string2);
     $n1 = count($a1);
