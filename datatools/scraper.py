@@ -56,5 +56,13 @@ def singleing(number):
         print("Timeout")
     del driver.requests
     driver.quit()
+
+def imagescrap(url,driver):
+    driver.get(url)
+    try:
+        driver.wait_for_response("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics/",timeout=10)
+        data = []
+    except Exception:
+        return None
 # rangescrapjson(27920, 106000) # All ingredients
 singleing(int(input("Enter reference number to scrap: ")))
