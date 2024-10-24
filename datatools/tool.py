@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import deepl
 
 def filecheck():
     for file in os.listdir("data"):
@@ -18,8 +19,12 @@ def filecheck():
             print("File deleted - empty")
 
 def summjson():
+    authkeyfile = open("datatools/apikey.txt","r")
+    authkey = authkeyfile.read()
+    authkeyfile.close()
+    translator = deepl.Translator(authkey)
     jsonfile = "datatools/rawdata.json"
-    dir = "datatools/data/"
+    dir = "datatools/test/"
     with open(jsonfile,"w",encoding="utf-8") as jf:
         datatowrite = {}
         for file in os.listdir(dir):
@@ -55,7 +60,7 @@ def summjson():
                             collected["anx"] = ""
                     collected["function"] = data["functionName"]
                     if len(data["chemicalDescription"]) != 0:
-                        collected["description"] = data["chemicalDescription"][0]
+                        collected["description"] = translator.translate_text(data["chemicalDescription"][0],target_lang="PL").text
                     else:
                         collected["description"] = ""
 

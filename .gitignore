@@ -6,3 +6,4 @@ INCI-backup.csv
 datatools/scraped.csv
 datatools/data/*
 datatools/test/*
+datatools/apikey.txt
