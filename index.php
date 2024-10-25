@@ -147,7 +147,7 @@ function lettersize(string $text) {
     return implode($newpart);
 }
 
-function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>", &$table = null): string {
+function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>", &$matrix = null): string {
     // LCS algorithm
     $a1 = str_split($string1);
     $a2 = str_split($string2);
@@ -155,50 +155,43 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
     $n2 = count($a2);
     $values = [];
     $mask = [];
-
-    for ($i=-1;$i<$n1;$i++) $dm[$i][-1] = 0;
-    for ($j=-1;$j<$n2;$j++) $dm[-1][$j] = 0;
-
-    for ($i=0;$i<$n1;$i++) {
-        for ($j=0;$j<$n2;$j++) {
-            if ($a1[$i] == $a2[$j]) {
-                $ad = $dm[$i-1][$j-1];
-                $dm[$i][$j] = $ad + 1;
+    // Make first row and column of 0s
+    for ($y=-1;$y<$n1;$y++) $matrix[$y][-1] = 0;
+    for ($x=-1;$x<$n2;$x++) $matrix[-1][$x] = 0;
+    // Fill the rest of matrix
+    for ($y=0;$y<$n1;$y++) {
+        for ($x=0;$x<$n2;$x++) {
+            if ($a1[$y] == $a2[$x]) {
+                $matrix[$y][$x] = $matrix[$y-1][$x-1] + 1;
             } else {
-                $x1 = $dm[$i-1][$j];
-                $x2 = $dm[$i][$j-1];
-                $dm[$i][$j] = max($x1,$x2);
+                $matrix[$y][$x] = max($matrix[$y-1][$x],$matrix[$y][$x-1]);
             }
         }
     }
-    $table = $dm;
-    $i = $n1-1;
-    $j = $n2-1;
-    while ($i > -1 || $j > -1) {
-        if ($j > -1) {
-            if ($dm[$i][$j-1] == $dm[$i][$j]) {
-                $values[] = $a2[$j];
-                $mask[] = true;
-                $j--;
-                continue;
-            }
+    // Determine what is the same and different
+    $y = $n1-1;
+    $x = $n2-1;
+    while ($y > -1 || $x > -1) {
+        if ($x > -1 && $matrix[$y][$x-1] == $matrix[$y][$x]) {
+            $values[] = $a2[$x];
+            $mask[] = true;
+            $x--;
+            continue;
         }
-        if ($i > -1) {
-            if ($dm[$i-1][$j] == $dm[$i][$j]) {
-                $values[] = $a1[$i];
-                $mask[] = true;
-                $i--;
-                continue;
-            }
+        if ($y > -1 && $matrix[$y-1][$x] == $matrix[$y][$x]) {
+            $values[] = $a1[$y];
+            $mask[] = true;
+            $y--;
+            continue;
         }
-        $values[] = $a1[$i];
+        $values[] = $a1[$y];
         $mask[] = false;
-        $i--;
-        $j--;
+        $y--;
+        $x--;
     }
     $values = array_reverse($values);
     $mask = array_reverse($mask);
-    // Show result as highlighted differences
+    // Show result as highlighted differences using open and close tag
     $pmc = 0;
     $result = "";
     foreach ($mask as $k => $mc) {
@@ -222,16 +215,16 @@ if (isset($_GET['debug']) && strtolower($_GET['debug']) == "test") {
     try {
         // Tests should be here
         $x = "abcdefghi";
-        $y = "abcedfgji";
+        $y = "abedfghkii";
         $xs = str_split($x);
         $ys = str_split($y);
-        $test = diff($x,$y,"<strong","</strong>",$table);
-        array_unshift($xs,"");
-        array_unshift($table,$xs);
-        array_unshift($ys,"","");
+        $test = diff($x,$y,"<strong>","</strong>",$table);
+        array_unshift($ys,"");
+        array_unshift($table,$ys);
+        array_unshift($xs,"","");
         $i = 0;
-        $table = array_map(function($line) use ($ys,&$i) {
-            array_unshift($line,$ys[$i]);
+        $table = array_map(function($line) use ($xs,&$i) {
+            array_unshift($line,$xs[$i]);
             $i++;
             return $line;
         },$table);
@@ -446,7 +439,8 @@ if (isset($_GET['random'])) {
 $jsoneur = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/eur/?format=json"),true);
 $exeur = round($jsoneur['rates'][0]['mid'],2);
 $jsonusd = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json"),true);
-$exusd = round($jsonusd['rates'][0]['mid'],2)
+$exusd = round($jsonusd['rates'][0]['mid'],2);
+$exratedate = $jsoneur['rates'][0]['effectiveDate'];
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -680,7 +674,7 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Przelicznik walut zgodny z dzisiejszą tabelą kursów NBP</p>
+                    <p>Zgodnie z tabelą kursów walut NBP z dnia <span></span></p>
                     <h4>Euro €</h4>
                     <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
                         <div class="col">
@@ -945,9 +939,11 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
         const usd = document.querySelector("#usd");
         const plnusd = document.querySelector("#plnusd");
         const currency = document.querySelector("#currency");
+        const exdatespan = currency.querySelector(".modal-body p span");
 
         const exeur = <?php echo $exeur; ?>;
         const exusd = <?php echo $exusd; ?>;
+        const exdate = "<?php echo $exratedate; ?>";
 
         eur.addEventListener("input",event => {
             plneur.value = (eur.value * exeur).toFixed(2);
@@ -966,6 +962,7 @@ $exusd = round($jsonusd['rates'][0]['mid'],2)
             plneur.value = exeur;
             usd.value = (1).toFixed(2);
             plnusd.value = exusd;
+            exdatespan.innerText = exdate;
         })
     </script>
 </body>
