@@ -1,9 +1,5 @@
-querylog.csv
-reports.csv
 .htaccess
-geninci.php
 INCI-backup.csv
-datatools/scraped.csv
+datatools/rawdata.json
 datatools/data/*
-datatools/test/*
 datatools/apikey.txt
