@@ -1,5 +1,4 @@
 .htaccess
 INCI-backup.csv
-datatools/rawdata.json
 datatools/data/*
 datatools/apikey.txt
