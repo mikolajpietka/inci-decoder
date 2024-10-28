@@ -89,7 +89,7 @@ function printtable(array $array, string $tableclass = null): string {
 function lettersize(string $text) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
-    $separators = [",",".","-","+","(",")"," ","/","&",":","'","•",";","\\","|"];
+    $separators = [",",".","-","+","(",")"," ","/","&",":","'","•",";","\\","|","[","]"];
     // Check what separators are included in checked text
     foreach ($separators as $sep) {
         if (str_contains($text,$sep)) {
@@ -617,6 +617,25 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             <div class="modal-content">
                 <div class="modal-header fst-italic">
                     <h2 class="modal-title"></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="annexes">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Ładowanie...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="details" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
+            <div class="modal-content">
+                <div class="modal-header fst-italic">
+                    <h2 class="modal-title">Szczegóły składnika <span class="fst-italic"></span></h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
