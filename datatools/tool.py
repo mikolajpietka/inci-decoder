@@ -19,7 +19,7 @@ def filecheck():
 
 def summjson():
     jsonfile = "datatools/rawdata.json"
-    dir = "datatools/test/"
+    dir = "datatools/data/"
     with open(jsonfile,"w",encoding="utf-8") as jf:
         datatowrite = {}
         for file in os.listdir(dir):
@@ -69,10 +69,11 @@ def summjson():
                     else:
                         collected["description"] = ""
                     collected["sccs"] = []
-                    for x in range(len(data["sccsOpinion"])):
-                        collected["sccs"].append({})
-                        collected["sccs"][x]["name"] = data["sccsOpinion"][x]
-                        collected["sccs"][x]["url"] = data["sccsOpinionUrls"][x]
+                    if len(data["sccsOpinionUrls"]) == len(data["sccsOpinion"]):
+                        for x in range(len(data["sccsOpinionUrls"])):
+                            collected["sccs"].append({})
+                            collected["sccs"][x]["name"] = data["sccsOpinion"][x]
+                            collected["sccs"][x]["url"] = data["sccsOpinionUrls"][x]
                     datatowrite[collected["inci"]] = collected
                 of.close()
         keys = list(datatowrite.keys())
@@ -99,4 +100,4 @@ def geninci():
     print("Done!")
 # filecheck()
 summjson()
-geninci()
+# geninci()

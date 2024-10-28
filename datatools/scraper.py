@@ -1,5 +1,7 @@
 import os
 import json
+import time
+from multiprocessing import Process
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 
@@ -7,9 +9,10 @@ def webscrapjson(url,driver):
     driver.get(url)
     try: 
         driver.wait_for_request("api.tech.ec.europa.eu/search-api/prod/rest/search",timeout=10)
+        time.sleep(0.5)
         data = []
         for request in driver.requests:
-            if (request.url == "https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=285a77fd-1257-4271-8507-f0c6b2961203&text=*&pageSize=100&pageNumber=1"):
+            if "https://api.tech.ec.europa.eu/search-api/prod/rest/search" in request.url:
                 data.append(str(decode(request.response.body, request.response.headers.get('Content-Encoding', 'identity')), encoding="utf-8"))
         return data
     except Exception:
@@ -20,18 +23,22 @@ def rangescrapjson(fromno,tono):
     driver.minimize_window()
     for number in range(fromno,tono+1):
         url = f"https://ec.europa.eu/growth/tools-databases/cosing/details/{number}"
-        print(f"Scraping json data from reference number: {number}")
+        message = f"Scraping json data from reference number: {number}\n"
         scraped = webscrapjson(url,driver)
         if (scraped != None):
-            data = json.loads(scraped[0])
-            if (len(data["results"]) != 0):
-                with open(f"datatools/data/{number}.json","w",encoding="utf-8") as f:
-                    json.dump(data,f,indent=4)
-                    f.close()
-            else:
-                print("Empty page")
+            for s in scraped:
+                jsonS = json.loads(s)
+                if len(jsonS["results"]) != 0:
+                    if int(jsonS["results"][0]["metadata"]["substanceId"][0]) == number:
+                        with open(f"datatools/data/{number}.json","w",encoding="utf-8") as f:
+                            json.dump(jsonS,f,indent=4)
+                            f.close()
+                            message = message + "Scraped"
+                else:
+                    message = message + "Empty page"
         else:
-            print("Timeout")
+            message = message + "Timeout"
+        print(message)
         del driver.requests
     driver.quit()
 
@@ -61,10 +68,13 @@ def singleing(number):
 def imgscrap(url,driver):
     driver.get(url)
     try:
-        driver.wait_for_request("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics/",timeout=30)
+        driver.wait_for_request("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics/",timeout=10)
         for request in driver.requests:
-            if ("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics" in request.url) and (request.response.status_code == 200):
-                return request.response.body
+            if ("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics" in request.url):
+                if (request.response.status_code == 200):
+                    return request.response.body
+                else:
+                    return False
     except Exception as error:
         return None
 
@@ -74,7 +84,8 @@ def imgscrapall():
         data = json.load(f)
         numlist = []
         for k in data:
-            numlist.append(data[k]["refNo"])
+            if data[k]["refNo"] > 36573:
+                numlist.append(data[k]["refNo"])
         f.close()
     numlist.sort()
     if not os.path.exists("img/"):
@@ -90,12 +101,15 @@ def imgscrapall():
         url = f"https://ec.europa.eu/growth/tools-databases/cosing/details/{number}"
         response = imgscrap(url,driver)
         if response != None:
-            with open(f"img/{number}.gif","wb") as f:
-                f.write(response)
-                f.close()
-                print("Got it!")
+            if response == False: 
+                print("There is no image")
+            else:
+                with open(f"img/{number}.gif","wb") as f:
+                    f.write(response)
+                    f.close()
+                    print("Got it!")
         else:
-            print("There is no image")
+            print("Timeout!")
         del driver.requests
     driver.quit()
     print("Done!")
@@ -103,4 +117,20 @@ def imgscrapall():
 
 # rangescrapjson(27920, 106000) # All ingredients
 # singleing(int(input("Enter reference number to scrap: ")))
-imgscrapall()
+# imgscrapall()
+
+if __name__ == '__main__':
+    start = time.time()
+    # p1 = Process(target=rangescrapjson,args=(27900,47400))
+    # p1.start()
+    # p2 = Process(target=rangescrapjson,args=(47401,66900))
+    # p2.start()
+    # p3 = Process(target=rangescrapjson,args=(66901,86400))
+    # p3.start()
+    # p4 = Process(target=rangescrapjson,args=(86401,106000))
+    # p4.start()
+    imgscrapall()
+    end = time.time()
+    elapsed = (end - start)
+    print(f"It took {elapsed} seconds")
+
