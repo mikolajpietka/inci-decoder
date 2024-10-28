@@ -67,6 +67,9 @@ class INCI {
         $inci = strtoupper($inci);
         return in_array($inci,$this->dictionary);
     }
+    public function isprop(string $parameter) : bool {
+        return in_array($parameter,$this->properties);
+    }
 }
 
 function printtable(array $array, string $tableclass = null): string {
@@ -328,7 +331,7 @@ if (isset($_GET['anx'])) {
     exit;
 }
 
-if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare']))) {
+if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random'])) {
     try {
         $inci = new INCI("INCI.csv");
         $funcdict = json_decode(file_get_contents('functions.json'),true);
