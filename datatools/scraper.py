@@ -84,7 +84,7 @@ def imgscrapall():
         data = json.load(f)
         numlist = []
         for k in data:
-            if data[k]["refNo"] > 36573:
+            if data[k]["refNo"] >= 37435:
                 numlist.append(data[k]["refNo"])
         f.close()
     numlist.sort()
@@ -95,7 +95,7 @@ def imgscrapall():
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
     driver = webdriver.Chrome(options=options)
     driver.minimize_window()
-
+    timeouts = 0
     for number in numlist:
         print(f"Trying to get image from refNo: {number}")
         url = f"https://ec.europa.eu/growth/tools-databases/cosing/details/{number}"
@@ -110,7 +110,12 @@ def imgscrapall():
                     print("Got it!")
         else:
             print("Timeout!")
+            timeouts = timeouts + 1
         del driver.requests
+        if timeouts == 5:
+            driver.quit()
+            print("5 timeouts!")
+            exit()
     driver.quit()
     print("Done!")
 
