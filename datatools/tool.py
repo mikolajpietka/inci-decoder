@@ -1,7 +1,6 @@
 import os
 import json
 import re
-import deepl
 
 def filecheck():
     for file in os.listdir("data"):
@@ -19,10 +18,6 @@ def filecheck():
             print("File deleted - empty")
 
 def summjson():
-    authkeyfile = open("datatools/apikey.txt","r")
-    authkey = authkeyfile.read()
-    authkeyfile.close()
-    translator = deepl.Translator(authkey)
     jsonfile = "datatools/rawdata.json"
     dir = "datatools/test/"
     with open(jsonfile,"w",encoding="utf-8") as jf:
@@ -35,14 +30,24 @@ def summjson():
                 data = dataall["results"][0]["metadata"]
                 if data["itemType"][0] == "ingredient":
                     collected = {}
-                    collected["refNo"] = data["substanceId"][0]
+                    collected["refNo"] = int(data["substanceId"][0])
                     collected["inci"] = data["inciName"][0]
                     if len(data["casNo"]) != 0:
-                        collected["casNo"] = data["casNo"][0]
+                        redacted = str(data["casNo"][0])
+                        if "/" in redacted and " / " not in redacted:
+                            redacted = redacted.replace("/"," / ").replace("  "," ")
+                        if ";" in redacted:
+                            redacted = redacted.replace(";"," / ").replace("  "," ")
+                        collected["casNo"] = redacted
                     else:
                         collected["casNo"] = "-"
                     if len(data["ecNo"]) != 0:
-                        collected["ecNo"] = data["ecNo"][0]
+                        redacted = str(data["ecNo"][0])
+                        if "/" in redacted and " / " not in redacted:
+                            redacted = redacted.replace("/"," / ").replace("  "," ")
+                        if ";" in redacted:
+                            redacted = redacted.replace(";"," / ").replace("  "," ")
+                        collected["ecNo"] = redacted
                     else:
                         collected["ecNo"] = "-"
                     if len(data["cosmeticRestriction"]) != 0:
@@ -60,17 +65,38 @@ def summjson():
                             collected["anx"] = ""
                     collected["function"] = data["functionName"]
                     if len(data["chemicalDescription"]) != 0:
-                        collected["description"] = translator.translate_text(data["chemicalDescription"][0],target_lang="PL").text
+                        collected["description"] = data["chemicalDescription"][0]
                     else:
                         collected["description"] = ""
-
+                    collected["sccs"] = []
+                    for x in range(len(data["sccsOpinion"])):
+                        collected["sccs"].append({})
+                        collected["sccs"][x]["name"] = data["sccsOpinion"][x]
+                        collected["sccs"][x]["url"] = data["sccsOpinionUrls"][x]
                     datatowrite[collected["inci"]] = collected
                 of.close()
         keys = list(datatowrite.keys())
         keys.sort()
         sd = {i: datatowrite[i] for i in keys}
-        json.dump(sd,jf,indent=2)
+        json.dump(sd,jf,indent=4)
         jf.close()
 
+def geninci():
+    with open("datatools/rawdata.json","r",encoding="utf-8") as f:
+        data = json.load(f)
+        f.close()
+        print("Read data from file")
+        print("Checking...")
+    for ing in data:
+        if os.path.exists(f"datatools/img/{data[ing]["refNo"]}.gif"):
+            data[ing]["img"] = True
+        else:
+            data[ing]["img"] = False
+    with open("INCI.json","w",encoding="utf-8") as f:
+        print("Adding all info into INCI.json")
+        json.dump(data,f,indent=4)
+        f.close()
+    print("Done!")
 # filecheck()
 summjson()
+geninci()

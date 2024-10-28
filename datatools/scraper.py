@@ -1,3 +1,4 @@
+import os
 import json
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
@@ -57,12 +58,49 @@ def singleing(number):
     del driver.requests
     driver.quit()
 
-def imagescrap(url,driver):
+def imgscrap(url,driver):
     driver.get(url)
     try:
-        driver.wait_for_response("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics/",timeout=10)
-        data = []
-    except Exception:
+        driver.wait_for_request("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics/",timeout=30)
+        for request in driver.requests:
+            if ("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics" in request.url) and (request.response.status_code == 200):
+                return request.response.body
+    except Exception as error:
         return None
+
+def imgscrapall():
+    file = "datatools/rawdata.json"
+    with open(file,"r",encoding="utf-8") as f:
+        data = json.load(f)
+        numlist = []
+        for k in data:
+            numlist.append(data[k]["refNo"])
+        f.close()
+    numlist.sort()
+    if not os.path.exists("img/"):
+        os.mkdir("img/")
+    options = webdriver.ChromeOptions()
+    options.add_argument("--log-level=3")
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    driver = webdriver.Chrome(options=options)
+    driver.minimize_window()
+
+    for number in numlist:
+        print(f"Trying to get image from refNo: {number}")
+        url = f"https://ec.europa.eu/growth/tools-databases/cosing/details/{number}"
+        response = imgscrap(url,driver)
+        if response != None:
+            with open(f"img/{number}.gif","wb") as f:
+                f.write(response)
+                f.close()
+                print("Got it!")
+        else:
+            print("There is no image")
+        del driver.requests
+    driver.quit()
+    print("Done!")
+
+
 # rangescrapjson(27920, 106000) # All ingredients
-singleing(int(input("Enter reference number to scrap: ")))
+# singleing(int(input("Enter reference number to scrap: ")))
+imgscrapall()
