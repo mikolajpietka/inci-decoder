@@ -331,7 +331,7 @@ if (isset($_GET['anx'])) {
     exit;
 }
 
-if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random'])) {
+if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details'])) {
     try {
         $inci = new INCI("INCI.csv");
         $funcdict = json_decode(file_get_contents('functions.json'),true);
@@ -339,6 +339,17 @@ if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['in
         echo "Wystąpił błąd, odśwież stronę i spróbuj ponownie";
         exit;
     }
+}
+
+if (!empty($_GET['details'])) {
+    // Response for ingredient details
+    $ingredientname = urldecode($_GET['details']);
+    echo "<p>". $ingredientname ."</p>";
+    echo "<p>Description: ". $inci->get(urldecode($_GET['details']),"description") ."</p>";
+    echo "<p><a target=\"_blank\" href=\"https://cosmileeurope.eu/pl/inci/skladnik/?q=".$_GET['details']."\">Wyszukaj na COSMILE</a></p>";
+    echo "<p><a target=\"_blank\" href=\"https://www.ulprospector.com/en/eu/PersonalCare/search?k=".$_GET['details']."\">Wyszukaj na ulProspector</a></p>";
+    echo "<p><a target=\"_blank\" href=\"https://ec.europa.eu/growth/tools-databases/cosing/details/".$inci->get($ingredientname,"refNo")."\">Pokaż składnik w CosIng</a></p>";
+    exit;
 }
 
 if (!empty($_POST['inci'])) {
@@ -562,7 +573,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                             <th scope="col" class="col-1">1223/2009</th>
                             <th scope="col" class="dwn col-2">Funkcja</th>
                             <th scope="col" class="dwn visually-hidden">Function</th>
-                            <th scope="col" class="text-center col-1">CosIng</th>
+                            <th scope="col" class="text-center col-1">Szczegóły</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -602,7 +613,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                                 ?></td>
                                 <td class="dwn"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
                                 <td class="dwn visually-hidden"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
-                                <td class="text-center"><?php if (!empty($inci->get($temping,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($temping,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
+                                <td class="text-center"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td>
                                 <?php endif; ?>
                             </tr>
                         <?php } ?>
@@ -634,16 +645,14 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
     <div class="modal fade" id="details" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
             <div class="modal-content">
-                <div class="modal-header fst-italic">
+                <div class="modal-header">
                     <h2 class="modal-title">Szczegóły składnika <span class="fst-italic"></span></h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="annexes">
-                        <div class="text-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Ładowanie...</span>
-                            </div>
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Ładowanie...</span>
                         </div>
                     </div>
                 </div>
@@ -985,7 +994,25 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             usd.value = (1).toFixed(2);
             plnusd.value = exusd;
             exdatespan.innerText = exdate;
-        })
+        });
+
+        const detailsModal = document.querySelector("#details");
+        if (detailsModal) {
+            detailsModal.addEventListener("show.bs.modal", event => {
+                const showlink = event.relatedTarget;
+                const ingredient = showlink.parentElement.parentElement.querySelector("th").innerText.replace(" (nano)","");
+                detailsModal.querySelector(".modal-header span").innerText = ingredient;
+                const xhttp = new XMLHttpRequest();
+                xhttp.onload = function() {
+                    detailsModal.querySelector(".modal-body").innerHTML = xhttp.responseText;
+                };
+                xhttp.open('GET','?details='+encodeURI(ingredient));
+                xhttp.send();
+            })
+            detailsModal.addEventListener("hidden.bs.modal", event => {
+                detailsModal.querySelector(".modal-body").innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
+            })
+        }
     </script>
 </body>
 </html>
