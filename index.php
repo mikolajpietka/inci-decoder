@@ -9,6 +9,7 @@ class INCI {
     public array $data;
     public array $dictionary;
     public array $properties;
+    public bool $extended;
     /* Methods */
     public function __construct(protected string $filename) {
         if (!file_exists($filename)) throw new Exception("This file does not exist");
@@ -33,6 +34,9 @@ class INCI {
             throw new Exception("Wrong type of input file (required csv or json)");
         }
         $this->dictionary = array_keys($this->data);
+        $extendedprops = ["description", "sccs", "gif"];
+        // $this->extended = (count(array_intersect($this->properties,$extendedprops)) > 0) ? true : false;
+        $this->extended = true;
     }
     public function get(string $inciname, string $property): string | array | null {
         $inciname = strtoupper($inciname);
@@ -214,6 +218,14 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
     return $result;
 }
 
+if (!empty($_GET['lettersize'])) {
+    $text = urldecode($_GET['lettersize']);
+    $array = ["from" => $text, "converted" => lettersize($text)];
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($array);
+    exit;
+}
+
 if (isset($_GET['debug']) && strtolower($_GET['debug']) == "test") {
     try {
         // Tests should be here
@@ -344,11 +356,28 @@ if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['in
 if (!empty($_GET['details'])) {
     // Response for ingredient details
     $ingredientname = urldecode($_GET['details']);
-    echo "<p>". $ingredientname ."</p>";
-    echo "<p>Description: ". $inci->get(urldecode($_GET['details']),"description") ."</p>";
-    echo "<p><a target=\"_blank\" href=\"https://cosmileeurope.eu/pl/inci/skladnik/?q=".$_GET['details']."\">Wyszukaj na COSMILE</a></p>";
-    echo "<p><a target=\"_blank\" href=\"https://www.ulprospector.com/en/eu/PersonalCare/search?k=".$_GET['details']."\">Wyszukaj na ulProspector</a></p>";
-    echo "<p><a target=\"_blank\" href=\"https://ec.europa.eu/growth/tools-databases/cosing/details/".$inci->get($ingredientname,"refNo")."\">Pokaż składnik w CosIng</a></p>";
+    if (!empty($inci->get($ingredientname,'description'))){
+        echo '<h3>Opis</h3>';
+        echo '<p>' . $inci->get($ingredientname,'description')['pl'] . '</p>';
+        if ($inci->isprop('gif') && $inci->get($ingredientname,'gif')) echo '<img src="img/'.$inci->get($ingredientname,"refNo").'.gif">';
+        echo '<hr>';
+    }
+    ?>
+    <div class="m-3">
+        <h3>Linki do wyszukania składnika</h3>
+        <div class="mt-3 row g-3 row-cols-1 row-cols-lg-3">
+            <div class="col">
+                <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?k=<?php echo $_GET['details']; ?>">ulProspector</a>
+            </div>
+            <div class="col">
+                <a class="btn btn-outline-info w-100" target="_blank" href="https://cosmileeurope.eu/pl/inci/skladnik/?q=<?php echo $_GET['details']; ?>">COSMILE</a>
+            </div>
+            <div class="col">
+                <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>">CosIng</a>
+            </div>
+        </div>
+    </div>
+    <?php
     exit;
 }
 
@@ -573,7 +602,8 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                             <th scope="col" class="col-1">1223/2009</th>
                             <th scope="col" class="dwn col-2">Funkcja</th>
                             <th scope="col" class="dwn visually-hidden">Function</th>
-                            <th scope="col" class="text-center col-1">Szczegóły</th>
+                            <th scope="col" class="text-center col-1<?php if (!$inci->extended) echo " visually-hidden"; ?>">Szczegóły</th>
+                            <th scope="col" class="text-center col-1<?php if ($inci->extended) echo " visually-hidden"; ?>">CosIng</th>
                             <?php endif; ?>
                         </tr>
                     </thead>
@@ -613,7 +643,8 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                                 ?></td>
                                 <td class="dwn"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
                                 <td class="dwn visually-hidden"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
-                                <td class="text-center"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td>
+                                <td class="text-center<?php if (!$inci->extended) echo " visually-hidden"; ?>"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td>
+                                <td class="text-center<?php if ($inci->extended) echo " visually-hidden"; ?>"><?php if (!empty($inci->get($temping,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($temping,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
                                 <?php endif; ?>
                             </tr>
                         <?php } ?>
