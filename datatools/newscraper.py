@@ -5,10 +5,10 @@ from multiprocessing import Process
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 
-def scraper(driver, url):
+def scraper(driver, url, timeout=15):
     try:
         driver.get(url)
-        driver.wait_for_request("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics/",timeout=15)
+        driver.wait_for_request("api.tech.ec.europa.eu/cosing20/1.0/api/cosmetics/",timeout=timeout)
         data = []
         for request in driver.requests:
             if "api.tech.ec.europa.eu/search-api/prod/rest/search" in request.url:
@@ -21,7 +21,7 @@ def scraper(driver, url):
     except Exception:
         return None
     
-def responsehandler(list):
+def responsehandler(list, timeout=15):
     driver = webdriver.Chrome()
     driver.minimize_window()
     if not os.path.exists("img/"): 
@@ -30,17 +30,14 @@ def responsehandler(list):
         os.mkdir("datatools/data")
     if not os.path.exists("datatools/timeout/"): 
         os.mkdir("datatools/timeout")
-    timeout = 0
     for number in list:
-        if timeout >=5: break
         url = f"https://ec.europa.eu/growth/tools-databases/cosing/details/{number}"
         message = "Scraping data from: " + url + "\n"
-        responses = scraper(driver,url)
+        responses = scraper(driver,url,timeout)
         if responses == None:
             t = open(f"datatools/timeout/{number}","w")
             t.close()
             message += "Timeout..."
-            timeout += 1
         else:
             for resp in responses:
                 if isinstance(resp,str):
@@ -49,7 +46,7 @@ def responsehandler(list):
                         with open(f"datatools/data/{number}.json",mode="w",encoding="utf-8") as f:
                             json.dump(data,f,indent=4)
                             f.close()
-                            message += "scraped data!\n"
+                            message += "Scraped data!\n"
                 if isinstance(resp,bytes):
                     with open(f"img/{number}.gif","wb") as g:
                         g.write(resp)
@@ -61,6 +58,8 @@ def responsehandler(list):
     driver.quit()
 
 def processmaker(fromNo,toNo,processes=1):
+    print(f"Starting multiprocess scraping (from number {fromNo} to number {toNo} in {processes} processes)")
+    start = time.time()
     arglist = {}
     total = []
     process = {}
@@ -72,6 +71,25 @@ def processmaker(fromNo,toNo,processes=1):
     for p in arglist:
         process[p] = Process(target=responsehandler,args=(arglist[p], ))
         process[p].start()
+        process[p].join()
+    end = time.time()
+    elapsed = end - start
+    print(f"Processess ended, it took {elapsed} seconds")
+
+def leftovers(timeout=30):
+    if os.path.exists("datatools/timeout"):
+        timeouted = os.listdir("datatools/timeout")
+        howmany = len(timeouted)
+        if howmany == 0:
+            print("There is no leftovers")
+            exit()
+        os.rename("datatools/timeout","datatools/timeouted")
+        print(f"Checking again leftovers - {howmany} reference numbers")
+        responsehandler(timeouted,timeout)
+    else:
+        print("There is no directory of timeouts")
 
 if __name__ == "__main__":
-    processmaker(31500,31510,1)
+    # Add input to choose if whole range of ingredients shoud be checked and how many processes
+    processmaker(31500,31510,2)
+    leftovers()
