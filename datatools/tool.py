@@ -8,7 +8,7 @@ from deep_translator import GoogleTranslator
 def incijson():
     print("Starting to generate INCI.json file")
     start = time.time()
-    datadir = "datatools/data"
+    datadir = "datatools/data/"
     output = "INCI.json"
     if os.path.exists(datadir) and len(os.listdir(datadir)) != 0:
         with open(output, "w", encoding="utf-8") as file:

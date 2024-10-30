@@ -42,7 +42,7 @@ def responsehandler(list, timeout=15):
             for resp in responses:
                 if isinstance(resp,str):
                     data = json.loads(resp)
-                    if len(data["results"]) != 0 and int(data["results"][0]["metadata"]["substanceId"][0]) == number:
+                    if len(data["results"]) != 0 and (data["results"][0]["metadata"]["substanceId"][0]) == str(number):
                         with open(f"datatools/data/{number}.json",mode="w",encoding="utf-8") as f:
                             json.dump(data,f,indent=4)
                             f.close()
@@ -76,7 +76,7 @@ def processmaker(fromNo,toNo,processes=1):
     elapsed = end - start
     print(f"Processess ended, it took {elapsed} seconds")
 
-def leftovers(timeout=30):
+def leftovers(timeout=60):
     if os.path.exists("datatools/timeout"):
         timeouted = os.listdir("datatools/timeout")
         howmany = len(timeouted)
@@ -91,5 +91,5 @@ def leftovers(timeout=30):
 
 if __name__ == "__main__":
     # Add input to choose if whole range of ingredients shoud be checked and how many processes
-    processmaker(31500,31510,2)
+    processmaker(27900,106000,4)
     leftovers()
