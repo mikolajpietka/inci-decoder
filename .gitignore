@@ -2,5 +2,4 @@
 INCI-backup.csv
 datatools/data/*
 datatools/timeout/*
-img/*
 datatools/apikey.txt
