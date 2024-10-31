@@ -357,21 +357,27 @@ if (!empty($_GET['details'])) {
     // Response for ingredient details
     $ingredientname = urldecode($_GET['details']);
     echo '<div class="mx-3 mt-2 mb-3">';
+    echo '<h4>' . $ingredientname . '</h4>';
+    echo '<hr class="my-4">';
     if (!empty($inci->get($ingredientname,'description'))) {
-        echo '<h3>Opis</h3>';
+        echo '<h4>Opis</h4>';
         echo '<p>' . $inci->get($ingredientname,'description')['pl'] . '</p>';
-        if ($inci->isprop('gif') && $inci->get($ingredientname,'gif')) echo '<div class="bg-white text-center p-4 rounded-3"><img src="img/'.$inci->get($ingredientname,"refNo").'.gif"></div>';
         echo '<hr class="my-4">';
     }
+    if ($inci->isprop('gif') && $inci->get($ingredientname,'gif')) {
+        echo '<h4>Wzór chemiczny</h4>';
+        echo '<div class="bg-white text-center p-4 rounded-3"><img src="img/'.$inci->get($ingredientname,"refNo").'.gif"></div>';
+        echo '<hr class="my-4">';
+    } 
     if (!empty($inci->get($ingredientname,'sccs'))) {
-        echo '<h3>Opinie SCCS</h3>';
+        echo '<h4>Opinie SCCS</h4>';
         foreach ($inci->get($ingredientname,'sccs') as $opinion) {
-            echo '<a target="_blank" href="'.$opinion['url'].'">'.$opinion['name'].'</a>';
+            echo '<p><a target="_blank" href="'.$opinion['url'].'">'.$opinion['name'].'</a></p>';
         }
         echo '<hr class="my-4">';
     }
     ?>
-    <h3>Linki do wyszukania składnika</h3>
+    <h4>Linki do wyszukania składnika</h4>
     <div class="mt-3 row gx-5 gy-2 row-cols-1 row-cols-lg-3 mx-2">
         <div class="col">
             <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?k=<?php echo $_GET['details']; ?>">ulProspector</a>
@@ -684,7 +690,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="modal-title">Szczegóły składnika <span class="fst-italic"></span></h2>
+                    <h2 class="modal-title">Szczegóły składnika</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -779,7 +785,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                 </div>
                 <div class="modal-body">
                     <h3>Informacje</h3>
-                    <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku. <a href="https://eur-lex.europa.eu/legal-content/pl/TXT/?uri=CELEX%3A32022D0677" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a><br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009. <a href="https://eur-lex.europa.eu/legal-content/PL/TXT/?uri=CELEX:02009R1223-20240424" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></p>
+                    <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku. <a href="https://eur-lex.europa.eu/legal-content/pl/TXT/?uri=CELEX%3A32022D0677" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a><br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009. <a href="https://eur-lex.europa.eu/eli/reg/2009/1223" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></p>
                     <p>Na stronie działają skróty klawiszowe: <br> <kbd>Ctrl + <i class="bi bi-arrow-return-left"></i></kbd> - skrót do przycisku Sprawdź <br> <kbd>Ctrl + Del</kbd> - skrót do przycisku Wyczyść</p>
                     <h3>Aktualizacje plików</h3>
                     <table class="table">
@@ -1039,7 +1045,6 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             detailsModal.addEventListener("show.bs.modal", event => {
                 const showlink = event.relatedTarget;
                 const ingredient = showlink.parentElement.parentElement.querySelector("th").innerText.replace(" (nano)","");
-                detailsModal.querySelector(".modal-header span").innerText = ingredient;
                 const xhttp = new XMLHttpRequest();
                 xhttp.onload = function() {
                     detailsModal.querySelector(".modal-body").innerHTML = xhttp.responseText;
