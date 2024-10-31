@@ -10,6 +10,9 @@ def incijson():
     start = time.time()
     datadir = "datatools/data/"
     output = "INCI.json"
+    if os.path.exists(output):
+        print("INCI.json already exists! To update info use another function")
+        return False
     if os.path.exists(datadir) and len(os.listdir(datadir)) != 0:
         with open(output, "w", encoding="utf-8") as file:
             listed = os.listdir(datadir)
@@ -50,7 +53,7 @@ def incijson():
                                 collected["anx"] = "II/419 #Do oceny"
                             else:
                                 rawtxt = str(data["cosmeticRestriction"][0])
-                                rawtxt = re.sub(r"\([a-zA-Z0-9\s\;\:]+\)|\ ","",rawtxt)
+                                rawtxt = re.sub(r"\([a-zA-Z0-9\s\;\:]+\)|  "," ",rawtxt)
                                 rawtxt = rawtxt.replace("\r\n",", ")
                                 collected["anx"] = rawtxt
                         else:
@@ -87,6 +90,9 @@ def incijson():
     end = time.time()
     elapsed = round(end - start,2)
     print(f"Done! It took {elapsed} seconds")
+
+def updateinci():
+    print("TO-DO")
 
 if __name__ == '__main__':
     incijson()
