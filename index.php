@@ -35,8 +35,8 @@ class INCI {
         }
         $this->dictionary = array_keys($this->data);
         $extendedprops = ["description", "sccs", "gif"];
-        // $this->extended = (count(array_intersect($this->properties,$extendedprops)) > 0) ? true : false;
-        $this->extended = true;
+        $this->extended = (count(array_intersect($this->properties,$extendedprops)) > 0) ? true : false;
+        // $this->extended = true; // For debuging
     }
     public function get(string $inciname, string $property): string | array | null {
         $inciname = strtoupper($inciname);
@@ -345,7 +345,7 @@ if (isset($_GET['anx'])) {
 
 if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details'])) {
     try {
-        $inci = new INCI("INCI.csv");
+        $inci = new INCI("INCI.json");
         $funcdict = json_decode(file_get_contents('functions.json'),true);
     } catch (Exception $e) {
         echo "Wystąpił błąd, odśwież stronę i spróbuj ponownie";
@@ -356,26 +356,33 @@ if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['in
 if (!empty($_GET['details'])) {
     // Response for ingredient details
     $ingredientname = urldecode($_GET['details']);
-    if (!empty($inci->get($ingredientname,'description'))){
+    echo '<div class="mx-3 mt-2 mb-3">';
+    if (!empty($inci->get($ingredientname,'description'))) {
         echo '<h3>Opis</h3>';
         echo '<p>' . $inci->get($ingredientname,'description')['pl'] . '</p>';
-        if ($inci->isprop('gif') && $inci->get($ingredientname,'gif')) echo '<img src="img/'.$inci->get($ingredientname,"refNo").'.gif">';
-        echo '<hr>';
+        if ($inci->isprop('gif') && $inci->get($ingredientname,'gif')) echo '<div class="bg-white text-center p-4 rounded-3"><img src="img/'.$inci->get($ingredientname,"refNo").'.gif"></div>';
+        echo '<hr class="my-4">';
+    }
+    if (!empty($inci->get($ingredientname,'sccs'))) {
+        echo '<h3>Opinie SCCS</h3>';
+        foreach ($inci->get($ingredientname,'sccs') as $opinion) {
+            echo '<a target="_blank" href="'.$opinion['url'].'">'.$opinion['name'].'</a>';
+        }
+        echo '<hr class="my-4">';
     }
     ?>
-    <div class="m-3">
-        <h3>Linki do wyszukania składnika</h3>
-        <div class="mt-3 row g-3 row-cols-1 row-cols-lg-3">
-            <div class="col">
-                <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?k=<?php echo $_GET['details']; ?>">ulProspector</a>
-            </div>
-            <div class="col">
-                <a class="btn btn-outline-info w-100" target="_blank" href="https://cosmileeurope.eu/pl/inci/skladnik/?q=<?php echo $_GET['details']; ?>">COSMILE</a>
-            </div>
-            <div class="col">
-                <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>">CosIng</a>
-            </div>
+    <h3>Linki do wyszukania składnika</h3>
+    <div class="mt-3 row gx-5 gy-2 row-cols-1 row-cols-lg-3 mx-2">
+        <div class="col">
+            <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?k=<?php echo $_GET['details']; ?>">ulProspector</a>
         </div>
+        <div class="col">
+            <a class="btn btn-outline-info w-100" target="_blank" href="https://cosmileeurope.eu/pl/inci/skladnik/?q=<?php echo $_GET['details']; ?>">COSMILE</a>
+        </div>
+        <div class="col">
+            <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>">CosIng</a>
+        </div>
+    </div>
     </div>
     <?php
     exit;
