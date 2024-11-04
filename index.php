@@ -44,7 +44,7 @@ class INCI {
         if (!in_array($property,$this->properties)) return null;
         return $this->data[$inciname][$property];
     }
-    public function suggest(string $mistake, int $startsimilarity = 75) : array | null{
+    public function suggest(string $mistake, int $startsimilarity = 90, int &$endpercent = null) : array | null {
         $mistake = strtoupper($mistake);
         $attempt = 1;
         while ($attempt <= 10) {
@@ -57,11 +57,12 @@ class INCI {
             foreach ($rawsuggest as $s) {
                 similar_text($mistake,$s,$perc);
                 $suggestions[] = [
-                    "inci" => $s,
+                    "inci" => lettersize($s),
                     "similarity" => round($perc,2)
                 ];
             }
             array_multisort(array_column($suggestions,"similarity"),SORT_DESC,$suggestions);
+            $endpercent = $perclimit;
             if (count($suggestions) >= 3) return $suggestions;
             $attempt++;
         }
@@ -226,31 +227,6 @@ if (!empty($_GET['lettersize'])) {
     exit;
 }
 
-if (isset($_GET['debug']) && strtolower($_GET['debug']) == "test") {
-    try {
-        // Tests should be here
-        $x = "abcdefghi";
-        $y = "abedfghkii";
-        $xs = str_split($x);
-        $ys = str_split($y);
-        $test = diff($x,$y,"<strong>","</strong>",$table);
-        array_unshift($ys,"");
-        array_unshift($table,$ys);
-        array_unshift($xs,"","");
-        $i = 0;
-        $table = array_map(function($line) use ($xs,&$i) {
-            array_unshift($line,$xs[$i]);
-            $i++;
-            return $line;
-        },$table);
-        echo printtable($table);
-        echo $test;
-    } catch (Exception $e) {
-        echo $e->getMessage();
-    }
-    exit;
-}
-
 if (isset($_GET['micro'])) {
     // Microplastics response for JS request in modal (whole and searched/filtered due to slow JS reaction)
     $echa520 = json_decode(file_get_contents("echa520.json",true));
@@ -343,7 +319,7 @@ if (isset($_GET['anx'])) {
     exit;
 }
 
-if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details'])) {
+if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details']) || isset($_GET['suggest'])) {
     try {
         $inci = new INCI("INCI.json");
         $funcdict = json_decode(file_get_contents('functions.json'),true);
@@ -391,6 +367,20 @@ if (!empty($_GET['details'])) {
     </div>
     </div>
     <?php
+    exit;
+}
+
+if (!empty($_GET['suggest'])) {
+    $percent = (!empty($_GET['percent']) && intval($_GET['percent'])) ? $_GET['percent'] : 75;
+    $suggestions = $inci->suggest(urldecode($_GET['suggest']),$percent,$endpercent);
+    $array = [
+        "query" => urldecode($_GET['suggest']),
+        "requested_percent" => $_GET['percent'],
+        "get_percent" => $endpercent,
+        "suggestions" => $suggestions
+    ];
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($array);
     exit;
 }
 
@@ -508,7 +498,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page CSS -->
-    <link href="styles.css?ver=2.6.inci" rel="stylesheet">
+    <link href="styles.css?ver=2.7.inci" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -599,13 +589,14 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover table-sm align-middle caption-top">
+            <table class="table table-sm align-middle caption-top">
                 <caption><?php if ($fail && !isset($_GET["compare"])) echo "Podwójne kliknięcia na podpowiedź powoduje zamianę błędnego składnika na zaznaczony."; else echo "Podwójne kliknięcie na tekst kopiuje go do schowka."; ?></caption>
                 <thead>
                     <tr>
                         <th scope="col" class="dwn">INCI</th>
                         <?php if ($fail): ?>
-                        <th scope="col" class="col-10">Podpowiedzi składników</th>
+                        <th scope="col" class="col-9">Podpowiedzi składników</th>
+                        <th scope="col" class="text-center col-1">więcej...</th>
                         <?php else: ?>
                         <th scope="col" class="dwn col-2">Nr CAS</th>
                         <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
@@ -625,18 +616,19 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                             $test = true;
                         } else {
                             $test = false;
-                            $suggestionsraw = $inci->suggest($temping);
+                            $suggestionsraw = $inci->suggest($temping,endpercent:$perc);
                             $sugred = [];
                             foreach ($suggestionsraw as $s) {
                                 $sugred[] = (isset($_GET['compare'])) ? lettersize($s["inci"]) : '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
                             }
-                            $suggestions = implode($mainseparator,$sugred);
+                            $suggestions = implode($mainseparator,$sugred).'<i class="d-none percent">'.$perc.'</i>';
                         }
                     ?>
                         <tr>
                             <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this)"><?php echo lettersize($ingredient); ?></span></th>
                             <?php if ($fail): ?>
                             <td class="font-sm"><?php if (!$test) echo $suggestions; ?></td>
+                            <td class="text-center"><?php if (!$test): ?><button type="button" class="btn btn-tiny btn-outline-light" onclick="getsuggestions(this)">Pokaż więcej</button><?php endif; ?></td>
                             <?php else: ?>
                             <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
                             <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
@@ -1051,6 +1043,38 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             detailsModal.addEventListener("hidden.bs.modal", event => {
                 detailsModal.querySelector(".modal-body").innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
             })
+        }
+
+        function getsuggestions(button) {
+            const row = button.parentElement.parentElement;
+            const percent = row.querySelector(".percent").innerText - 5;
+            const suggestioncell = row.querySelector("td");
+            const mistake = row.querySelector("th").innerText;
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                response = JSON.parse(xhttp.responseText);
+                let chosen = suggestioncell.querySelector(".text-success");
+                let choseninci = "";
+                if (chosen) {
+                    choseninci = chosen.innerText;
+                }
+                let toinsertlist = [];
+                let classes = ""
+                response["suggestions"].forEach(element => {
+                    if (element["inci"] == choseninci) {
+                        classes = "user-select-all nowrap text-success";
+                    } else {
+                        classes = "user-select-all nowrap";
+                    }
+                    toinsertlist.push('<span class="' + classes + '" data-bs-toggle="tooltip" data-bs-title="Podobieństwo:' + element["similarity"] + '%" ondblclick="correctmistake(this)">' + element["inci"] + '</span>'); 
+                });
+                const toinsert = toinsertlist.join(", ") + '<i class="d-none percent">' + response["get_percent"] + '</i>';
+                suggestioncell.innerHTML = toinsert;
+                const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            }
+            xhttp.open('GET','?suggest='+encodeURI(mistake)+'&percent='+percent);
+            xhttp.send();
         }
     </script>
 </body>
