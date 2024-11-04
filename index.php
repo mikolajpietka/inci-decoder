@@ -431,9 +431,6 @@ if (!empty($_POST['inci'])) {
     }
 }
 
-// Make array with additional parameters
-if (isset($_GET['additional']) && isset($_POST['inci'])) $options = $_POST['options'];
-
 // Comparing mode
 if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) {
     // Remove double spaces and eol for both inci inputs
@@ -528,7 +525,6 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                 <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                 <a href="#microplastics" data-bs-toggle="modal" class="nav-link">ECHA-520</a>
                 <a href="#currency" data-bs-toggle="modal" class="nav-link">Kursy walut</a>
-                <a href="?additional" class="nav-link visually-hidden<?php if (isset($_GET['additional'])) echo " active"; ?>">Dodatkowe opcje</a>
                 <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
             </div>
         </div>
@@ -557,20 +553,20 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             </div>
             <?php endif; ?>
             <div class="row row-cols-lg-3 row-cols-1 g-3 mt-2">
-                <div class="col">
+                <div class="col px-4">
                     <button type="submit" class="btn btn-outline-light w-100" id="submit"><i class="bi bi-check2-square"></i> Sprawdź</button>
                 </div>
-                <div class="col">
+                <div class="col px-4">
                     <button type="button" class="btn btn-outline-danger w-100" onclick="cleartextarea()"><i class="bi bi-trash3-fill"></i> Wyczyść</button>
                 </div>
-                <div class="col">
+                <div class="col px-4">
                     <button type="button" class="btn btn-outline-success w-100<?php if (empty($_POST['inci']) || isset($_GET['compare'])) echo " disabled"; ?>" onclick="ctrlz()"><i class="bi bi-arrow-counterclockwise"></i> Cofnij zmiany</button>
                 </div>
-                <div class="btn-group col" role="group">
+                <div class="btn-group col px-4" role="group">
                     <input type="checkbox" class="btn-check" name="connector" id="connector" <?php if (isset($_POST['connector'])) echo "checked"; if (isset($_GET['compare'])) echo "disabled"; ?>>
                     <label class="btn btn-outline-primary" for="connector">Zamień <i class="bi bi-arrow-return-left"></i> na separator</label>
                 </div>
-                <div class="col">
+                <div class="col px-4">
                     <select class="form-select" name="separator" id="separator">
                         <option value=", " <?php if ((isset($_POST['separator']) && $_POST['separator'] == ", ") || !isset($_POST['separator'])) echo "selected"; ?>>Separator: ","</option>
                         <option value=" • " <?php if (isset($_POST['separator']) && $_POST['separator'] == " • ") echo "selected"; ?>>Separator: "•"</option>
@@ -578,92 +574,92 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                         <option value="difsep" <?php if (isset($_POST['separator']) && $_POST['separator'] == "difsep") echo "selected"; ?>>Inny</option>
                     </select>
                 </div>
-                <div class="col">
+                <div class="col px-4">
                     <input type="text" class="form-control" name="difsep" id="difsep" placeholder="Inny separator" <?php if (!empty($_POST['difsep']) && (isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo 'value="' . $_POST['difsep'] . '"'; if (!(isset($_POST['separator']) && $_POST['separator'] == "difsep")) echo " disabled" ?>>
                 </div>
             </div>
         </form>
     </div>
     <div class="container-fluid ingredients">
-        <?php if (isset($incitest)): 
-        if ($fail): ?>
-            <h3 class="text-danger fw-bold my-2 ms-5">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></h3>
-        <?php elseif (empty($duplicates)):?>
-            <h3 class="text-success fw-bold my-2 ms-5">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></h3>
-        <?php else: ?>
-            <h3 class="text-warning fw-bold my-2 ms-5">INCI zawiera powtórzenia <i class="bi bi-exclamation-triangle"></i></h3>
-        <?php endif; 
-        if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])):  if ($comparison): ?>
-            <h3 class="text-success fw-bold my-2 ms-5">Indentyczne składy <i class="bi bi-hand-thumbs-up-fill"></i></h3>
-        <?php else: ?>
-            <h3 class="text-danger fw-bold my-2 ms-5">Składy nie są Indentyczne <i class="bi bi-emoji-frown-fill"></i></h3>
-            <div class="d-flex gap-2 mx-5"><strong class="text-danger">Różnice:</strong><span><?php echo $marked; ?></span></div>
-        <?php endif; endif; ?>
-        <div class="m-4">
+        <div class="ms-5 mt-2">
+            <?php if (isset($incitest)): 
+            if ($fail): ?>
+                <h3 class="text-danger fw-bold">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></h3>
+            <?php elseif (empty($duplicates)):?>
+                <h3 class="text-success fw-bold">Poprawne INCI <i class="bi bi-hand-thumbs-up-fill"></i></h3>
+            <?php else: ?>
+                <h3 class="text-warning fw-bold">INCI zawiera powtórzenia <i class="bi bi-exclamation-triangle"></i></h3>
+            <?php endif; 
+            if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])):  if ($comparison): ?>
+                <h3 class="text-success fw-bold">Indentyczne składy <i class="bi bi-hand-thumbs-up-fill"></i></h3>
+            <?php else: ?>
+                <h3 class="text-danger fw-bold">Składy nie są Indentyczne <i class="bi bi-emoji-frown-fill"></i></h3>
+                <div class="d-flex gap-2"><strong class="text-danger">Różnice:</strong><span><?php echo $marked; ?></span></div>
+            <?php endif; endif; ?>
             <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
-            <div class="table-responsive-md">
-                <table class="table table-hover table-sm align-middle caption-top">
-                    <caption><?php if ($fail && !isset($_GET["compare"])) echo "Podwójne kliknięcia na podpowiedź powoduje zamianę błędnego składnika na zaznaczony."; else echo "Podwójne kliknięcie na tekst kopiuje go do schowka."; ?></caption>
-                    <thead>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle caption-top">
+                <caption><?php if ($fail && !isset($_GET["compare"])) echo "Podwójne kliknięcia na podpowiedź powoduje zamianę błędnego składnika na zaznaczony."; else echo "Podwójne kliknięcie na tekst kopiuje go do schowka."; ?></caption>
+                <thead>
+                    <tr>
+                        <th scope="col" class="dwn">INCI</th>
+                        <?php if ($fail): ?>
+                        <th scope="col" class="col-10">Podpowiedzi składników</th>
+                        <?php else: ?>
+                        <th scope="col" class="dwn col-2">Nr CAS</th>
+                        <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
+                        <th scope="col" class="col-1">1223/2009</th>
+                        <th scope="col" class="dwn col-2">Funkcja</th>
+                        <th scope="col" class="dwn d-none">Function</th>
+                        <?php if ($inci->extended): ?><th scope="col" class="text-center col-1">Szczegóły</th><?php endif; ?>
+                        <?php if (!$inci->extended): ?><th scope="col" class="text-center col-1"; ?>">CosIng</th><?php endif; ?>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    <?php foreach ($incitest as $ingredient) { 
+                        // If nano...
+                        $temping = trim(str_replace(" (nano)","",$ingredient));
+                        if ($inci->check($temping)) {
+                            $test = true;
+                        } else {
+                            $test = false;
+                            $suggestionsraw = $inci->suggest($temping);
+                            $sugred = [];
+                            foreach ($suggestionsraw as $s) {
+                                $sugred[] = (isset($_GET['compare'])) ? lettersize($s["inci"]) : '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
+                            }
+                            $suggestions = implode($mainseparator,$sugred);
+                        }
+                    ?>
                         <tr>
-                            <th scope="col" class="dwn">INCI</th>
+                            <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this)"><?php echo lettersize($ingredient); ?></span></th>
                             <?php if ($fail): ?>
-                            <th scope="col" class="col-10">Podpowiedzi składników</th>
+                            <td class="font-sm"><?php if (!$test) echo $suggestions; ?></td>
                             <?php else: ?>
-                            <th scope="col" class="dwn col-2">Nr CAS</th>
-                            <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
-                            <th scope="col" class="col-1">1223/2009</th>
-                            <th scope="col" class="dwn col-2">Funkcja</th>
-                            <th scope="col" class="dwn visually-hidden">Function</th>
-                            <th scope="col" class="text-center col-1<?php if (!$inci->extended) echo " visually-hidden"; ?>">Szczegóły</th>
-                            <th scope="col" class="text-center col-1<?php if ($inci->extended) echo " visually-hidden"; ?>">CosIng</th>
+                            <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
+                            <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
+                            <td><?php 
+                                if (str_contains($inci->get($temping,"anx"),"I/") || str_contains($inci->get($temping,"anx"),"V/")) {
+                                    if (str_contains($inci->get($temping,"anx"),'#')) {
+                                        echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($temping,"anx"),0,strpos($inci->get($temping,"anx"),'#'))) .'</a> '. substr($inci->get($temping,"anx"),strpos($inci->get($temping,"anx"),'#'));
+                                    } else {
+                                        echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $inci->get($temping,"anx") .'</a>';
+                                    }
+                                } else {
+                                    echo $inci->get($temping,"anx"); 
+                                }
+                            ?></td>
+                            <td class="dwn"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
+                            <td class="dwn d-none"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
+                            <?php if ($inci->extended): ?><td class="text-center"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td><?php endif; ?>
+                            <?php if (!$inci->extended): ?><td class="text-center"><?php if (!empty($inci->get($temping,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($temping,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td><?php endif; ?>
                             <?php endif; ?>
                         </tr>
-                    </thead>
-                    <tbody class="table-group-divider">
-                        <?php foreach ($incitest as $ingredient) { 
-                            // If nano...
-                            $temping = trim(str_replace(" (nano)","",$ingredient));
-                            if ($inci->check($temping)) {
-                                $test = true;
-                            } else {
-                                $test = false;
-                                $suggestionsraw = $inci->suggest($temping);
-                                $sugred = [];
-                                foreach ($suggestionsraw as $s) {
-                                    $sugred[] = (isset($_GET['compare'])) ? lettersize($s["inci"]) : '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
-                                }
-                                $suggestions = implode($mainseparator,$sugred);
-                            }
-                        ?>
-                            <tr>
-                                <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this)"><?php echo lettersize($ingredient); ?></span></th>
-                                <?php if ($fail): ?>
-                                <td class="font-sm"><?php if (!$test) echo $suggestions; ?></td>
-                                <?php else: ?>
-                                <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
-                                <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
-                                <td><?php 
-                                    if (str_contains($inci->get($temping,"anx"),"I/") || str_contains($inci->get($temping,"anx"),"V/")) {
-                                        if (str_contains($inci->get($temping,"anx"),'#')) {
-                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($temping,"anx"),0,strpos($inci->get($temping,"anx"),'#'))) .'</a> '. substr($inci->get($temping,"anx"),strpos($inci->get($temping,"anx"),'#'));
-                                        } else {
-                                            echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $inci->get($temping,"anx") .'</a>';
-                                        }
-                                    } else {
-                                        echo $inci->get($temping,"anx"); 
-                                    }
-                                ?></td>
-                                <td class="dwn"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
-                                <td class="dwn visually-hidden"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
-                                <td class="text-center<?php if (!$inci->extended) echo " visually-hidden"; ?>"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td>
-                                <td class="text-center<?php if ($inci->extended) echo " visually-hidden"; ?>"><?php if (!empty($inci->get($temping,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($temping,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
-                                <?php endif; ?>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php } ?>
+                </tbody>
+            </table>
         </div>
         <?php endif; ?>
     </div>
