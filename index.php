@@ -581,7 +581,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
         </form>
     </div>
     <div class="container-fluid ingredients">
-        <div class="ms-5 mt-2">
+        <div class="ms-3 mt-2">
             <?php if (isset($incitest)): 
             if ($fail): ?>
                 <h3 class="text-danger fw-bold">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></h3>
@@ -609,7 +609,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                         <?php else: ?>
                         <th scope="col" class="dwn col-2">Nr CAS</th>
                         <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
-                        <th scope="col" class="col-1">1223/2009</th>
+                        <th scope="col" class="text-center col-1">1223/2009</th>
                         <th scope="col" class="dwn col-2">Funkcja</th>
                         <th scope="col" class="dwn d-none">Function</th>
                         <?php if ($inci->extended): ?><th scope="col" class="text-center col-1">Szczegóły</th><?php endif; ?>
@@ -640,7 +640,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                             <?php else: ?>
                             <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
                             <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
-                            <td><?php 
+                            <td class="text-center"><?php 
                                 if (str_contains($inci->get($temping,"anx"),"I/") || str_contains($inci->get($temping,"anx"),"V/")) {
                                     if (str_contains($inci->get($temping,"anx"),'#')) {
                                         echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($temping,"anx"),0,strpos($inci->get($temping,"anx"),'#'))) .'</a> '. substr($inci->get($temping,"anx"),strpos($inci->get($temping,"anx"),'#'));
