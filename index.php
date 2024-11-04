@@ -587,8 +587,10 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                 <div class="d-flex gap-2"><strong class="text-danger">Różnice:</strong><span><?php echo $marked; ?></span></div>
             <?php endif; endif; ?>
             <div class="d-flex gap-3 my-3">
+                <?php if (!$fail && empty($duplicates)): ?>
                 <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
                 <button type="button" class="btn btn-sm btn-outline-light" onclick="copyinci()"><i class="bi bi-clipboard2-fill"></i> Kopiuj skład</button>
+                <?php endif; ?>
             </div>
         </div>
         <div class="table-responsive">
