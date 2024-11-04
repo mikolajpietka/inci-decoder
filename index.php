@@ -586,7 +586,10 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                 <h3 class="text-danger fw-bold">Składy nie są Indentyczne <i class="bi bi-emoji-frown-fill"></i></h3>
                 <div class="d-flex gap-2"><strong class="text-danger">Różnice:</strong><span><?php echo $marked; ?></span></div>
             <?php endif; endif; ?>
-            <button type="button" class="btn btn-sm btn-outline-light my-2" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
+            <div class="d-flex gap-3 my-3">
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="copyinci()"><i class="bi bi-clipboard2-fill"></i> Kopiuj skład</button>
+            </div>
         </div>
         <div class="table-responsive">
             <table class="table table-sm align-middle caption-top">
@@ -839,6 +842,16 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             const toast = document.querySelector('.toast');
             toast.querySelector('p').innerText = "Skopiowano do schowka:";
             toast.querySelector('span').innerText = span.innerText;
+            toastOn = bootstrap.Toast.getOrCreateInstance(toast);
+            toastOn.show();
+            window.getSelection().removeAllRanges();
+        }
+        function copyinci() {
+            const inci = document.querySelector('#inci').value;
+            navigator.clipboard.writeText(inci);
+            const toast = document.querySelector('.toast');
+            toast.querySelector('p').innerText = "Skopiowano do schowka:";
+            toast.querySelector('span').innerText = inci;
             toastOn = bootstrap.Toast.getOrCreateInstance(toast);
             toastOn.show();
             window.getSelection().removeAllRanges();
