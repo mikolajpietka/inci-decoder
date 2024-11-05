@@ -573,7 +573,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
         </form>
     </div>
     <div class="container-fluid ingredients">
-        <div class="mx-lg-3 mx-2 mt-2">
+        <div class="mx-2 mx-lg-4 mt-2">
             <?php if (isset($incitest)): 
             if ($fail): ?>
                 <h3 class="text-danger fw-bold">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></h3>
