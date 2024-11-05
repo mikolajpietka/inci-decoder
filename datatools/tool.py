@@ -3,6 +3,7 @@ import json
 import re
 import time
 import requests
+import shutil
 from deep_translator import GoogleTranslator
 
 def incijson():
@@ -92,17 +93,42 @@ def incijson():
     print(f"Done! It took {elapsed} seconds")
 
 def updateinci():
+    print("Update tool for INCI.json")
     incifile = "INCI.json"
+    incibackup = "INCI-backup.json"
+    if not os.path.exists(incifile):
+        print("INCI.json file does not exist, create it using incijson()")
+        return None
+    print("Making backup of INCI.json")
+    shutil.copy(incifile,incibackup)
     datafiles = "datatools/data"
-    with open(incifile,"w+",encoding="utf-8") as of:
-        oldinci = json.load(of)
+    if not os.path.exists(datafiles):
+        print(f"Directory {datafiles} does not exist")
+    else:
+        with open(incifile,"r",encoding="utf-8") as of:
+            oldinci = json.load(of)
+            of.close()
         datalist = os.listdir(datafiles)
         for datafile in datalist:
             dir = datafiles + datafile
             with open(dir,"r",encoding="utf-8") as df:
                 data = json.load(df)["results"][0]["metadata"]
                 df.close()
+            if data["inciName"][0] in oldinci:
+                print("Exists")
+            else:
+                print(f"Ingredient {data["inciName"][0]} is not in database")
+                input("Press Enter to continue...")
             # To do still
+    print("If you want to continue with next operation input 'Y' and press Enter")
+    if input() == "Y":
+        with open(incifile,"r",encoding="utf-8") as of:
+            oldinci = json.load(of)
+            of.close()
+        # To do
+    # Backup INCI file before updating
+    
 
 if __name__ == '__main__':
-    incijson()
+    # incijson()
+    updateinci()
