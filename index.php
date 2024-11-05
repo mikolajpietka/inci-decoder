@@ -586,11 +586,17 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                 <h3 class="text-danger fw-bold">Składy nie są Indentyczne <i class="bi bi-emoji-frown-fill"></i></h3>
                 <div class="d-flex gap-2"><strong class="text-danger">Różnice:</strong><span><?php echo $marked; ?></span></div>
             <?php endif; endif; ?>
-            <div class="d-flex gap-3 my-3">
-                <?php if (!$fail && empty($duplicates)): ?>
-                <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
-                <button type="button" class="btn btn-sm btn-outline-light" onclick="copyinci()"><i class="bi bi-clipboard2-fill"></i> Kopiuj skład</button>
-                <?php endif; ?>
+            <div class="card d-inline-block my-2">
+                <div class="card-body">
+                    <div class="d-inline-flex gap-3 align-items-center">
+                        <i class="bi bi-tools fs-4"></i>
+                        <?php if (!$fail): ?>
+                        <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
+                        <button type="button" class="btn btn-sm btn-outline-light" onclick="copyinci()"><i class="bi bi-copy"></i> Kopiuj skład</button>
+                        <?php endif; ?>
+                        <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -859,6 +865,10 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
             toastOn = bootstrap.Toast.getOrCreateInstance(toast);
             toastOn.show();
             window.getSelection().removeAllRanges();
+        }
+        function pasteinci() {
+            const textarea = document.querySelector('#inci');
+            navigator.clipboard.readText().then((topaste) => (textarea.value = topaste));
         }
         function downloadTable() {
             let tableRows = document.querySelectorAll('.ingredients tr');
