@@ -92,7 +92,17 @@ def incijson():
     print(f"Done! It took {elapsed} seconds")
 
 def updateinci():
-    print("TO-DO")
+    incifile = "INCI.json"
+    datafiles = "datatools/data"
+    with open(incifile,"w+",encoding="utf-8") as of:
+        oldinci = json.load(of)
+        datalist = os.listdir(datafiles)
+        for datafile in datalist:
+            dir = datafiles + datafile
+            with open(dir,"r",encoding="utf-8") as df:
+                data = json.load(df)["results"][0]["metadata"]
+                df.close()
+            # To do still
 
 if __name__ == '__main__':
     incijson()
