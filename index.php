@@ -700,8 +700,8 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
         <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Załączniki</h5>
-                    <div class="col-2 mx-auto">
+                    <div class="d-flex gap-3 w-75">
+                        <h4 class="modal-title w-50">Załączniki</h4>
                         <select class="form-select" onchange="getAnnex(this.value)" name="query">
                             <option value="0" selected>Wybierz...</option>
                             <option value="II/all">Załącznik II</option>
@@ -711,9 +711,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                             <option value="VI/all">Załącznik VI</option>
                         </select>
                     </div>
-                    <div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body"></div>
             </div>
