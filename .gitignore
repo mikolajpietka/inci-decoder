@@ -1,5 +1,5 @@
 .htaccess
-INCI-backup.csv
+INCI-backup.*
 datatools/data/*
 datatools/timeout/*
 datatools/apikey.txt
