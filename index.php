@@ -359,7 +359,7 @@ if (!empty($_GET['details'])) {
             <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?k=<?php echo $_GET['details']; ?>">ulProspector</a>
         </div>
         <div class="col">
-            <a class="btn btn-outline-info w-100" target="_blank" href="https://cosmileeurope.eu/pl/inci/skladnik/?q=<?php echo $_GET['details']; ?>">COSMILE</a>
+            <a class="btn btn-outline-info w-100" target="_blank" href="<?php echo ($inci->isprop("cosmile") && $inci->get($ingredientname,"cosmile") != null) ? "https://cosmileeurope.eu/pl/inci/szczegoly/" . $inci->get($ingredientname,"cosmile") : "https://cosmileeurope.eu/pl/inci/skladnik/?q=" . $_GET['details']; ?>">COSMILE</a>
         </div>
         <div class="col">
             <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>">CosIng</a>
