@@ -614,7 +614,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                         <th scope="col" class="text-center col-1">więcej...</th>
                         <?php else: ?>
                         <th scope="col" class="dwn col-2">Nr CAS</th>
-                        <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS / ELINCS / No-longer polymers"><i class="bi bi-info-circle"></i></span></sup></th>
+                        <th scope="col" class="dwn col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS (2xx-xxx-x, 3xx-xxx-x) / ELINCS (4xx-xxx-x) / NLP (5xx-xxx-x)"><i class="bi bi-info-circle"></i></span></sup></th>
                         <th scope="col" class="text-center col-1">1223/2009</th>
                         <th scope="col" class="dwn col-2">Funkcja</th>
                         <th scope="col" class="dwn d-none">Function</th>
