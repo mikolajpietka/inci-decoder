@@ -784,27 +784,31 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                     <table class="table">
                         <tr>
                             <th scope="row">Aktualizacja bazy składników</th>
-                            <td><?php echo date("d.m.Y H:i", filemtime('INCI.csv')); ?></td>
+                            <td><?php
+                                $csvmod = file_exists('INCI.csv') ? filemtime('INCI.csv') : 0;
+                                $jsnmod = file_exists('INCI.json') ? filemtime('INCI.json') : 0;
+                                echo date("d.m.Y H:i", max($csvmod,$jsnmod)); 
+                            ?></td>
                         </tr>
                         <tr>
                             <th scope="row">Aktualizacja załącznika II</th>
-                            <td><?php echo date("d.m.Y H:i", filemtime('A2.csv')); ?></td>
+                            <td><?php echo file_exists('A2.csv') ? date("d.m.Y H:i", filemtime('A2.csv')) : "Błąd odczytu pliku!"; ?></td>
                         </tr>
                         <tr>
                             <th scope="row">Aktualizacja załącznika III</th>
-                            <td><?php echo date("d.m.Y H:i", filemtime('A3.csv')); ?></td>
+                            <td><?php echo file_exists('A3.csv') ? date("d.m.Y H:i", filemtime('A3.csv')) : "Błąd odczytu pliku!"; ?></td>
                         </tr>
                         <tr>
                             <th scope="row">Aktualizacja załącznika IV</th>
-                            <td><?php echo date("d.m.Y H:i", filemtime('A4.csv')); ?></td>
+                            <td><?php echo file_exists('A4.csv') ? date("d.m.Y H:i", filemtime('A4.csv')) : "Błąd odczytu pliku!"; ?></td>
                         </tr>
                         <tr>
                             <th scope="row">Aktualizacja załącznika V</th>
-                            <td><?php echo date("d.m.Y H:i", filemtime('A5.csv')); ?></td>
+                            <td><?php echo file_exists('A5.csv') ? date("d.m.Y H:i", filemtime('A5.csv')) : "Błąd odczytu pliku!"; ?></td>
                         </tr>
                         <tr>
                             <th scope="row">Aktualizacja załącznika VI</th>
-                            <td><?php echo date("d.m.Y H:i", filemtime('A6.csv')); ?></td>
+                            <td><?php echo file_exists('A6.csv') ? date("d.m.Y H:i", filemtime('A6.csv')) : "Błąd odczytu pliku!"; ?></td>
                         </tr>
                     </table>
                 </div>
