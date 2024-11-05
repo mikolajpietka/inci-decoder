@@ -503,19 +503,21 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
-    <nav class="container navbar navbar-expand-lg bg-body-tertiary my-3 border rounded-3 px-3 py-1">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbar">
-            <div class="navbar-nav nav-underline">
-                <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Weryfikacja</a>
-                <a href="?compare" class="nav-link<?php if (isset($_GET['compare'])) echo " active"; ?>">Porównanie</a>
-                <a href="#annex" data-bs-toggle="modal" class="nav-link">Załączniki</a>
-                <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
-                <a href="#microplastics" data-bs-toggle="modal" class="nav-link">ECHA-520</a>
-                <a href="#currency" data-bs-toggle="modal" class="nav-link">Kursy walut</a>
-                <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
+    <nav class="container my-3">
+        <div class="navbar navbar-expand-lg bg-body-tertiary border rounded-3 px-3 py-1">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                <div class="navbar-nav nav-underline">
+                    <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Weryfikacja</a>
+                    <a href="?compare" class="nav-link<?php if (isset($_GET['compare'])) echo " active"; ?>">Porównanie</a>
+                    <a href="#annex" data-bs-toggle="modal" class="nav-link">Załączniki</a>
+                    <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
+                    <a href="#microplastics" data-bs-toggle="modal" class="nav-link">ECHA-520</a>
+                    <a href="#currency" data-bs-toggle="modal" class="nav-link">Kursy walut</a>
+                    <a href="https://ec.europa.eu/growth/tools-databases/cosing/" target="_blank" class="nav-link">CosIng<i class="ms-2 bi bi-box-arrow-up-right"></i></a>
+                </div>
             </div>
         </div>
     </nav>
