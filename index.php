@@ -571,7 +571,7 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
         </form>
     </div>
     <div class="container-fluid ingredients">
-        <div class="ms-3 mt-2">
+        <div class="mx-lg-3 mx-2 mt-2">
             <?php if (isset($incitest)): 
             if ($fail): ?>
                 <h3 class="text-danger fw-bold">Błędne INCI <i class="bi bi-emoji-frown-fill"></i></h3>
@@ -590,11 +590,13 @@ $exratedate = $jsoneur['rates'][0]['effectiveDate'];
                 <div class="card-body">
                     <div class="d-inline-flex gap-3 align-items-center">
                         <i class="bi bi-tools fs-4"></i>
-                        <?php if (!$fail): ?>
-                        <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
-                        <button type="button" class="btn btn-sm btn-outline-light" onclick="copyinci()"><i class="bi bi-copy"></i> Kopiuj skład</button>
-                        <?php endif; ?>
-                        <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
+                        <div class="d-inline-flex flex-wrap gap-3">
+                            <?php if (!$fail): ?>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="copyinci()"><i class="bi bi-copy"></i> Kopiuj skład</button>
+                            <?php endif; ?>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
+                        </div>
                     </div>
                 </div>
             </div>
