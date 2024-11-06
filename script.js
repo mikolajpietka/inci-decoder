@@ -1,4 +1,4 @@
-// JS v: 1.4
+// JS v: 1.4.1
 function getCookie(name) {
     const cname = name + "=";
     const decodedCookie = decodeURIComponent(document.cookie);
@@ -90,6 +90,7 @@ if (annexIngredient) {
         const response = getAnnex(event.relatedTarget.innerText);
         response.onload = function() {
             annexIngredient.querySelector(".annexes").innerHTML = response.responseText;
+            activateTooltips();
         }
     });
     annexIngredient.addEventListener('hidden.bs.modal', _event => {
@@ -105,34 +106,12 @@ if (annexWhole) {
             modalBody.innerHTML = throbber;
             response.onload = function() {
                 modalBody.innerHTML = response.responseText;
+                activateTooltips();
             }
         } else {
             modalBody.innerHTML = '<h2>Wybierz załącznik...</h2>';
         }
     })
-}
-
-const annexModal = document.querySelector('#ingredient');
-if (annexModal && false) {
-    annexModal.addEventListener('show.bs.modal',event => {
-        const link = event.relatedTarget;
-        const request = encodeURI(link.innerText);
-        let inciName = link.parentElement.parentElement.querySelector('th').innerText;
-        if (inciName.includes(" (nano)")) {
-            inciName = inciName.replace(" (nano)","");
-        }
-        annexModal.querySelector('.modal-title').innerText = inciName;
-        const xhttp = new XMLHttpRequest();
-        xhttp.onload = function () {
-            annexModal.querySelector('.annexes').innerHTML = xhttp.responseText;
-            activateTooltips();
-        }
-        xhttp.open('GET','?anx='+request);
-        xhttp.send();
-    });
-    annexModal.addEventListener('hidden.bs.modal',_event => {
-        annexModal.querySelector('.annexes').innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
-    });
 }
 
 function getAnnexx (request) {
