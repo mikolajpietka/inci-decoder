@@ -36,7 +36,6 @@ class INCI {
         $this->dictionary = array_keys($this->data);
         $extendedprops = ["description", "sccs", "gif"];
         $this->extended = (count(array_intersect($this->properties,$extendedprops)) > 0) ? true : false;
-        // $this->extended = true; // For debuging
     }
     public function get(string $inciname, string $property): string | array | null {
         $inciname = strtoupper($inciname);
@@ -76,9 +75,8 @@ class INCI {
         return in_array($parameter,$this->properties);
     }
 }
-
+// Small function to put visually data into table
 function printtable(array $array, string $tableclass = null): string {
-    // Small function to put visually data into table
     $result = is_null($tableclass) ? "<table style=\"border: 1px solid black; border-collapse: collapse;\">" : "<table class=\"$tableclass\">";
     foreach ($array as $line) {
         $result .= is_null($tableclass) ? "<tr style=\"border: 1px solid black;\">" : "<tr>";
@@ -90,7 +88,7 @@ function printtable(array $array, string $tableclass = null): string {
     $result .= "</table>";
     return $result;
 }
-
+// Function to correct lettersize 
 function lettersize(string $text) {
     $rp = json_decode(file_get_contents("replacetable.json"),true);
     $text = strtolower($text);
@@ -108,7 +106,7 @@ function lettersize(string $text) {
             $last = 0;
             while (($last = strpos($text,$sep,$last)) !== false) {
                 $positions[] = $last;
-                $last = $last + 1;
+                $last++;
             }
         }
     }
@@ -116,18 +114,10 @@ function lettersize(string $text) {
     // Split string into words and serparators
     $seplen = count($positions);
     for ($i=0; $i < $seplen; $i++) {
-        if (isset($positions[$i+1])) {
-            $next = $positions[$i+1];
-        } else {
-            $next = strlen($text);
-        }
-        if ($i == 0 && $positions[0] != 0) {
-            $split[] = substr($text,0,$positions[0]);
-        }
+        $next = (isset($positions[$i+1])) ? $positions[$i+1] : strlen($text);
+        if ($i == 0 && $positions[0] != 0) $split[] = substr($text,0,$positions[0]);
         $split[] = substr($text,$positions[$i],1);
-        if ($next-$positions[$i] != 1 ) {
-            $split[] = substr($text,$positions[$i]+1,$next-$positions[$i]-1);
-        }
+        if ($next-$positions[$i] != 1 ) $split[] = substr($text,$positions[$i]+1,$next-$positions[$i]-1);
     }
     if (empty($split)) $split[0] = $text;
     // Check for exceptions
@@ -141,20 +131,12 @@ function lettersize(string $text) {
     // Make uppercase when needed
     foreach ($split as $part) {
         $partlen = strlen($part);
-        if (array_key_exists($partlen,$rp) && array_key_exists($part,$rp[$partlen])) {
-            if (isset($exceptions) && array_key_exists($part,$exceptions)) {
-                $newpart[] = strtr($part,$exceptions);
-            } else {
-                $newpart[] = strtr($part,$rp[$partlen]);
-            }
-        } else {
-            $newpart[] = ucfirst($part);
-        }
+        $newpart[] = (array_key_exists($partlen,$rp) && array_key_exists($part,$rp[$partlen])) ? ((isset($exceptions) && array_key_exists($part,$exceptions)) ? : strtr($part,$rp[$partlen])) : ucfirst($part);
     }
     // Return corrected 
     return implode($newpart);
 }
-
+// Function to mark differences between two strings
 function diff(string $string1, string $string2, string $opentag="<strong>", string $closetag="</strong>", &$matrix = null): string {
     // LCS algorithm
     $a1 = str_split($string1);
@@ -163,20 +145,16 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
     $n2 = count($a2);
     $values = [];
     $mask = [];
-    // Make first row and column of 0s
+    // Make first row and column of matrix
     for ($y=-1;$y<$n1;$y++) $matrix[$y][-1] = 0;
     for ($x=-1;$x<$n2;$x++) $matrix[-1][$x] = 0;
     // Fill the rest of matrix
     for ($y=0;$y<$n1;$y++) {
         for ($x=0;$x<$n2;$x++) {
-            if ($a1[$y] == $a2[$x]) {
-                $matrix[$y][$x] = $matrix[$y-1][$x-1] + 1;
-            } else {
-                $matrix[$y][$x] = max($matrix[$y-1][$x],$matrix[$y][$x-1]);
-            }
+            $matrix[$y][$x] = ($a1[$y] == $a2[$x]) ? ($matrix[$y-1][$x-1] + 1) : (max($matrix[$y-1][$x],$matrix[$y][$x-1]));
         }
     }
-    // Determine what is the same and different
+    // Evaluate each letter and mark it if it's different or the same
     $y = $n1-1;
     $x = $n2-1;
     while ($y > -1 || $x > -1) {
@@ -204,21 +182,16 @@ function diff(string $string1, string $string2, string $opentag="<strong>", stri
     $result = "";
     foreach ($mask as $k => $mc) {
         if ($mc != $pmc) {
-            if ($pmc) {
-                $result .= $closetag;
-            }
-            if ($mc) {
-                $result .= $opentag;
-            }
+            if ($pmc) $result .= $closetag;
+            if ($mc) $result .= $opentag;
         }
         $result .= $values[$k];
         $pmc = $mc;
     }
     if ($pmc) $result .= $closetag;
-
     return $result;
 }
-
+// Response to lettersize request (used in tool.py)
 if (!empty($_GET['lettersize'])) {
     $text = urldecode($_GET['lettersize']);
     $array = ["from" => $text, "converted" => lettersize($text)];
@@ -226,9 +199,8 @@ if (!empty($_GET['lettersize'])) {
     echo json_encode($array);
     exit;
 }
-
+// Microplastics response to request in modal (whole and searched/filtered due to slow JS reaction)
 if (isset($_GET['micro'])) {
-    // Microplastics response for JS request in modal (whole and searched/filtered due to slow JS reaction)
     $echa520 = json_decode(file_get_contents("echa520.json",true));
     foreach ($echa520 as $ing) {
         if (str_contains(strtolower($ing),urldecode($_GET['micro']))) {
@@ -237,7 +209,7 @@ if (isset($_GET['micro'])) {
     } 
     exit;
 }
-
+// Response to anx request
 if (isset($_GET['anx'])) {
     // Response to annex request
     $request = urldecode($_GET['anx']);
@@ -278,25 +250,19 @@ if (isset($_GET['anx'])) {
         // Show response - whole and for each position 
         echo "<h3>" . $anxtitle . "</h3>";
         echo "<table class=\"table mt-2\">";
-        if ($annex[1] == "all"): ?>
+        if ($annex[1] == "all") { ?>
             <thead>
-                <tr>
-                    <?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?>
-                </tr>
+                <tr><?php foreach ($fileraw[0] as $cell) echo '<th scope="col">' . $cell . '</th>'; ?></tr>
             </thead>
-            <tbody class="table-group-divider">
-            <?php
+            <tbody class="table-group-divider"><?php
                 foreach ($fileraw as $key => $row) {
                     if ($key == 0) continue;
                     echo '<tr>';
-                    foreach ($row as $cell) {
-                        echo '<td>'. $cell .'</td>';
-                    }
+                    foreach ($row as $cell) echo '<td>'. $cell .'</td>';
                     echo '</tr>';
-                }
-            ?>
-        <?php else: ?>
-            <thead>
+                } 
+        } else {
+            ?><thead>
                 <tr>
                     <th scope="col" class="col-4">Kolumna</th>
                     <th scope="col" class="col-8">Treść</th>
@@ -313,12 +279,12 @@ if (isset($_GET['anx'])) {
                     </tr>
                 <?php } ?>
             </tbody>
-        <?php endif;
+        <?php }
         echo "</table>";
     }
     exit;
 }
-
+// Get INCI object if neccesary
 if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details']) || isset($_GET['suggest'])) {
     try {
         $inci = new INCI("INCI.json");
@@ -328,10 +294,9 @@ if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['in
         exit;
     }
 }
-
+// Response for ingredient details request
 if (!empty($_GET['details'])) {
-    // Response for ingredient details
-    $ingredientname = urldecode($_GET['details']);
+    $ingredientname = lettersize(urldecode($_GET['details']));
     echo '<div class="mx-3 mt-2 mb-3">';
     echo '<h4>' . $ingredientname . '</h4>';
     echo '<hr class="my-4">';
@@ -369,7 +334,7 @@ if (!empty($_GET['details'])) {
     <?php
     exit;
 }
-
+// Response for suggest request
 if (!empty($_GET['suggest'])) {
     $percent = (!empty($_GET['percent']) && intval($_GET['percent'])) ? $_GET['percent'] : 75;
     $suggestions = $inci->suggest(urldecode($_GET['suggest']),$percent,$endpercent);
@@ -383,31 +348,20 @@ if (!empty($_GET['suggest'])) {
     echo json_encode($array);
     exit;
 }
-
+// Process INCI validation
 if (!empty($_POST['inci'])) {
-    // Different separators
-    if ($_POST['separator'] == "difsep") {
-        $mainseparator = " " . trim($_POST['difsep']) . " ";
-    } else {
-        $mainseparator = $_POST['separator'];
-    }
-    // Connector space or separator
-    if (isset($_POST['connector'])) {
-        $connector = $mainseparator;
-    } else {
-        $connector = " ";
-    }
+    // Get main separator from select or difsep input
+    $mainseparator = ($_POST['separator'] == "difsep") ? " " . trim($_POST['difsep']) . " " : $_POST['separator'];
+    // Set connector to space or separator
+    $connector = isset($_POST['connector']) ? $mainseparator : " ";
     $inciexp = explode($mainseparator,str_replace(array("\r\n", "\n", "\r"),$connector,$_POST['inci']));
     foreach ($inciexp as $ingredient) {
         if (empty($ingredient)) continue;
-        if (str_contains($ingredient,"(nano)") && !str_contains($ingredient," (nano)")) {
-            $incitest[] = lettersize(trim(str_replace("(nano)"," (nano)",$ingredient)));
-        } else {
-            $incitest[] = lettersize(trim($ingredient));
-        }
+        $incitest[] = (str_contains($ingredient,"(nano)") && !str_contains($ingredient," (nano)")) ? lettersize(trim(str_replace("(nano)"," (nano)",$ingredient))) : lettersize(trim($ingredient));
     }
-    // Recreate ingredients with correct lettersize
+    // Recreate ingredients with correct lettersize to show in textarea
     $recreate = implode($mainseparator,$incitest);
+    // Check if there are mistakes in INCI
     $fail = 0;
     foreach ($incitest as $ingredient) { 
         // Cut-off nano part and check if ingredient is correct
@@ -425,7 +379,6 @@ if (!empty($_POST['inci'])) {
     setcookie("difsep",!empty($_POST["difsep"]) ? $_POST["difsep"] : "");
     setcookie("connector",isset($_POST["connector"]) ? true : false);
 }
-
 // Comparing mode
 if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) {
     // Remove double spaces and eol for both inci inputs
@@ -436,39 +389,26 @@ if (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) {
         $comparison = true;
     } else {
         $comparison = false;
-        // $marked = showdifferences($incimodel,$incicompare);
         $marked = diff($incimodel,$incicompare,'<span class="text-danger">','</span>');
     }
-    // Different separators
-    if ($_POST['separator'] == "difsep") {
-        $mainseparator = " " . trim($_POST['difsep']) . " ";
-    } else {
-        $mainseparator = $_POST['separator'];
-    }
+    // Get main separator from select or difsep input
+    $mainseparator = ($_POST['separator'] == "difsep") ? " " . trim($_POST['difsep']) . " " : $_POST['separator'];
     // Exploded inci-model to analyze ingredients
     $inciexp = explode($mainseparator,$_POST['inci-model']);
     foreach ($inciexp as $ingredient) {
         if (empty($ingredient)) continue;
-        if (str_contains($ingredient,"(nano)") && !str_contains($ingredient," (nano)")) {
-            $incitest[] = lettersize(trim(str_replace("(nano)"," (nano)",$ingredient)));
-        } else {
-            $incitest[] = lettersize(trim($ingredient));
-        }
+        $incitest[] = (str_contains($ingredient,"(nano)") && !str_contains($ingredient," (nano)")) ? lettersize(trim(str_replace("(nano)"," (nano)",$ingredient))) : lettersize(trim($ingredient));
     }
     $fail = 0;
     foreach ($incitest as $ingredient) { 
         // Cut-off nano part and check if ingredient is correct
         $temping = trim(str_replace(" (nano)","",$ingredient));
-        if (!$inci->check($temping)) {
-            $fail = 1;
-        }
+        if (!$inci->check($temping)) $fail = 1;
     }
     // Check for duplicates
     $counted = array_count_values(array_map('strtoupper',$incitest));
     foreach ($counted as $key => $value) {
-        if ($value > 1) {
-            $duplicates[] = $key;
-        }
+        if ($value > 1) $duplicates[] = $key;
     }
 }
 // Showing random ingredient for testing
@@ -482,16 +422,12 @@ if (isset($_GET['random'])) {
     if (is_string($incitest)) $incitest = array($incitest);
     $fail = false;
 }
-
-// Get exchange rates from today's NBP table A
+// Get exchange rates from today's NBP table A and put everything into cookies
 $jsoneur = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/eur/?format=json"),true);
-$exeur = round($jsoneur['rates'][0]['mid'],2);
-setcookie("exchange_eur",$exeur);
+setcookie("exchange_eur",round($jsoneur['rates'][0]['mid'],2));
 $jsonusd = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json"),true);
-$exusd = round($jsonusd['rates'][0]['mid'],2);
-setcookie("exchange_usd",$exusd);
-$exratedate = date("d.m.Y",strtotime($jsoneur['rates'][0]['effectiveDate']));
-setcookie("exchange_date",$exratedate);
+setcookie("exchange_usd",round($jsonusd['rates'][0]['mid'],2));
+setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effectiveDate'])));
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -666,8 +602,22 @@ setcookie("exchange_date",$exratedate);
                                     echo $inci->get($temping,"anx"); 
                                 }
                             ?></td>
-                            <td class="dwn"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['pl']; }; echo implode(", ",array_map(function ($txt) {return'<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)); unset($ingfunc); ?></td>
-                            <td class="dwn d-none"><?php foreach ($inci->get($temping,"function") as $function) {$ingfunc[] = $funcdict[$function]['en']; }; echo implode(", ",$ingfunc); unset($ingfunc); ?></td>
+                            <td class="dwn"><?php
+                                // Functions in polish
+                                foreach ($inci->get($temping,"function") as $function) {
+                                    $ingfunc[] = $funcdict[$function]['pl']; 
+                                }
+                                echo (!empty($ingfunc)) ? implode(", ",array_map(function ($txt) {return '<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)) : '<span class="user-select-all" ondblclick="copyText(this)">' . $funcdict['UNKNOWN']['pl'] . '</span>';
+                                unset($ingfunc);                                      
+                            ?></td>
+                            <td class="dwn d-none"><?php
+                                // Functions in english
+                                foreach ($inci->get($temping,"function") as $function) {
+                                    $ingfunc[] = $funcdict[$function]['en']; 
+                                }
+                                echo (!empty($ingfunc)) ? implode(", ",$ingfunc) : $funcdict['UNKNOWN']['en']; 
+                                unset($ingfunc);
+                            ?></td>
                             <?php if ($inci->extended): ?><td class="text-center"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td><?php endif; ?>
                             <?php if (!$inci->extended): ?><td class="text-center"><?php if (!empty($inci->get($temping,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($temping,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td><?php endif; ?>
                             <?php endif; ?>
@@ -678,15 +628,35 @@ setcookie("exchange_date",$exratedate);
         </div>
         <?php endif; ?>
     </div>
-    <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
-            <div class="modal-content">
-                <div class="modal-header fst-italic">
-                    <h2 class="modal-title"></h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div id="modals">
+
+        <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header fst-italic">
+                        <h2 class="modal-title"></h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="annexes">
+                            <div class="text-center">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Ładowanie...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div class="annexes">
+            </div>
+        </div>
+        <div class="modal fade" id="details" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Szczegóły składnika</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
                         <div class="text-center">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Ładowanie...</span>
@@ -696,142 +666,125 @@ setcookie("exchange_date",$exratedate);
                 </div>
             </div>
         </div>
-    </div>
-    <div class="modal fade" id="details" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Szczegóły składnika</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal fade" id="annex" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="d-flex gap-3 w-75">
+                            <h4 class="modal-title w-50">Załączniki</h4>
+                            <select class="form-select" onchange="getAnnex(this.value)" name="query">
+                                <option value="0" selected>Wybierz...</option>
+                                <option value="II/all">Załącznik II</option>
+                                <option value="III/all">Załącznik III</option>
+                                <option value="IV/all">Załącznik IV</option>
+                                <option value="V/all">Załącznik V</option>
+                                <option value="VI/all">Załącznik VI</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body"></div>
                 </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Ładowanie...</span>
+            </div>
+        </div>
+        <div class="modal fade" id="microplastics" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Lista mikroplastików wg ECHA 520-scenario</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" id="search">
+                        <p class="ms-2 mt-3"></p>
+                        <ul class="list-group list-group-flush"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="currency" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Przelicznik walut</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Zgodnie z tabelą kursów walut NBP z dnia <span></span></p>
+                        <h4>Euro €</h4>
+                        <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
+                            <div class="col">
+                                <label for="eur">EUR</label>
+                                <input type="number" class="form-control" id="eur">
+                            </div>
+                            <div class="col">
+                                <label for="plneur">PLN</label>
+                                <input type="number" class="form-control" id="plneur">
+                            </div>
+                        </div>
+                        <h4>Dolar $</h4>
+                        <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
+                            <div class="col">
+                                <label for="usd">USD</label>
+                                <input type="number" class="form-control" id="usd">
+                            </div>
+                            <div class="col">
+                                <label for="plnusd">PLN</label>
+                                <input type="number" class="form-control" id="plnusd">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="modal fade" id="annex" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="d-flex gap-3 w-75">
-                        <h4 class="modal-title w-50">Załączniki</h4>
-                        <select class="form-select" onchange="getAnnex(this.value)" name="query">
-                            <option value="0" selected>Wybierz...</option>
-                            <option value="II/all">Załącznik II</option>
-                            <option value="III/all">Załącznik III</option>
-                            <option value="IV/all">Załącznik IV</option>
-                            <option value="V/all">Załącznik V</option>
-                            <option value="VI/all">Załącznik VI</option>
-                        </select>
+        <div class="modal fade" id="info" tabindex="-1" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Informacje i aktualizacje</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body"></div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="microplastics" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Lista mikroplastików wg ECHA 520-scenario</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="search" class="form-control" placeholder="Zacznij wpisywać żeby wyszukać" id="search">
-                    <p class="ms-2 mt-3"></p>
-                    <ul class="list-group list-group-flush"></ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="currency" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Przelicznik walut</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Zgodnie z tabelą kursów walut NBP z dnia <span></span></p>
-                    <h4>Euro €</h4>
-                    <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
-                        <div class="col">
-                            <label for="eur">EUR</label>
-                            <input type="number" class="form-control" id="eur">
-                        </div>
-                        <div class="col">
-                            <label for="plneur">PLN</label>
-                            <input type="number" class="form-control" id="plneur">
-                        </div>
-                    </div>
-                    <h4>Dolar $</h4>
-                    <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
-                        <div class="col">
-                            <label for="usd">USD</label>
-                            <input type="number" class="form-control" id="usd">
-                        </div>
-                        <div class="col">
-                            <label for="plnusd">PLN</label>
-                            <input type="number" class="form-control" id="plnusd">
-                        </div>
+                    <div class="modal-body">
+                        <h3>Informacje</h3>
+                        <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku. <a href="https://eur-lex.europa.eu/legal-content/pl/TXT/?uri=CELEX%3A32022D0677" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a><br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009. <a href="https://eur-lex.europa.eu/eli/reg/2009/1223" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></p>
+                        <p>Na stronie działają skróty klawiszowe: <br> <kbd>Ctrl + <i class="bi bi-arrow-return-left"></i></kbd> - skrót do przycisku Sprawdź <br> <kbd>Ctrl + Del</kbd> - skrót do przycisku Wyczyść</p>
+                        <h3>Aktualizacje plików</h3>
+                        <table class="table">
+                            <tr>
+                                <th scope="row">Aktualizacja bazy składników</th>
+                                <td><?php
+                                    $csvmod = file_exists('INCI.csv') ? filemtime('INCI.csv') : 0;
+                                    $jsnmod = file_exists('INCI.json') ? filemtime('INCI.json') : 0;
+                                    echo date("d.m.Y H:i", max($csvmod,$jsnmod)); 
+                                ?></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Aktualizacja załącznika II</th>
+                                <td><?php echo file_exists('A2.csv') ? date("d.m.Y H:i", filemtime('A2.csv')) : "Błąd odczytu pliku!"; ?></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Aktualizacja załącznika III</th>
+                                <td><?php echo file_exists('A3.csv') ? date("d.m.Y H:i", filemtime('A3.csv')) : "Błąd odczytu pliku!"; ?></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Aktualizacja załącznika IV</th>
+                                <td><?php echo file_exists('A4.csv') ? date("d.m.Y H:i", filemtime('A4.csv')) : "Błąd odczytu pliku!"; ?></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Aktualizacja załącznika V</th>
+                                <td><?php echo file_exists('A5.csv') ? date("d.m.Y H:i", filemtime('A5.csv')) : "Błąd odczytu pliku!"; ?></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Aktualizacja załącznika VI</th>
+                                <td><?php echo file_exists('A6.csv') ? date("d.m.Y H:i", filemtime('A6.csv')) : "Błąd odczytu pliku!"; ?></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="info" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Informacje i aktualizacje</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h3>Informacje</h3>
-                    <p>Celem aplikacji jest weryfikacja składu zgodnie ze słownikiem wspólnych nazw składników kosmetycznych zgodnie z DECYZJĄ WYKONAWCZĄ KOMISJI (UE) 2022/677 z dnia 31 marca 2022 roku. <a href="https://eur-lex.europa.eu/legal-content/pl/TXT/?uri=CELEX%3A32022D0677" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a><br>Dodatkowo aplikacja umożliwia rozpisanie i sprawdzenie wszystkich składników oraz wyszukanie szczegółów zawartych w bazie CosIng oraz załącznikach ROZPORZĄDZENIA (UE) 1223/2009. <a href="https://eur-lex.europa.eu/eli/reg/2009/1223" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a></p>
-                    <p>Na stronie działają skróty klawiszowe: <br> <kbd>Ctrl + <i class="bi bi-arrow-return-left"></i></kbd> - skrót do przycisku Sprawdź <br> <kbd>Ctrl + Del</kbd> - skrót do przycisku Wyczyść</p>
-                    <h3>Aktualizacje plików</h3>
-                    <table class="table">
-                        <tr>
-                            <th scope="row">Aktualizacja bazy składników</th>
-                            <td><?php
-                                $csvmod = file_exists('INCI.csv') ? filemtime('INCI.csv') : 0;
-                                $jsnmod = file_exists('INCI.json') ? filemtime('INCI.json') : 0;
-                                echo date("d.m.Y H:i", max($csvmod,$jsnmod)); 
-                            ?></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Aktualizacja załącznika II</th>
-                            <td><?php echo file_exists('A2.csv') ? date("d.m.Y H:i", filemtime('A2.csv')) : "Błąd odczytu pliku!"; ?></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Aktualizacja załącznika III</th>
-                            <td><?php echo file_exists('A3.csv') ? date("d.m.Y H:i", filemtime('A3.csv')) : "Błąd odczytu pliku!"; ?></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Aktualizacja załącznika IV</th>
-                            <td><?php echo file_exists('A4.csv') ? date("d.m.Y H:i", filemtime('A4.csv')) : "Błąd odczytu pliku!"; ?></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Aktualizacja załącznika V</th>
-                            <td><?php echo file_exists('A5.csv') ? date("d.m.Y H:i", filemtime('A5.csv')) : "Błąd odczytu pliku!"; ?></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Aktualizacja załącznika VI</th>
-                            <td><?php echo file_exists('A6.csv') ? date("d.m.Y H:i", filemtime('A6.csv')) : "Błąd odczytu pliku!"; ?></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="position-fixed start-50 translate-middle-x top-0 mt-5" style="z-index: 2000;">
+    <div class="position-fixed start-50 translate-middle-x top-0 mt-5" style="z-index: 2000;" id="toast">
         <div class="toast fade text-bg-light" role="alert" data-bs-delay="1200">
             <div class="toast-body fw-bold fs-6 text-center">
                 <p class="mb-1"></p>
