@@ -1,4 +1,7 @@
-<?php 
+<?php
+
+use function PHPSTORM_META\type;
+
 setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
 if (!isset($_GET["debug"])) error_reporting(0);
@@ -443,7 +446,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page assets -->
     <link href="styles.css?v=2.7" rel="stylesheet">
-    <script src="script.js?v=1.3.1" defer></script>
+    <script src="script.js?v=1.4" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
@@ -456,7 +459,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                 <div class="navbar-nav nav-underline">
                     <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Weryfikacja</a>
                     <a href="?compare" class="nav-link<?php if (isset($_GET['compare'])) echo " active"; ?>">Porównanie</a>
-                    <a href="#annex" data-bs-toggle="modal" class="nav-link">Załączniki</a>
+                    <a href="#wholeAnnex" data-bs-toggle="modal" class="nav-link">Załączniki</a>
                     <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                     <a href="#microplastics" data-bs-toggle="modal" class="nav-link">ECHA-520</a>
                     <a href="#currency" data-bs-toggle="modal" class="nav-link">Kursy walut</a>
@@ -594,9 +597,9 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                             <td class="text-center"><?php 
                                 if (str_contains($inci->get($temping,"anx"),"I/") || str_contains($inci->get($temping,"anx"),"V/")) {
                                     if (str_contains($inci->get($temping,"anx"),'#')) {
-                                        echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($temping,"anx"),0,strpos($inci->get($temping,"anx"),'#'))) .'</a> '. substr($inci->get($temping,"anx"),strpos($inci->get($temping,"anx"),'#'));
+                                        echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($temping,"anx"),0,strpos($inci->get($temping,"anx"),'#'))) .'</a> '. substr($inci->get($temping,"anx"),strpos($inci->get($temping,"anx"),'#'));
                                     } else {
-                                        echo '<a href="#ingredient" class="text-reset" data-bs-toggle="modal">'. $inci->get($temping,"anx") .'</a>';
+                                        echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. $inci->get($temping,"anx") .'</a>';
                                     }
                                 } else {
                                     echo $inci->get($temping,"anx"); 
@@ -629,8 +632,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
         <?php endif; ?>
     </div>
     <div id="modals">
-
-        <div class="modal fade" id="ingredient" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal fade" id="ingredientAnnex" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
                 <div class="modal-content">
                     <div class="modal-header fst-italic">
@@ -666,13 +668,13 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="annex" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal fade" id="wholeAnnex" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="d-flex gap-3 w-75">
                             <h4 class="modal-title w-50">Załączniki</h4>
-                            <select class="form-select" onchange="getAnnex(this.value)" name="query">
+                            <select class="form-select" name="wholeAnnex">
                                 <option value="0" selected>Wybierz...</option>
                                 <option value="II/all">Załącznik II</option>
                                 <option value="III/all">Załącznik III</option>

@@ -1,4 +1,4 @@
-// JS v: 1.3.1
+// JS v: 1.4
 function getCookie(name) {
     const cname = name + "=";
     const decodedCookie = decodeURIComponent(document.cookie);
@@ -13,7 +13,7 @@ function activateTooltips() {
     const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
     [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 }
-function notify(header,content) {
+function notify(header,content = null) {
     const toast = document.querySelector('.toast');
     toast.querySelector('p').innerText = header;
     toast.querySelector('span').innerText = content;
@@ -37,7 +37,7 @@ function cleartextarea() {
 }
 function copyText(span) {
     navigator.clipboard.writeText(span.innerText);
-    notify("Skopiowano do schowka",span.innerText)
+    notify("Skopiowano do schowka",span.innerText);
     window.getSelection().removeAllRanges();
 }
 function copyinci() {
@@ -49,6 +49,7 @@ function copyinci() {
 function pasteinci() {
     const textarea = document.querySelector('#inci');
     navigator.clipboard.readText().then((topaste) => (textarea.value = topaste));
+    notify("Wklejono zawartość schowka");
 }
 function downloadTable() {
     let tableRows = document.querySelectorAll('.ingredients tr');
@@ -74,8 +75,45 @@ function downloadTable() {
     tempLink.remove();
 }
 
+function getAnnex(request) {
+    const encodedRequest = encodeURI(request);
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("GET","?anx="+encodedRequest)
+    xhttp.send();
+    return xhttp;
+}
+const throbber = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
+const annexIngredient = document.querySelector("#ingredientAnnex");
+if (annexIngredient) {
+    annexIngredient.addEventListener('show.bs.modal', event => {
+        annexIngredient.querySelector('.modal-title').innerText = event.relatedTarget.parentElement.parentElement.querySelector('th').innerText.replace(" (nano)","");
+        const response = getAnnex(event.relatedTarget.innerText);
+        response.onload = function() {
+            annexIngredient.querySelector(".annexes").innerHTML = response.responseText;
+        }
+    });
+    annexIngredient.addEventListener('hidden.bs.modal', _event => {
+        annexIngredient.querySelector(".annexes").innerHTML = throbber;
+    })
+}
+const annexWhole = document.querySelector('[name="wholeAnnex"]');
+if (annexWhole) {
+    annexWhole.addEventListener('change', event => {
+        const modalBody = document.querySelector('#wholeAnnex .modal-body');
+        if (event.target.value != 0) {
+            const response = getAnnex(event.target.value);
+            modalBody.innerHTML = throbber;
+            response.onload = function() {
+                modalBody.innerHTML = response.responseText;
+            }
+        } else {
+            modalBody.innerHTML = '<h2>Wybierz załącznik...</h2>';
+        }
+    })
+}
+
 const annexModal = document.querySelector('#ingredient');
-if (annexModal) {
+if (annexModal && false) {
     annexModal.addEventListener('show.bs.modal',event => {
         const link = event.relatedTarget;
         const request = encodeURI(link.innerText);
@@ -87,7 +125,7 @@ if (annexModal) {
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
             annexModal.querySelector('.annexes').innerHTML = xhttp.responseText;
-            activateTooltips()
+            activateTooltips();
         }
         xhttp.open('GET','?anx='+request);
         xhttp.send();
@@ -97,7 +135,7 @@ if (annexModal) {
     });
 }
 
-function getAnnex (request) {
+function getAnnexx (request) {
     if (request != '0') {
         const modalBody = document.querySelector('#annex .modal-body');
         modalBody.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
