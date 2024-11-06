@@ -89,7 +89,8 @@
         "amp":"AMP",
         "tdi":"TDI",
         "jpn":"JPN",
-        "mek":"MEK"
+        "mek":"MEK",
+        "hdi":"HDI"
     },
     "4":{
         "edta":"EDTA",
