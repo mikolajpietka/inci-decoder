@@ -1,15 +1,25 @@
-// JS v: 1.1
+// JS v: 1.3.1
 function getCookie(name) {
-    const cname = name + "="
-    const decodedCookie = decodeURIComponent(document.cookie)
+    const cname = name + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
     const splitCookie = decodedCookie.split("; ")
     for (let i=0; i < splitCookie.length; i++) {
         x = splitCookie[i]
-        if (x.indexOf(cname) == 0) {
-            return (x.substring(cname.length,x.length));
-        }
+        if (x.indexOf(cname) == 0) return (x.substring(cname.length,x.length));
     }
-    return null
+    return null;
+}
+function activateTooltips() {
+    const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
+    [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+}
+function notify(header,content) {
+    const toast = document.querySelector('.toast');
+    toast.querySelector('p').innerText = header;
+    toast.querySelector('span').innerText = content;
+    // Show notification
+    toastOn = bootstrap.Toast.getOrCreateInstance(toast);
+    toastOn.show();
 }
 function cleartextarea() {
     const inci = document.querySelectorAll('textarea');
@@ -23,30 +33,17 @@ function cleartextarea() {
     separator.selectedIndex = 0;
     const difsep = document.querySelector('#difsep');
     difsep.value = '';
-    if (tofocus = document.querySelector("#inci")) {
-        tofocus.focus();
-    }
-    if (tofocus = document.querySelector("#inci-model")) {
-        tofocus.focus();
-    }   
+    if (tofocus = document.querySelector("#inci,#inci-model")) tofocus.focus();
 }
 function copyText(span) {
     navigator.clipboard.writeText(span.innerText);
-    const toast = document.querySelector('.toast');
-    toast.querySelector('p').innerText = "Skopiowano do schowka:";
-    toast.querySelector('span').innerText = span.innerText;
-    toastOn = bootstrap.Toast.getOrCreateInstance(toast);
-    toastOn.show();
+    notify("Skopiowano do schowka",span.innerText)
     window.getSelection().removeAllRanges();
 }
 function copyinci() {
     const inci = document.querySelector('#inci').value;
     navigator.clipboard.writeText(inci);
-    const toast = document.querySelector('.toast');
-    toast.querySelector('p').innerText = "Skopiowano do schowka:";
-    toast.querySelector('span').innerText = inci;
-    toastOn = bootstrap.Toast.getOrCreateInstance(toast);
-    toastOn.show();
+    notify("Skopiowano do schowka",inci)
     window.getSelection().removeAllRanges();
 }
 function pasteinci() {
@@ -65,7 +62,7 @@ function downloadTable() {
         csvRow.push(csvCol.join(","));
     });
     let csvData = csvRow.join('\n');
-
+    // Create Blob and download it
     csvFile = new Blob([csvData],{type: "text/csv"});
     let tempLink = document.createElement("a");
     let d = new Date;
@@ -90,8 +87,7 @@ if (annexModal) {
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
             annexModal.querySelector('.annexes').innerHTML = xhttp.responseText;
-            const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            activateTooltips()
         }
         xhttp.open('GET','?anx='+request);
         xhttp.send();
@@ -109,8 +105,7 @@ function getAnnex (request) {
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function () {
             modalBody.innerHTML = xhttp.responseText;
-            const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            activateTooltips()
         }
         xhttp.open('GET','?anx='+request);
         xhttp.send();
@@ -277,12 +272,10 @@ function getsuggestions(button) {
         });
         const toinsert = toinsertlist.join(", ") + '<i class="d-none percent">' + response["get_percent"] + '</i>';
         suggestioncell.innerHTML = toinsert;
-        const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        activateTooltips()
     }
     xhttp.open('GET','?suggest='+encodeURI(mistake)+'&percent='+percent);
     xhttp.send();
 }
 
-const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
-[...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+activateTooltips()

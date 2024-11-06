@@ -443,7 +443,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page assets -->
     <link href="styles.css?v=2.7" rel="stylesheet">
-    <script src="script.js?v=1.1" defer></script>
+    <script src="script.js?v=1.3.1" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
