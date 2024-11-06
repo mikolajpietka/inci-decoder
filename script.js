@@ -1,3 +1,4 @@
+// JS v: 1.1
 function getCookie(name) {
     const cname = name + "="
     const decodedCookie = decodeURIComponent(document.cookie)
@@ -95,13 +96,10 @@ if (annexModal) {
         xhttp.open('GET','?anx='+request);
         xhttp.send();
     });
-    annexModal.addEventListener('hidden.bs.modal',event => {
+    annexModal.addEventListener('hidden.bs.modal',_event => {
         annexModal.querySelector('.annexes').innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
     });
 }
-
-const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
 function getAnnex (request) {
     if (request != '0') {
@@ -124,7 +122,7 @@ function getAnnex (request) {
 const separator = document.querySelector("#separator");
 const difsep = document.querySelector("#difsep");
 if (separator) {
-    separator.addEventListener("change",event => {
+    separator.addEventListener("change",_event => {
         if (separator.value == "difsep") {
             difsep.disabled = false;
         } else {
@@ -183,7 +181,7 @@ function ctrlz() {
 
 const search = document.querySelector("#search");
 const microplastics = document.querySelector("#microplastics");
-search.addEventListener("input",event => {
+search.addEventListener("input",_event => {
     const request = search.value.toLowerCase();
     const xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
@@ -194,7 +192,7 @@ search.addEventListener("input",event => {
     xhttp.send();
 })
 if (microplastics) {
-    microplastics.addEventListener("show.bs.modal",event => {
+    microplastics.addEventListener("show.bs.modal",_event => {
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function() {
             microplastics.querySelector("ul").innerHTML = xhttp.responseText;
@@ -217,19 +215,19 @@ const exeur = parseFloat(getCookie("exchange_eur"));
 const exusd = parseFloat(getCookie("exchange_usd"));
 const exdate = getCookie("exchange_date");
 
-eur.addEventListener("input",event => {
+eur.addEventListener("input",_event => {
     plneur.value = (eur.value * exeur).toFixed(2);
 })
-plneur.addEventListener("input",event => {
+plneur.addEventListener("input",_event => {
     eur.value = (plneur.value / exeur).toFixed(2);
 })
-usd.addEventListener("input",event => {
+usd.addEventListener("input",_event => {
     plnusd.value = (usd.value * exusd).toFixed(2);
 })
-plnusd.addEventListener("input",event => {
+plnusd.addEventListener("input",_event => {
     usd.value = (plnusd.value / exusd).toFixed(2);
 })
-currency.addEventListener("show.bs.modal", event => {
+currency.addEventListener("show.bs.modal", _event => {
     eur.value = (1).toFixed(2);
     plneur.value = exeur.toFixed(2);
     usd.value = (1).toFixed(2);
@@ -249,7 +247,7 @@ if (detailsModal) {
         xhttp.open('GET','?details='+encodeURI(ingredient));
         xhttp.send();
     })
-    detailsModal.addEventListener("hidden.bs.modal", event => {
+    detailsModal.addEventListener("hidden.bs.modal", _event => {
         detailsModal.querySelector(".modal-body").innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
     })
 }
@@ -285,3 +283,6 @@ function getsuggestions(button) {
     xhttp.open('GET','?suggest='+encodeURI(mistake)+'&percent='+percent);
     xhttp.send();
 }
+
+const tooltipTriggerList = document.querySelectorAll("[data-bs-toggle='tooltip']");
+[...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));

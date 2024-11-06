@@ -424,9 +424,9 @@ if (isset($_GET['random'])) {
 }
 // Get exchange rates from today's NBP table A and put everything into cookies
 $jsoneur = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/eur/?format=json"),true);
-setcookie("exchange_eur",round($jsoneur['rates'][0]['mid'],2));
+setcookie("exchange_eur",$jsoneur['rates'][0]['mid']);
 $jsonusd = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json"),true);
-setcookie("exchange_usd",round($jsonusd['rates'][0]['mid'],2));
+setcookie("exchange_usd",$jsonusd['rates'][0]['mid']);
 setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effectiveDate'])));
 ?>
 <!DOCTYPE HTML>
@@ -436,14 +436,14 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Mikołaj Piętka">
-
+    <meta name="description" content="Aplikacja do weryfikacji poprawności składu kosmetyku oraz podsumowanie informacji o składnikach (zgodnie z Rozporządzeniem 1223/2009)">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- Page CSS -->
-    <link href="styles.css?ver=2.7.inci" rel="stylesheet">
-    <!-- Favicon -->
+    <!-- Page assets -->
+    <link href="styles.css?v=2.7" rel="stylesheet">
+    <script src="script.js?v=1.1" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
@@ -792,6 +792,5 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
 </body>
 </html>
