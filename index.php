@@ -541,18 +541,22 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
             if (isset($_POST['inci'])): ?>
             <div class="card d-inline-block my-2">
                 <div class="card-body">
-                    <div class="d-inline-flex gap-3 align-items-center">
-                        <i class="bi bi-tools fs-4"></i>
-                        <div class="d-inline-flex flex-wrap gap-3">
-                            <?php if (!$fail): ?>
-                            <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
-                            <button type="button" class="btn btn-sm btn-outline-light" onclick="copyText(document.querySelector('#inci').value)"><i class="bi bi-copy"></i> Kopiuj skład</button>
-                            <?php endif; ?>
-                            <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
+                    <div class="d-inline-flex flex-wrap gap-3">
+                        <div class="d-inline-flex gap-3 align-items-center">
+                            <i class="bi bi-tools fs-4"></i>
+                            <div class="d-inline-flex flex-wrap gap-3">
+                                <?php if (!$fail): ?>
+                                <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
+                                <button type="button" class="btn btn-sm btn-outline-light" onclick="copyText(document.querySelector('#inci').value)"><i class="bi bi-copy"></i> Kopiuj skład</button>
+                                <?php endif; ?>
+                                <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
+                            </div>
                         </div>
-                        <i class="bi bi-info-circle fs-4"></i>
-                        <div class="card d-inline-block border-light px-2 py-1 lh-sm">
-                            <span class="font-sm text-light"><i class="bi bi-question-circle"></i> Ilość składników: <?php echo count($incitest); ?></span>
+                        <div class="d-inline-flex gap-3 align-items-center">
+                            <i class="bi bi-info-circle fs-4"></i>
+                            <div class="card d-inline-block border-light px-2 py-1 lh-sm">
+                                <span class="font-sm text-light"><i class="bi bi-question-circle"></i> Ilość składników: <?php echo count($incitest); ?></span>
+                            </div>
                         </div>
                     </div>
                 </div>
