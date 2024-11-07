@@ -207,7 +207,7 @@ if (isset($_GET['micro'])) {
     $echa520 = json_decode(file_get_contents("echa520.json",true));
     foreach ($echa520 as $ing) {
         if (str_contains(strtolower($ing),urldecode($_GET['micro']))) {
-            echo '<li class="list-group-item user-select-all" ondblclick=(copyText(this))>' . lettersize($ing) . '</li>'; 
+            echo '<li class="list-group-item user-select-all" ondblclick=(copyText(this.innerText))>' . lettersize($ing) . '</li>'; 
         }
     } 
     exit;
@@ -324,7 +324,7 @@ if (!empty($_GET['details'])) {
     <h4>Linki do wyszukania składnika</h4>
     <div class="mt-3 row gx-5 gy-2 row-cols-1 row-cols-lg-3 mx-2">
         <div class="col">
-            <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?k=<?php echo urlencode(strtolower($ingredientname)); ?>">ulProspector</a>
+            <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?incival=<?php echo urlencode(strtolower($ingredientname)); ?>">ulProspector</a>
         </div>
         <div class="col">
             <a class="btn btn-outline-info w-100" target="_blank" href="<?php echo ($inci->isprop("cosmile") && $inci->get($ingredientname,"cosmile") != null) ? "https://cosmileeurope.eu/pl/inci/szczegoly/" . $inci->get($ingredientname,"cosmile") : "https://cosmileeurope.eu/pl/inci/skladnik/?q=" . urlencode(strtolower($ingredientname)); ?>">COSMILE</a>
@@ -445,8 +445,8 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page assets -->
-    <link href="styles.css?v=2.7" rel="stylesheet">
-    <script src="script.js?v=1.4.1" defer></script>
+    <link href="styles.css?v=2.7.1" rel="stylesheet">
+    <script src="script.js?v=1.4.4" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
@@ -534,7 +534,8 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
             <?php else: ?>
                 <h3 class="text-danger fw-bold">Składy nie są Indentyczne <i class="bi bi-emoji-frown-fill"></i></h3>
                 <div class="d-flex gap-2"><strong class="text-danger">Różnice:</strong><span><?php echo $marked; ?></span></div>
-            <?php endif; endif; ?>
+            <?php endif; endif; 
+            if (isset($_POST['inci'])): ?>
             <div class="card d-inline-block my-2">
                 <div class="card-body">
                     <div class="d-inline-flex gap-3 align-items-center">
@@ -542,13 +543,14 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                         <div class="d-inline-flex flex-wrap gap-3">
                             <?php if (!$fail): ?>
                             <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
-                            <button type="button" class="btn btn-sm btn-outline-light" onclick="copyinci()"><i class="bi bi-copy"></i> Kopiuj skład</button>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="copyText(document.querySelector('#inci').value)"><i class="bi bi-copy"></i> Kopiuj skład</button>
                             <?php endif; ?>
                             <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
                         </div>
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
         <div class="table-responsive">
             <table class="table table-sm align-middle caption-top">
@@ -587,13 +589,13 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                         }
                     ?>
                         <tr>
-                            <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this)"><?php echo lettersize($ingredient); ?></span></th>
+                            <th scope="row"  class="dwn<?php if (!$test) echo ' text-danger'; if ($test && !empty($duplicates) && in_array(strtoupper($ingredient),$duplicates)) echo ' text-warning'; ?>"><span class="user-select-all" ondblclick="copyText(this.innerText)"><?php echo lettersize($ingredient); ?></span></th>
                             <?php if ($fail): ?>
                             <td class="font-sm"><?php if (!$test) echo $suggestions; ?></td>
                             <td class="text-center"><?php if (!$test): ?><button type="button" class="btn btn-tiny btn-outline-light" onclick="getsuggestions(this)">Pokaż więcej</button><?php endif; ?></td>
                             <?php else: ?>
-                            <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
-                            <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
+                            <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this.innerText)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
+                            <td class="dwn"><?php foreach (explode(" / ",$inci->get($temping,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this.innerText)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
                             <td class="text-center"><?php 
                                 if (str_contains($inci->get($temping,"anx"),"I/") || str_contains($inci->get($temping,"anx"),"V/")) {
                                     if (str_contains($inci->get($temping,"anx"),'#')) {
@@ -610,7 +612,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                                 foreach ($inci->get($temping,"function") as $function) {
                                     $ingfunc[] = $funcdict[$function]['pl']; 
                                 }
-                                echo (!empty($ingfunc)) ? implode(", ",array_map(function ($txt) {return '<span class="user-select-all" ondblclick="copyText(this)">' . $txt . '</span>'; },$ingfunc)) : '<span class="user-select-all" ondblclick="copyText(this)">' . $funcdict['UNKNOWN']['pl'] . '</span>';
+                                echo (!empty($ingfunc)) ? implode(", ",array_map(function ($txt) {return '<span class="user-select-all" ondblclick="copyText(this.innerText)">' . $txt . '</span>'; },$ingfunc)) : '<span class="user-select-all" ondblclick="copyText(this.innerText)">' . $funcdict['UNKNOWN']['pl'] . '</span>';
                                 unset($ingfunc);                                      
                             ?></td>
                             <td class="dwn d-none"><?php
