@@ -99,35 +99,61 @@ def updateinci():
     if not os.path.exists(incifile):
         print("INCI.json file does not exist, create it using incijson()")
         return None
-    print("Making backup of INCI.json")
-    shutil.copy(incifile,incibackup)
-    datafiles = "datatools/data"
-    if not os.path.exists(datafiles):
-        print(f"Directory {datafiles} does not exist")
-    else:
-        with open(incifile,"r",encoding="utf-8") as of:
-            oldinci = json.load(of)
-            of.close()
-        datalist = os.listdir(datafiles)
-        for datafile in datalist:
-            dir = datafiles + datafile
-            with open(dir,"r",encoding="utf-8") as df:
-                data = json.load(df)["results"][0]["metadata"]
-                df.close()
-            if data["inciName"][0] in oldinci:
-                print("Exists")
+    print("What data you want to update INCI.json with: \n1. Data from CosIng \n2. Data from Cosmile")
+    match int(input("Choose number: ")):
+        case 1:
+            print("Making backup of INCI.json")
+            shutil.copy(incifile,incibackup)
+            datafiles = "datatools/data"
+            if not os.path.exists(datafiles):
+                print(f"Directory {datafiles} does not exist")
+                return None
             else:
-                print(f"Ingredient {data["inciName"][0]} is not in database")
-                input("Press Enter to continue...")
-            # To do still
-    print("If you want to continue with next operation input 'Y' and press Enter")
-    if input() == "Y":
-        with open(incifile,"r",encoding="utf-8") as of:
-            oldinci = json.load(of)
-            of.close()
-        # To do
-    # Backup INCI file before updating
-    
+                print("This function is not completed...")
+                return None
+                with open(incifile,"r",encoding="utf-8") as of:
+                    oldinci = json.load(of)
+                    of.close()
+                datalist = os.listdir(datafiles)
+                for datafile in datalist:
+                    dir = datafiles + datafile
+                    with open(dir,"r",encoding="utf-8") as df:
+                        data = json.load(df)["results"][0]["metadata"]
+                        df.close()
+                    if data["inciName"][0] in oldinci:
+                        print("Exists")
+                    else:
+                        print(f"Ingredient {data["inciName"][0]} is not in database")
+                        input("Press Enter to continue...")
+        case 2:
+            cosmilefile = "datatools/cosmile.json"
+            print("Making backup of INCI.json")
+            shutil.copy(incifile,incibackup)
+            print("Getting data into buffer")
+            with open(incifile,"r",encoding="utf-8") as of:
+                incidata = json.load(of)
+                of.close()
+            with open(cosmilefile,"r",encoding="utf-8") as of:
+                cosmiledata = json.load(of)
+                of.close()
+            print("Updating data with Cosmile data")
+            for ingredient in incidata:
+                if ingredient in cosmiledata:
+                    incidata[ingredient]["cosmile"] = cosmiledata[ingredient]
+                else:
+                    incidata[ingredient]["cosmile"] = None
+            print("Sorting data (to be sure it's sorted)")
+            keys = list(incidata.keys())
+            keys.sort()
+            sorted = {i: incidata[i] for i in keys}
+            print("Saving data into INCI.json")
+            with open(incifile,"w",encoding="utf-8") as of:
+                json.dump(sorted,of,indent=4)
+                of.close()
+            print("Done!")
+        case _:
+            print("Wrong number!")
+            return None
 
 if __name__ == '__main__':
     # incijson()
