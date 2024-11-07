@@ -322,18 +322,18 @@ if (!empty($_GET['details'])) {
     }
     ?>
     <h4>Linki do wyszukania składnika</h4>
-    <div class="mt-3 row gx-3 gy-2 row-cols-1 row-cols-md-2 row-cols-lg-4 mx-2">
+    <div class="mt-3 mx-1 row gx-3 gy-2 row-cols-1 row-cols-md-2 row-cols-lg-4">
         <div class="col">
-            <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?incival=<?php echo urlencode(strtolower($ingredientname)); ?>"><img src="/img/ulprospector.png" alt="Logo ulProspector" class="logo">ulProspector</a>
+            <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?incival=<?php echo urlencode(strtolower($ingredientname)); ?>"><img src="img/ulprospector.png" alt="Logo ulProspector" class="logo">ulProspector</a>
         </div>
         <div class="col">
-            <a class="btn btn-outline-info w-100" target="_blank" href="<?php echo ($inci->isprop("cosmile") && $inci->get($ingredientname,"cosmile") != null) ? "https://cosmileeurope.eu/pl/inci/szczegoly/" . $inci->get($ingredientname,"cosmile") : "https://cosmileeurope.eu/pl/inci/skladnik/?q=" . urlencode(strtolower($ingredientname)); ?>"><img src="/img/cosmile.png" alt="Logo Cosmile" class="logo">COSMILE</a>
+            <a class="btn btn-outline-info w-100" target="_blank" href="<?php echo ($inci->isprop("cosmile") && $inci->get($ingredientname,"cosmile") != null) ? "https://cosmileeurope.eu/pl/inci/szczegoly/" . $inci->get($ingredientname,"cosmile") : "https://cosmileeurope.eu/pl/inci/skladnik/?q=" . urlencode(strtolower($ingredientname)); ?>"><img src="img/cosmile.png" alt="Logo Cosmile" class="logo">COSMILE</a>
         </div>
         <div class="col">
-            <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>"><img src="/img/cosing.png" alt="Logo UE" class="logo">CosIng</a>
+            <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>"><img src="img/cosing.png" alt="Logo UE" class="logo">CosIng</a>
         </div>
         <div class="col">
-            <a class="btn btn-outline-light w-100" target="_blank" href="https://www.google.pl/search?q=<?php echo urlencode(strtolower($ingredientname)); ?>"><img src="/img/google.png" alt="Logo Google" class="logo">Google</a>
+            <a class="btn btn-outline-light w-100" target="_blank" href="https://www.google.pl/search?q=<?php echo urlencode(strtolower($ingredientname)); ?>"><img src="img/google.png" alt="Logo Google" class="logo">Google</a>
         </div>
     </div>
     </div>
