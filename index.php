@@ -49,7 +49,7 @@ class INCI {
     public function suggest(string $mistake, int $startsimilarity = 90, int &$endpercent = null) : array | null {
         $mistake = strtoupper($mistake);
         $attempt = 1;
-        while ($attempt <= 10) {
+        while ($attempt <= 5) {
             $suggestions = [];
             $perclimit = $startsimilarity - ($attempt - 1) * 5;
             $rawsuggest = array_filter($this->dictionary,function($value) use ($mistake,$perclimit) {
@@ -322,15 +322,18 @@ if (!empty($_GET['details'])) {
     }
     ?>
     <h4>Linki do wyszukania składnika</h4>
-    <div class="mt-3 row gx-5 gy-2 row-cols-1 row-cols-lg-3 mx-2">
+    <div class="mt-3 row gx-3 gy-2 row-cols-1 row-cols-md-2 row-cols-lg-4 mx-2">
         <div class="col">
-            <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?incival=<?php echo urlencode(strtolower($ingredientname)); ?>">ulProspector</a>
+            <a class="btn btn-outline-danger w-100" target="_blank" href="https://www.ulprospector.com/en/eu/PersonalCare/search?incival=<?php echo urlencode(strtolower($ingredientname)); ?>"><img src="/img/ulprospector.png" alt="Logo ulProspector" class="logo">ulProspector</a>
         </div>
         <div class="col">
-            <a class="btn btn-outline-info w-100" target="_blank" href="<?php echo ($inci->isprop("cosmile") && $inci->get($ingredientname,"cosmile") != null) ? "https://cosmileeurope.eu/pl/inci/szczegoly/" . $inci->get($ingredientname,"cosmile") : "https://cosmileeurope.eu/pl/inci/skladnik/?q=" . urlencode(strtolower($ingredientname)); ?>">COSMILE</a>
+            <a class="btn btn-outline-info w-100" target="_blank" href="<?php echo ($inci->isprop("cosmile") && $inci->get($ingredientname,"cosmile") != null) ? "https://cosmileeurope.eu/pl/inci/szczegoly/" . $inci->get($ingredientname,"cosmile") : "https://cosmileeurope.eu/pl/inci/skladnik/?q=" . urlencode(strtolower($ingredientname)); ?>"><img src="/img/cosmile.png" alt="Logo Cosmile" class="logo">COSMILE</a>
         </div>
         <div class="col">
-            <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>">CosIng</a>
+            <a class="btn btn-outline-primary w-100" target="_blank" href="https://ec.europa.eu/growth/tools-databases/cosing/details/<?php echo $inci->get($ingredientname,"refNo"); ?>"><img src="/img/cosing.png" alt="Logo UE" class="logo">CosIng</a>
+        </div>
+        <div class="col">
+            <a class="btn btn-outline-light w-100" target="_blank" href="https://www.google.pl/search?q=<?php echo urlencode(strtolower($ingredientname)); ?>"><img src="/img/google.png" alt="Logo Google" class="logo">Google</a>
         </div>
     </div>
     </div>
@@ -339,7 +342,7 @@ if (!empty($_GET['details'])) {
 }
 // Response for suggest request
 if (!empty($_GET['suggest'])) {
-    $percent = (!empty($_GET['percent']) && intval($_GET['percent'])) ? $_GET['percent'] : 75;
+    $percent = (!empty($_GET['percent']) && intval($_GET['percent'])) ? $_GET['percent'] : 90;
     $suggestions = $inci->suggest(urldecode($_GET['suggest']),$percent,$endpercent);
     $array = [
         "query" => urldecode($_GET['suggest']),
@@ -445,8 +448,8 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page assets -->
-    <link href="styles.css?v=2.7.1" rel="stylesheet">
-    <script src="script.js?v=1.4.4" defer></script>
+    <link href="styles.css?v=2.7.9" rel="stylesheet">
+    <script src="script.js?v=1.5.0" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
@@ -581,11 +584,15 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                         } else {
                             $test = false;
                             $suggestionsraw = $inci->suggest($temping,endpercent:$perc);
-                            $sugred = [];
-                            foreach ($suggestionsraw as $s) {
-                                $sugred[] = (isset($_GET['compare'])) ? lettersize($s["inci"]) : '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
+                            if ($suggestionsraw != null) {
+                                $sugred = [];
+                                foreach ($suggestionsraw as $s) {
+                                    $sugred[] = (isset($_GET['compare'])) ? lettersize($s["inci"]) : '<span class="user-select-all nowrap" data-bs-toggle="tooltip" data-bs-title="Podobieństwo: '.$s["similarity"].'%" ondblclick="correctmistake(this)">' . lettersize($s["inci"]) . '</span>';
+                                }
+                                $suggestions = implode($mainseparator,$sugred).'<i class="d-none percent">'.$perc.'</i>';
+                            } else {
+                                $suggestions = '<span class="fst-italic">Brak podpowiedzi w tym zakresie, kliknij "Pokaż więcej" żeby zwiększyć zakres</span><i class="d-none percent">'.$perc.'</i>';
                             }
-                            $suggestions = implode($mainseparator,$sugred).'<i class="d-none percent">'.$perc.'</i>';
                         }
                     ?>
                         <tr>

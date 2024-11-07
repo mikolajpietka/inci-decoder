@@ -1,4 +1,4 @@
-/* CSS v: 2.7.1 */
+/* CSS v: 2.7.9 */
 .icon {
     font-size: 1em;
     vertical-align: -0.125rem;
@@ -33,4 +33,10 @@
     --bs-btn-padding-y: 0.25rem;
     --bs-btn-padding-x: 0.5rem;
     --bs-btn-font-size: 0.75rem;
+}
+
+.logo {
+    height: 1.5rem !important;
+    margin-right: 0.5rem !important;
+    margin-bottom: 0.09rem !important;
 }

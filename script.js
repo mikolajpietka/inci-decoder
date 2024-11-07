@@ -1,4 +1,4 @@
-// JS v: 1.4.4
+// JS v: 1.5.0
 function getCookie(name) {
     const cname = name + "=";
     const decodedCookie = decodeURIComponent(document.cookie);
@@ -240,30 +240,35 @@ if (detailsModal) {
         detailsModal.querySelector(".modal-body").innerHTML = throbber;
     })
 }
-
+const miniThrobber = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
 function getsuggestions(button) {
     const row = button.parentElement.parentElement;
     const percent = row.querySelector(".percent").innerText - 5;
     const suggestioncell = row.querySelector("td");
+    const chosen = suggestioncell.querySelector(".text-success");
+    let choseninci = "";
+    if (chosen) {
+        choseninci = chosen.innerText;
+    }
+    suggestioncell.innerHTML = miniThrobber;
     const mistake = row.querySelector("th").innerText;
     const xhttp = new XMLHttpRequest();
     xhttp.onload = function() {
         response = JSON.parse(xhttp.responseText);
-        let chosen = suggestioncell.querySelector(".text-success");
-        let choseninci = "";
-        if (chosen) {
-            choseninci = chosen.innerText;
-        }
         let toinsertlist = [];
         let classes = ""
-        response["suggestions"].forEach(element => {
-            if (element["inci"] == choseninci) {
-                classes = "user-select-all nowrap text-success";
-            } else {
-                classes = "user-select-all nowrap";
-            }
-            toinsertlist.push('<span class="' + classes + '" data-bs-toggle="tooltip" data-bs-title="Podobieństwo:' + element["similarity"] + '%" ondblclick="correctmistake(this)">' + element["inci"] + '</span>'); 
-        });
+        if (response["suggestions"] != null) {
+            response["suggestions"].forEach(element => {
+                if (element["inci"] == choseninci) {
+                    classes = "user-select-all nowrap text-success";
+                } else {
+                    classes = "user-select-all nowrap";
+                }
+                toinsertlist.push('<span class="' + classes + '" data-bs-toggle="tooltip" data-bs-title="Podobieństwo:' + element["similarity"] + '%" ondblclick="correctmistake(this)">' + element["inci"] + '</span>'); 
+            });
+        } else {
+            toinsertlist.push('<span class="fst-italic">Brak podpowiedzi w tym zakresie, kliknij "Pokaż więcej" żeby zwiększyć zakres</span>');
+        }
         suggestioncell.innerHTML = toinsertlist.join(", ") + '<i class="d-none percent">' + response["get_percent"] + '</i>';
         activateTooltips()
     }
