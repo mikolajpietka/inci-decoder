@@ -634,20 +634,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                             <?php if (!$inci->extended): ?><td class="text-center"><?php if (!empty($inci->get($temping,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($temping,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td><?php endif; ?>
                             <?php endif; ?>
                         </tr>
-                    <?php } 
-                    if (!$fail): ?>
-                    <tr class="d-none"><td class="dwn"></td><td class="dwn"></td><td class="dwn"></td><td class="dwn"></td><td class="dwn"></td><td></td><td></td><td></td></tr>
-                    <tr class="d-none">
-                        <td class="dwn">Ingredients:</td>
-                        <td class="dwn"><?php echo $recreate; ?></td>
-                        <td class="dwn">Ilość składników:</td>
-                        <td class="dwn"><?php echo count($incitest); ?></td>
-                        <td class="dwn"></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <?php endif; ?>
+                    <?php } ?>
                 </tbody>
             </table>
         </div>
