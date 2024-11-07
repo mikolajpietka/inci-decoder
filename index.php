@@ -448,7 +448,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page assets -->
-    <link href="styles.css?v=2.7.9" rel="stylesheet">
+    <link href="styles.css?v=2.8.0" rel="stylesheet">
     <script src="script.js?v=1.5.0" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -549,6 +549,10 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                             <button type="button" class="btn btn-sm btn-outline-light" onclick="copyText(document.querySelector('#inci').value)"><i class="bi bi-copy"></i> Kopiuj skład</button>
                             <?php endif; ?>
                             <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
+                        </div>
+                        <i class="bi bi-info-circle fs-4"></i>
+                        <div class="card d-inline-block border-light px-2 py-1 lh-sm">
+                            <span class="font-sm text-light"><i class="bi bi-question-circle"></i> Ilość składników: <?php echo count($incitest); ?></span>
                         </div>
                     </div>
                 </div>
