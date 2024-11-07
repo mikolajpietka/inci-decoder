@@ -1,4 +1,4 @@
-// JS v: 1.4.1
+// JS v: 1.4.4
 function getCookie(name) {
     const cname = name + "=";
     const decodedCookie = decodeURIComponent(document.cookie);
@@ -35,15 +35,9 @@ function cleartextarea() {
     difsep.value = '';
     if (tofocus = document.querySelector("#inci,#inci-model")) tofocus.focus();
 }
-function copyText(span) {
-    navigator.clipboard.writeText(span.innerText);
-    notify("Skopiowano do schowka",span.innerText);
-    window.getSelection().removeAllRanges();
-}
-function copyinci() {
-    const inci = document.querySelector('#inci').value;
-    navigator.clipboard.writeText(inci);
-    notify("Skopiowano do schowka",inci)
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    notify("Skopiowano do schowka",text);
     window.getSelection().removeAllRanges();
 }
 function pasteinci() {
@@ -112,23 +106,6 @@ if (annexWhole) {
             modalBody.innerHTML = '<h2>Wybierz załącznik...</h2>';
         }
     })
-}
-
-function getAnnexx (request) {
-    if (request != '0') {
-        const modalBody = document.querySelector('#annex .modal-body');
-        modalBody.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
-        request = encodeURI(request);
-        const xhttp = new XMLHttpRequest();
-        xhttp.onload = function () {
-            modalBody.innerHTML = xhttp.responseText;
-            activateTooltips()
-        }
-        xhttp.open('GET','?anx='+request);
-        xhttp.send();
-    } else {
-        document.querySelector('#annex .modal-body').innerHTML = '<h2>Wybierz załącznik...</h2>'
-    }
 }
 
 const separator = document.querySelector("#separator");
@@ -216,11 +193,11 @@ if (microplastics) {
     })
 }
 
-const eur = document.querySelector("#eur");
-const plneur = document.querySelector("#plneur");
-const usd = document.querySelector("#usd");
-const plnusd = document.querySelector("#plnusd");
 const currency = document.querySelector("#currency");
+const eur = currency.querySelector("#eur");
+const plneur = currency.querySelector("#plneur");
+const usd = currency.querySelector("#usd");
+const plnusd = currency.querySelector("#plnusd");
 const exdatespan = currency.querySelector(".modal-body p span");
 
 const exeur = parseFloat(getCookie("exchange_eur"));
@@ -260,7 +237,7 @@ if (detailsModal) {
         xhttp.send();
     })
     detailsModal.addEventListener("hidden.bs.modal", _event => {
-        detailsModal.querySelector(".modal-body").innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Ładowanie...</span></div></div>';
+        detailsModal.querySelector(".modal-body").innerHTML = throbber;
     })
 }
 
@@ -287,8 +264,7 @@ function getsuggestions(button) {
             }
             toinsertlist.push('<span class="' + classes + '" data-bs-toggle="tooltip" data-bs-title="Podobieństwo:' + element["similarity"] + '%" ondblclick="correctmistake(this)">' + element["inci"] + '</span>'); 
         });
-        const toinsert = toinsertlist.join(", ") + '<i class="d-none percent">' + response["get_percent"] + '</i>';
-        suggestioncell.innerHTML = toinsert;
+        suggestioncell.innerHTML = toinsertlist.join(", ") + '<i class="d-none percent">' + response["get_percent"] + '</i>';
         activateTooltips()
     }
     xhttp.open('GET','?suggest='+encodeURI(mistake)+'&percent='+percent);
