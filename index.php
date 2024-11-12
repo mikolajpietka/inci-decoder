@@ -731,22 +731,22 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
                         <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
                             <div class="col">
                                 <label for="eur">EUR</label>
-                                <input type="number" class="form-control" id="eur">
+                                <input type="number" class="form-control" id="eur" step="0.01">
                             </div>
                             <div class="col">
                                 <label for="plneur">PLN</label>
-                                <input type="number" class="form-control" id="plneur">
+                                <input type="number" class="form-control" id="plneur" step="0.01">
                             </div>
                         </div>
                         <h4>Dolar $</h4>
                         <div class="row g-3 row-cols-1 row-cols-lg-2 mb-4">
                             <div class="col">
                                 <label for="usd">USD</label>
-                                <input type="number" class="form-control" id="usd">
+                                <input type="number" class="form-control" id="usd" step="0.01">
                             </div>
                             <div class="col">
                                 <label for="plnusd">PLN</label>
-                                <input type="number" class="form-control" id="plnusd">
+                                <input type="number" class="form-control" id="plnusd" step="0.01">
                             </div>
                         </div>
                     </div>
