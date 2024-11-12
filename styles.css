@@ -1,4 +1,4 @@
-/* CSS v: 2.8.0 */
+/* CSS v: 2.8.1 */
 .icon {
     font-size: 1em;
     vertical-align: -0.125rem;
@@ -39,4 +39,8 @@
     height: 1.5rem !important;
     margin-right: 0.5rem !important;
     margin-bottom: 0.09rem !important;
+}
+
+.z-up {
+    z-index: 10000 !important;
 }

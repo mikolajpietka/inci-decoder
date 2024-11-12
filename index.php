@@ -431,6 +431,12 @@ setcookie("exchange_eur",$jsoneur['rates'][0]['mid']);
 $jsonusd = json_decode(file_get_contents("https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json"),true);
 setcookie("exchange_usd",$jsonusd['rates'][0]['mid']);
 setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effectiveDate'])));
+
+// HTTP Headers
+header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+header("Content-Security-Policy: default-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/; img-src 'self' data:");
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -445,7 +451,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page assets -->
-    <link href="styles.css?v=2.8.0" rel="stylesheet">
+    <link href="styles.css?v=2.8.1" rel="stylesheet">
     <script src="script.js?v=1.5.0" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -800,7 +806,7 @@ setcookie("exchange_date",date("d.m.Y",strtotime($jsoneur['rates'][0]['effective
             </div>
         </div>
     </div>
-    <div class="position-fixed start-50 translate-middle-x top-0 mt-5" style="z-index: 2000;" id="toast">
+    <div class="position-fixed start-50 translate-middle-x top-0 mt-5 z-up" id="toast">
         <div class="toast fade text-bg-light" role="alert" data-bs-delay="1200">
             <div class="toast-body fw-bold fs-6 text-center">
                 <p class="mb-1"></p>
