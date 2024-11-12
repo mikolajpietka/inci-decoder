@@ -1,7 +1,4 @@
 <?php
-
-use function PHPSTORM_META\type;
-
 setlocale(LC_ALL,'pl_PL');
 date_default_timezone_set('Europe/Warsaw');
 if (!isset($_GET["debug"])) error_reporting(0);
