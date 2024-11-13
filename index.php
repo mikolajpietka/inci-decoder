@@ -805,7 +805,7 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                                 <td><?php echo file_exists('A6.csv') ? date("d.m.Y H:i", filemtime('A6.csv')) : "Błąd odczytu pliku!"; ?></td>
                             </tr>
                         </table>
-                        <div class="text-center"><a href="#tools" class="text-reset" data-bs-toggle="modal"><i class="bi bi-c-circle"></i></a> <a href="mailto:mikolaj.pietka98@gmail.com" class="text-reset link-underline link-underline-opacity-0">Mikołaj Piętka</a></div>
+                        <div class="text-center"><i class="bi bi-c-circle"></i> <a href="mailto:mikolaj.pietka98@gmail.com" class="text-reset link-underline link-underline-opacity-0">Mikołaj Piętka</a></div>
                     </div>
                 </div>
             </div>
