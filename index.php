@@ -437,6 +437,10 @@ header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
 header("Content-Security-Policy: default-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/; img-src 'self' data:");
 header("X-Frame-Options: SAMEORIGIN");
 header("X-Content-Type-Options: nosniff");
+
+// Files versions - auto get from first line
+$css_ver = date("yWNHis" ,filemtime("styles.css"));
+$js_ver = date("yWNHis" ,filemtime("script.js"));
 ?>
 <!DOCTYPE HTML>
 <html lang="pl" data-bs-theme="dark">
@@ -451,8 +455,8 @@ header("X-Content-Type-Options: nosniff");
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Page assets -->
-    <link href="styles.css?v=2.8.1" rel="stylesheet">
-    <script src="script.js?v=1.5.0" defer></script>
+    <link href="styles.css?v=<?php echo $css_ver; ?>" rel="stylesheet">
+    <script src="script.js?v=<?php echo $js_ver; ?>" defer></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body class="bg-dark">
@@ -801,6 +805,25 @@ header("X-Content-Type-Options: nosniff");
                                 <td><?php echo file_exists('A6.csv') ? date("d.m.Y H:i", filemtime('A6.csv')) : "Błąd odczytu pliku!"; ?></td>
                             </tr>
                         </table>
+                        <div class="text-center"><a href="#tools" class="text-reset" data-bs-toggle="modal"><i class="bi bi-c-circle"></i></a> <a href="mailto:mikolaj.pietka98@gmail.com" class="text-reset link-underline link-underline-opacity-0">Mikołaj Piętka</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="tools" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Narzędzia</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>to-uppercase</h6>
+                        <input type="search" id="toupper" class="form-control" placeholder="Tekst do zamiany na wielkie litery">
+                        <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-toupper').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-toupper" class="text-break"></span></div>
+                        <h6>INCI lettersize</h6>
+                        <input type="search" id="lettersize" class="form-control" placeholder="Wprowadź nazwę INCI">
+                        <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-lettersize').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-lettersize" class="text-break"></span></div>
                     </div>
                 </div>
             </div>
@@ -810,7 +833,7 @@ header("X-Content-Type-Options: nosniff");
         <div class="toast fade text-bg-light" role="alert" data-bs-delay="1200">
             <div class="toast-body fw-bold fs-6 text-center">
                 <p class="mb-1"></p>
-                <span class="fst-italic"></span>
+                <span class="fst-italic font-sm lh-1"></span>
             </div>
         </div>
     </div>
