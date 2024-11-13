@@ -1,4 +1,3 @@
-// JS v: 1.5.0
 function getCookie(name) {
     const cname = name + "=";
     const decodedCookie = decodeURIComponent(document.cookie);
@@ -16,6 +15,10 @@ function activateTooltips() {
 function notify(header,content = null) {
     const toast = document.querySelector('.toast');
     toast.querySelector('p').innerText = header;
+    const truncatelen = 350;
+    if (content.length > truncatelen) {
+        content = content.substring(0,truncatelen) + "...";
+    }
     toast.querySelector('span').innerText = content;
     // Show notification
     toastOn = bootstrap.Toast.getOrCreateInstance(toast);
@@ -68,7 +71,13 @@ function downloadTable() {
     tempLink.click();
     tempLink.remove();
 }
-
+function getLetterSize(request) {
+    const encodedRequest = encodeURI(request);
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("GET","?lettersize="+encodedRequest)
+    xhttp.send();
+    return xhttp;
+}
 function getAnnex(request) {
     const encodedRequest = encodeURI(request);
     const xhttp = new XMLHttpRequest();
@@ -276,4 +285,25 @@ function getsuggestions(button) {
     xhttp.send();
 }
 
+const tools = document.querySelector("#tools");
+if (tools) {
+    const inToUpper = tools.querySelector("#toupper");
+    inToUpper.addEventListener("input", _event => {
+        tools.querySelector("#out-toupper").innerText = inToUpper.value.toUpperCase();
+    })
+    const lettersize = tools.querySelector("#lettersize");
+    const outLettersize = tools.querySelector("#out-lettersize")
+    lettersize.addEventListener("input", _event => {
+        if (lettersize.value != "") {
+            const response = getLetterSize(lettersize.value);
+            outLettersize.innerHTML = miniThrobber;
+            response.onload = function() {
+                const parsed = JSON.parse(response.response)
+                outLettersize.innerText = parsed["converted"];
+            }
+        } else {
+            outLettersize.innerText = "";
+        }
+    })
+}
 activateTooltips()
