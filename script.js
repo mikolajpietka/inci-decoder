@@ -130,14 +130,18 @@ if (separator) {
 }
 
 document.addEventListener("keydown",event=>{
-    if (event.ctrlKey && event.keyCode === 13) {
+    if (event.ctrlKey && event.key === "Enter") {
         document.querySelector("#submit").click();
     }
-    if (event.ctrlKey && event.keyCode === 46 && document.activeElement !== document.querySelector("#inci")) {
+    if (event.ctrlKey && event.key === "Delete" && document.activeElement !== document.querySelector("#inci")) {
         cleartextarea();
     }
-    if (event.keyCode === 27) {
+    if (event.key === "Escape") {
         document.activeElement.blur();
+    }
+    if (event.ctrlKey && event.key === "Insert") {
+        const toolsModal = new bootstrap.Modal("#tools");
+        toolsModal.show();
     }
 })
 
