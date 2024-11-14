@@ -143,6 +143,10 @@ document.addEventListener("keydown",event=>{
         const toolsModal = new bootstrap.Modal("#tools");
         toolsModal.show();
     }
+    if (event.ctrlKey && event.shiftKey && event.key === "Q") {
+        const searchModal = new bootstrap.Modal("#searchINCI");
+        searchModal.show();
+    }
 })
 
 function correctmistake(span) {
@@ -245,6 +249,7 @@ if (detailsModal) {
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function() {
             detailsModal.querySelector(".modal-body").innerHTML = xhttp.responseText;
+            activateTooltips();
         };
         xhttp.open('GET','?details='+encodeURI(ingredient));
         xhttp.send();
@@ -310,4 +315,39 @@ if (tools) {
         }
     })
 }
+
+function checkAll(selector,check) {
+    const object = document.querySelector(selector);
+    const checkboxes = object.querySelectorAll("[type='checkbox']");
+    checkboxes.forEach(x => {
+        x.checked = check;
+    })
+}
+
+function sendForm(formElement,url) {
+    const formData = new FormData(formElement);
+    try {
+        const response = fetch(url,{
+            method: "POST",
+            body: formData
+        });
+        const toReturn = response.body;
+        return toReturn;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+const searchINCI = document.querySelector("#searchINCI");
+const searchForm = searchINCI.querySelector("form");
+const searchResponse = searchINCI.querySelector("#search-response");
+if (searchForm) {
+    searchForm.addEventListener("submit",event => {
+        searchResponse.innerHTML = throbber;
+        event.preventDefault();
+        const response = sendForm(searchForm,"?search");
+        searchResponse.innerHTML = response;
+    })
+}
+
 activateTooltips()

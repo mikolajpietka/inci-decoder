@@ -43,7 +43,7 @@ class INCI {
         if (!in_array($property,$this->properties)) return null;
         return $this->data[$inciname][$property];
     }
-    public function suggest(string $mistake, int $startsimilarity = 90, int &$endpercent = null) : array | null {
+    public function suggest(string $mistake, int $startsimilarity = 80, int &$endpercent = null) : array | null {
         $mistake = strtoupper($mistake);
         $attempt = 1;
         while ($attempt <= 5) {
@@ -284,6 +284,10 @@ if (isset($_GET['anx'])) {
     }
     exit;
 }
+if (isset($_GET["search"])) {
+    echo "<h1>{$_POST["ingredientsearch"]}</h1>";
+    exit;
+}
 // Get INCI object if neccesary
 if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details']) || isset($_GET['suggest'])) {
     try {
@@ -297,27 +301,40 @@ if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['in
 // Response for ingredient details request
 if (!empty($_GET['details'])) {
     $ingredientname = lettersize(urldecode($_GET['details']));
-    echo '<div class="mx-3 mt-2 mb-3">';
-    echo '<h4>' . $ingredientname . '</h4>';
-    echo '<hr class="my-4">';
+    $echa520 = json_decode(file_get_contents("echa520.json",true));
+    echo '<div class="m-1">';
+    echo '<h3 class="word-break">' . $ingredientname . '</h3>';
+    echo '<hr class="border border-2 border-light">';
+    echo '<div class="mx-2 mb-3">';
     if (!empty($inci->get($ingredientname,'description'))) {
         echo '<h4>Opis</h4>';
         echo '<p>' . $inci->get($ingredientname,'description')['pl'] . '</p>';
-        echo '<hr class="my-4">';
+        echo '<hr>';
     }
     if ($inci->isprop('gif') && $inci->get($ingredientname,'gif')) {
         echo '<h4>Wzór chemiczny</h4>';
         echo '<div class="bg-white text-center p-4 rounded-3"><img src="img/'.$inci->get($ingredientname,"refNo").'.gif"></div>';
-        echo '<hr class="my-4">';
+        echo '<hr>';
     } 
     if (!empty($inci->get($ingredientname,'sccs'))) {
         echo '<h4>Opinie SCCS</h4>';
         foreach ($inci->get($ingredientname,'sccs') as $opinion) {
             echo '<p><a target="_blank" href="'.$opinion['url'].'">'.$opinion['name'].'</a></p>';
         }
-        echo '<hr class="my-4">';
+        echo '<hr>';
     }
     ?>
+    <div class="row row-cols-2 g-3">
+        <div class="col d-inline-flex align-items-center"><h5 class="m-0">Mikroplastik wg ECHA-520 SCENARIO</h5></div>
+        <div class="col d-inline-flex align-items-center"><?php
+            if (in_array(strtoupper($ingredientname),$echa520)) {
+                echo '<i class="bi bi-check text-success fw-bold fs-1" data-bs-toggle="tooltip" data-bs-title="Jest to mikroplastik"></i>';
+            } else {
+                echo '<i class="bi bi-x text-danger fw-bold fs-1" data-bs-toggle="tooltip" data-bs-title="Nie jest to mikroplastik"></i>';
+            }
+        ?>
+    </div></div>
+    <hr>
     <h4>Linki do wyszukania składnika</h4>
     <div class="mt-3 mx-1 row gx-3 gy-2 row-cols-1 row-cols-md-2 row-cols-lg-4">
         <div class="col">
@@ -332,6 +349,7 @@ if (!empty($_GET['details'])) {
         <div class="col">
             <a class="btn btn-outline-light w-100" target="_blank" href="https://www.google.pl/search?q=<?php echo urlencode(strtolower($ingredientname)); ?>"><img src="img/google.png" alt="Logo Google" class="logo">Google</a>
         </div>
+    </div>
     </div>
     </div>
     <?php
@@ -824,6 +842,61 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                         <h6>INCI lettersize</h6>
                         <input type="search" id="lettersize" class="form-control" placeholder="Wprowadź nazwę INCI">
                         <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-lettersize').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-lettersize" class="text-break"></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="searchINCI" tabindex="-1">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-body position-relative">
+                        <div class="bg-dark bg-opacity-50 p-3 position-absolute top-0 end-0">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <div class="card col-12 col-md-8 col-lg-4">
+                                <div class="card-body">
+                                    <div class="text-center m-2">
+                                        <h3>Wyszukaj składnik</h3>
+                                    </div>
+                                    <form method="post">
+                                        <input type="search" class="form-control" id="ingredientsearch">
+                                        <div class="m-3">
+                                            <h5>Wyszukaj w:</h5>
+                                            <div class="d-inline-flex gap-2 align-items-center border rounded-2 p-1 my-1">
+                                                <div class="p-1 font-sm">Zaznacz / Odznacz</div>
+                                                <button type="button" class="btn btn-tiny" onclick="checkAll('#searchINCI',true)"><i class="bi bi-check-square"></i></button>
+                                                <button type="button" class="btn btn-tiny" onclick="checkAll('#searchINCI',false)"><i class="bi bi-square"></i></button>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="check-inci" checked>
+                                                <label for="check-inci" class="form-check-label">INCI</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="check-cas" checked>
+                                                <label for="check-cas" class="form-check-label">Numery CAS</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="check-ec">
+                                                <label for="check-ec" class="form-check-label">Numery WE</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="check-desc">
+                                                <label for="check-desc" class="form-check-label">Opisy składników</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="check-sccs">
+                                                <label for="check-sccs" class="form-check-label">Nazwy raportów SCCS</label>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <button type="submit" class="btn btn-outline-light w-50"><i class="bi bi-search"></i> Wyszukaj</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="search-response" class="my-3"></div>
                     </div>
                 </div>
             </div>
