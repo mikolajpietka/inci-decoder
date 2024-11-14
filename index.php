@@ -67,6 +67,34 @@ class INCI {
         }
         return null;
     }
+    public function search(string $query, array | string $wheretolook) : array {
+        $found = [];
+        if (is_string($wheretolook) && $this->isprop($wheretolook)) {
+            $haystack = array_change_key_case(array_column($this->data,$wheretolook,"inci"),CASE_UPPER);
+            if (is_array($haystack[array_key_first($haystack)])) {
+                $haystack = array_map("implode",$haystack);
+            }
+            $result = array_filter($haystack,function($value) use ($query) {
+                if (str_contains(strtoupper($value),strtoupper($query))) return true;
+            });
+            $found = array_merge($found,$result);
+        }
+        if (is_array($wheretolook)) {
+            foreach ($wheretolook as $destination) {
+                if ($this->isprop($destination)) {
+                    $haystack = array_change_key_case(array_column($this->data,$destination,"inci"),CASE_UPPER);
+                    if (is_array($haystack[array_key_first($haystack)])) {
+                        $haystack = array_map("implode",$haystack);
+                    }
+                    $result = array_filter($haystack,function($value) use ($query) {
+                        if (str_contains(strtoupper($value),strtoupper($query))) return true;
+                    });
+                    $found = array_merge($found,$result);
+                }
+            }
+        }
+        return array_keys($found);
+    }
     public function check(string $inci) : bool {
         $inci = strtoupper($inci);
         return in_array($inci,$this->dictionary);
@@ -284,12 +312,8 @@ if (isset($_GET['anx'])) {
     }
     exit;
 }
-if (isset($_GET["search"])) {
-    echo "<h1>{$_POST["ingredientsearch"]}</h1>";
-    exit;
-}
 // Get INCI object if neccesary
-if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details']) || isset($_GET['suggest'])) {
+if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details']) || isset($_GET['suggest']) || isset($_GET["search"])) {
     try {
         $inci = new INCI("INCI.json");
         $funcdict = json_decode(file_get_contents('functions.json'),true);
@@ -297,6 +321,49 @@ if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['in
         echo "Wystąpił błąd, odśwież stronę i spróbuj ponownie";
         exit;
     }
+}
+if (isset($_GET["search"])) {
+    if (empty($_POST["ingredientsearch"])) {
+        echo "<h3>Wpisz jaki składnik wyszukać...</h3>";
+        exit;
+    }
+    $wheretolook = [];
+    foreach (array_keys($_POST) as $post) {
+        if ($post == "ingredientsearch") continue;
+        $wheretolook[] = str_replace("check-","",$post);
+    }
+    if (empty($wheretolook)) {
+        echo "<h3>Wybierz gdzie szukać składnika...</h3>";
+        exit;
+    }
+    $found = $inci->search($_POST["ingredientsearch"],$wheretolook);
+    if (empty($found)) {
+        echo "<h3>Nic nie znaleziono</h3>";
+        exit;
+    } ?>
+    <table class="table table-sm align-middle">
+        <thead>
+            <tr>
+                <th scope="col" class="col-7">INCI</th>
+                <th scope="col" class="col-2">Nr CAS</th>
+                <th scope="col" class="col-2">Nr WE</th>
+                <th scope="col" class="col-1 text-center">Szczegóły</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+        <?php
+            foreach ($found as $ing) { ?>
+                <tr>
+                    <th class="user-select-all" ondblclick="copyText(this.innerText)"><?php echo lettersize($inci->get($ing,"inci")); ?></th>
+                    <td class="font-monospace"><?php echo $inci->get($ing,"casNo"); ?></td>
+                    <td class="font-monospace"><?php echo $inci->get($ing,"ecNo"); ?></td>
+                    <td class="text-center"><?php echo $inci->get($ing,"refNo"); ?></td>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+    <?php
+    exit;
 }
 // Response for ingredient details request
 if (!empty($_GET['details'])) {
@@ -850,17 +917,19 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-body position-relative">
-                        <div class="bg-dark bg-opacity-50 p-3 position-absolute top-0 end-0">
+                        <div class="p-3 position-absolute top-0 end-0">
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <div class="card col-12 col-md-8 col-lg-4">
+                            <div class="card col-12 col-md-8 col-lg-4 m-4">
                                 <div class="card-body">
                                     <div class="text-center m-2">
                                         <h3>Wyszukaj składnik</h3>
                                     </div>
                                     <form method="post">
-                                        <input type="search" class="form-control" id="ingredientsearch">
+                                        <div class="mx-3">
+                                            <input type="search" class="form-control" id="ingredientsearch" name="ingredientsearch" required>
+                                        </div>
                                         <div class="m-3">
                                             <h5>Wyszukaj w:</h5>
                                             <div class="d-inline-flex gap-2 align-items-center border rounded-2 p-1 my-1">
@@ -869,24 +938,20 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                                                 <button type="button" class="btn btn-tiny" onclick="checkAll('#searchINCI',false)"><i class="bi bi-square"></i></button>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-inci" checked>
+                                                <input type="checkbox" class="form-check-input" id="check-inci" name="check-inci" checked>
                                                 <label for="check-inci" class="form-check-label">INCI</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-cas" checked>
-                                                <label for="check-cas" class="form-check-label">Numery CAS</label>
+                                                <input type="checkbox" class="form-check-input" id="check-casNo" name="check-casNo" checked>
+                                                <label for="check-casNo" class="form-check-label">Numery CAS</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-ec">
-                                                <label for="check-ec" class="form-check-label">Numery WE</label>
+                                                <input type="checkbox" class="form-check-input" id="check-ecNo" name="check-ecNo">
+                                                <label for="check-ecNo" class="form-check-label">Numery WE</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-desc">
-                                                <label for="check-desc" class="form-check-label">Opisy składników</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-sccs">
-                                                <label for="check-sccs" class="form-check-label">Nazwy raportów SCCS</label>
+                                                <input type="checkbox" class="form-check-input" id="check-description" name="check-description">
+                                                <label for="check-description" class="form-check-label">Opisy składników</label>
                                             </div>
                                         </div>
                                         <div class="text-center">

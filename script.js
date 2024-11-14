@@ -333,6 +333,11 @@ function sendForm(formElement,url) {
 }
 
 const searchINCI = document.querySelector("#searchINCI");
+if (searchINCI) {
+    searchINCI.addEventListener("shown.bs.modal", _event => {
+        searchINCI.querySelector("#ingredientsearch").focus();
+    })
+}
 const searchForm = searchINCI.querySelector("form");
 const searchResponse = searchINCI.querySelector("#search-response");
 if (searchForm) {
