@@ -326,16 +326,10 @@ function checkAll(selector,check) {
 
 function sendForm(formElement,url) {
     const formData = new FormData(formElement);
-    try {
-        const response = fetch(url,{
-            method: "POST",
-            body: formData
-        });
-        const toReturn = response.body;
-        return toReturn;
-    } catch (e) {
-        console.log(e);
-    }
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("POST",url);
+    xhttp.send(formData);
+    return xhttp;
 }
 
 const searchINCI = document.querySelector("#searchINCI");
@@ -346,7 +340,9 @@ if (searchForm) {
         searchResponse.innerHTML = throbber;
         event.preventDefault();
         const response = sendForm(searchForm,"?search");
-        searchResponse.innerHTML = response;
+        response.onload = function() {
+            searchResponse.innerHTML = response.response;
+        }
     })
 }
 
