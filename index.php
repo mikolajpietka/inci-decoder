@@ -347,43 +347,45 @@ if (isset($_GET["query"])) {
     }
     array_multisort($ps,SORT_DESC,$found);
     ?>
-    <table class="table table-sm align-middle">
-        <thead>
-            <tr>
-                <th scope="col" class="col-6">INCI</th>
-                <th scope="col" class="col-2">Nr CAS</th>
-                <th scope="col" class="col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS (2xx-xxx-x, 3xx-xxx-x) / ELINCS (4xx-xxx-x) / NLP (5xx-xxx-x)"><i class="bi bi-info-circle"></i></span></sup></th>
-                <th scope="col" class="col-1 text-center">1223/2009</th>
-                <?php if ($inci->extended): ?><th scope="col" class="text-center col-1">Szczegóły</th><?php endif; ?>
-                <?php if (!$inci->extended): ?><th scope="col" class="text-center col-1"; ?>">CosIng</th><?php endif; ?>
-            </tr>
-        </thead>
-        <tbody class="table-group-divider">
-        <?php
-            foreach ($found as $ing) { ?>
+    <div class="table-responsive-md">
+        <table class="table table-striped table-sm align-middle">
+            <thead>
                 <tr>
-                    <th class="user-select-all" ondblclick="copyText(this.innerText)"><?php echo lettersize($inci->get($ing,"inci")); ?></th>
-                    <td class="font-monospace"><?php echo $inci->get($ing,"casNo"); ?></td>
-                    <td class="font-monospace"><?php echo $inci->get($ing,"ecNo"); ?></td>
-                    <td class="text-center"><?php
-                        if (str_contains($inci->get($ing,"anx"),"I/") || str_contains($inci->get($ing,"anx"),"V/")) {
-                            if (str_contains($inci->get($ing,"anx"),'#')) {
-                                echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($ing,"anx"),0,strpos($inci->get($ing,"anx"),'#'))) .'</a> '. substr($inci->get($ing,"anx"),strpos($inci->get($ing,"anx"),'#'));
-                            } else {
-                                echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. $inci->get($ing,"anx") .'</a>';
-                            }
-                        } else {
-                            echo $inci->get($ing,"anx"); 
-                        }
-                    ?></td>
-                    <?php if ($inci->extended): ?><td class="text-center"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td>
-                    <?php else: ?>
-                    <td class="text-center"><?php if (!empty($inci->get($ing,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($ing,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
-                    <?php endif; ?>
+                    <th scope="col" class="col-6 word-break">INCI</th>
+                    <th scope="col" class="col-2">Nr CAS</th>
+                    <th scope="col" class="col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS (2xx-xxx-x, 3xx-xxx-x) / ELINCS (4xx-xxx-x) / NLP (5xx-xxx-x)"><i class="bi bi-info-circle"></i></span></sup></th>
+                    <th scope="col" class="col-1 text-center">1223/2009</th>
+                    <?php if ($inci->extended): ?><th scope="col" class="text-center col-1">Szczegóły</th><?php endif; ?>
+                    <?php if (!$inci->extended): ?><th scope="col" class="text-center col-1"; ?>">CosIng</th><?php endif; ?>
                 </tr>
-            <?php } ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="table-group-divider">
+            <?php
+                foreach ($found as $ing) { ?>
+                    <tr>
+                        <th class="user-select-all" ondblclick="copyText(this.innerText)"><?php echo lettersize($inci->get($ing,"inci")); ?></th>
+                        <td class="font-monospace"><?php foreach (explode(" / ",$inci->get($ing,"casNo")) as $cas) $cases[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this.innerText)">' .$cas. '</span>'; echo implode(" / ",$cases); unset($cases); ?></td>
+                        <td class="font-monospace"><?php foreach (explode(" / ",$inci->get($ing,"ecNo")) as $we) $wes[] = '<span class="user-select-all font-monospace nowrap" ondblclick="copyText(this.innerText)">' .$we. '</span>'; echo implode(" / ",$wes); unset($wes); ?></td>
+                        <td class="text-center"><?php
+                            if (str_contains($inci->get($ing,"anx"),"I/") || str_contains($inci->get($ing,"anx"),"V/")) {
+                                if (str_contains($inci->get($ing,"anx"),'#')) {
+                                    echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($ing,"anx"),0,strpos($inci->get($ing,"anx"),'#'))) .'</a> '. substr($inci->get($ing,"anx"),strpos($inci->get($ing,"anx"),'#'));
+                                } else {
+                                    echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. $inci->get($ing,"anx") .'</a>';
+                                }
+                            } else {
+                                echo $inci->get($ing,"anx"); 
+                            }
+                        ?></td>
+                        <?php if ($inci->extended): ?><td class="text-center"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td>
+                        <?php else: ?>
+                        <td class="text-center"><?php if (!empty($inci->get($ing,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($ing,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
+                        <?php endif; ?>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
     <?php
     exit;
 }
