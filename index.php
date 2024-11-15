@@ -159,7 +159,7 @@ function lettersize(string $text) {
     // Make uppercase when needed
     foreach ($split as $part) {
         $partlen = strlen($part);
-        $newpart[] = (array_key_exists($partlen,$rp) && array_key_exists($part,$rp[$partlen])) ? ((isset($exceptions) && array_key_exists($part,$exceptions)) ? : strtr($part,$rp[$partlen])) : ucfirst($part);
+        $newpart[] = (array_key_exists($partlen,$rp) && array_key_exists($part,$rp[$partlen])) ? ((isset($exceptions) && array_key_exists($part,$exceptions)) ? strtr($part,$exceptions) : strtr($part,$rp[$partlen])) : ucfirst($part);
     }
     // Return corrected 
     return implode($newpart);
@@ -313,7 +313,7 @@ if (isset($_GET['anx'])) {
     exit;
 }
 // Get INCI object if neccesary
-if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details']) || isset($_GET['suggest']) || isset($_GET["search"])) {
+if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['inci-compare'])) || isset($_GET['random']) || isset($_GET['details']) || isset($_GET['suggest']) || isset($_GET["query"])) {
     try {
         $inci = new INCI("INCI.json");
         $funcdict = json_decode(file_get_contents('functions.json'),true);
@@ -322,7 +322,7 @@ if (!empty($_POST['inci']) || (!empty($_POST['inci-model']) && !empty($_POST['in
         exit;
     }
 }
-if (isset($_GET["search"])) {
+if (isset($_GET["query"])) {
     if (empty($_POST["ingredientsearch"])) {
         echo "<h3>Wpisz jaki składnik wyszukać...</h3>";
         exit;
@@ -340,14 +340,22 @@ if (isset($_GET["search"])) {
     if (empty($found)) {
         echo "<h3>Nic nie znaleziono</h3>";
         exit;
-    } ?>
+    } 
+    foreach ($found as $f) {
+        similar_text($f,strtoupper($_POST["ingredientsearch"]),$p);
+        $ps[] = $p;
+    }
+    array_multisort($ps,SORT_DESC,$found);
+    ?>
     <table class="table table-sm align-middle">
         <thead>
             <tr>
-                <th scope="col" class="col-7">INCI</th>
+                <th scope="col" class="col-6">INCI</th>
                 <th scope="col" class="col-2">Nr CAS</th>
-                <th scope="col" class="col-2">Nr WE</th>
-                <th scope="col" class="col-1 text-center">Szczegóły</th>
+                <th scope="col" class="col-2">Nr WE <sup><span class="text-info" data-bs-toggle="tooltip" data-bs-title="Inne nazwy numeru WE: EC number / EINECS (2xx-xxx-x, 3xx-xxx-x) / ELINCS (4xx-xxx-x) / NLP (5xx-xxx-x)"><i class="bi bi-info-circle"></i></span></sup></th>
+                <th scope="col" class="col-1 text-center">1223/2009</th>
+                <?php if ($inci->extended): ?><th scope="col" class="text-center col-1">Szczegóły</th><?php endif; ?>
+                <?php if (!$inci->extended): ?><th scope="col" class="text-center col-1"; ?>">CosIng</th><?php endif; ?>
             </tr>
         </thead>
         <tbody class="table-group-divider">
@@ -357,7 +365,21 @@ if (isset($_GET["search"])) {
                     <th class="user-select-all" ondblclick="copyText(this.innerText)"><?php echo lettersize($inci->get($ing,"inci")); ?></th>
                     <td class="font-monospace"><?php echo $inci->get($ing,"casNo"); ?></td>
                     <td class="font-monospace"><?php echo $inci->get($ing,"ecNo"); ?></td>
-                    <td class="text-center"><?php echo $inci->get($ing,"refNo"); ?></td>
+                    <td class="text-center"><?php
+                        if (str_contains($inci->get($ing,"anx"),"I/") || str_contains($inci->get($ing,"anx"),"V/")) {
+                            if (str_contains($inci->get($ing,"anx"),'#')) {
+                                echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. trim(substr($inci->get($ing,"anx"),0,strpos($inci->get($ing,"anx"),'#'))) .'</a> '. substr($inci->get($ing,"anx"),strpos($inci->get($ing,"anx"),'#'));
+                            } else {
+                                echo '<a href="#ingredientAnnex" class="text-reset" data-bs-toggle="modal">'. $inci->get($ing,"anx") .'</a>';
+                            }
+                        } else {
+                            echo $inci->get($ing,"anx"); 
+                        }
+                    ?></td>
+                    <?php if ($inci->extended): ?><td class="text-center"><a class="text-reset link-underline link-underline-opacity-0" data-bs-toggle="modal" href="#details"><i class="bi bi-info-circle fs-5"></i></a></td>
+                    <?php else: ?>
+                    <td class="text-center"><?php if (!empty($inci->get($ing,"refNo"))) echo '<a class="text-reset link-underline link-underline-opacity-0" target="_blank" title="Link do składnika w CosIng" href="https://ec.europa.eu/growth/tools-databases/cosing/details/'.$inci->get($ing,"refNo").'"><i class="bi bi-info-circle"></i></a>';?></td>
+                    <?php endif; ?>
                 </tr>
             <?php } ?>
         </tbody>
@@ -382,7 +404,7 @@ if (!empty($_GET['details'])) {
         echo '<h4>Wzór chemiczny</h4>';
         echo '<div class="bg-white text-center p-4 rounded-3"><img src="img/'.$inci->get($ingredientname,"refNo").'.gif"></div>';
         echo '<hr>';
-    } 
+    }
     if (!empty($inci->get($ingredientname,'sccs'))) {
         echo '<h4>Opinie SCCS</h4>';
         foreach ($inci->get($ingredientname,'sccs') as $opinion) {
@@ -391,9 +413,20 @@ if (!empty($_GET['details'])) {
         echo '<hr>';
     }
     ?>
+    <h4>Funkcje składnika</h4>
+    <ul><?php
+        if (!empty($inci->get($ingredientname,"function"))) {
+            foreach ($inci->get($ingredientname,"function") as $function) {
+                echo "<li>" . $funcdict[$function]['pl'] . "</li>";
+            }
+        } else {
+            echo "<li>" . $funcdict['UNKNOWN']['pl'] . "</li>";
+        }
+    ?></ul>
+    <hr>
     <div class="row row-cols-2 g-3">
-        <div class="col d-inline-flex align-items-center"><h5 class="m-0">Mikroplastik wg ECHA-520 SCENARIO</h5></div>
-        <div class="col d-inline-flex align-items-center"><?php
+        <div class="col-auto d-inline-flex align-items-center"><h4 class="m-0">Mikroplastik wg ECHA-520 SCENARIO</h4></div>
+        <div class="col-3 d-inline-flex align-items-center"><?php
             if (in_array(strtoupper($ingredientname),$echa520)) {
                 echo '<i class="bi bi-check text-success fw-bold fs-1" data-bs-toggle="tooltip" data-bs-title="Jest to mikroplastik"></i>';
             } else {
@@ -554,6 +587,7 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                 <div class="navbar-nav nav-underline">
                     <a href="index.php" class="nav-link<?php if (empty($_GET)) echo " active"; ?>">Weryfikacja</a>
                     <a href="?compare" class="nav-link<?php if (isset($_GET['compare'])) echo " active"; ?>">Porównanie</a>
+                    <a href="?search" class="nav-link<?php if (isset($_GET['search'])) echo " active"; ?>">Szukaj</a>
                     <a href="#wholeAnnex" data-bs-toggle="modal" class="nav-link">Załączniki</a>
                     <a href="#info" data-bs-toggle="modal" class="nav-link">Informacje</a>
                     <a href="#microplastics" data-bs-toggle="modal" class="nav-link">ECHA-520</a>
@@ -563,6 +597,7 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
             </div>
         </div>
     </nav>
+    <?php if (!isset($_GET['search'])): ?>
     <div class="container my-3">
         <?php if (!isset($_GET['compare'])): ?>
         <h2>Sprawdzanie INCI</h2>
@@ -740,6 +775,47 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
         </div>
         <?php endif; ?>
     </div>
+    <?php else: ?>
+    <div class="container my-3" id="searchINCI">
+        <div class="d-flex justify-content-center">
+            <div class="card col-12 col-md-8 col-lg-5 m-4">
+                <div class="card-body p-5">
+                    <div class="text-center m-2">
+                        <h3>Wyszukaj składnik</h3>
+                    </div>
+                    <form method="post">
+                        <div class="mx-3">
+                            <input type="search" class="form-control" id="ingredientsearch" name="ingredientsearch" autofocus required>
+                        </div>
+                        <div class="m-3">
+                            <h5>Wyszukaj w:</h5>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="check-inci" name="check-inci" checked>
+                                <label for="check-inci" class="form-check-label">INCI</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="check-casNo" name="check-casNo" checked>
+                                <label for="check-casNo" class="form-check-label">Numery CAS</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="check-ecNo" name="check-ecNo">
+                                <label for="check-ecNo" class="form-check-label">Numery WE</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="check-description" name="check-description">
+                                <label for="check-description" class="form-check-label">Opisy składników</label>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-outline-primary w-50"><i class="bi bi-search"></i> Wyszukaj</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid my-3" id="search-response"></div>
+    <?php endif; ?>
     <div id="modals">
         <div class="modal fade" id="ingredientAnnex" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-lg-down modal-lg">
@@ -909,59 +985,6 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                         <h6>INCI lettersize</h6>
                         <input type="search" id="lettersize" class="form-control" placeholder="Wprowadź nazwę INCI">
                         <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-lettersize').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-lettersize" class="text-break"></span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="searchINCI" tabindex="-1">
-            <div class="modal-dialog modal-fullscreen">
-                <div class="modal-content">
-                    <div class="modal-body position-relative">
-                        <div class="p-3 position-absolute top-0 end-0">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <div class="card col-12 col-md-8 col-lg-4 m-4">
-                                <div class="card-body">
-                                    <div class="text-center m-2">
-                                        <h3>Wyszukaj składnik</h3>
-                                    </div>
-                                    <form method="post">
-                                        <div class="mx-3">
-                                            <input type="search" class="form-control" id="ingredientsearch" name="ingredientsearch" required>
-                                        </div>
-                                        <div class="m-3">
-                                            <h5>Wyszukaj w:</h5>
-                                            <div class="d-inline-flex gap-2 align-items-center border rounded-2 p-1 my-1">
-                                                <div class="p-1 font-sm">Zaznacz / Odznacz</div>
-                                                <button type="button" class="btn btn-tiny" onclick="checkAll('#searchINCI',true)"><i class="bi bi-check-square"></i></button>
-                                                <button type="button" class="btn btn-tiny" onclick="checkAll('#searchINCI',false)"><i class="bi bi-square"></i></button>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-inci" name="check-inci" checked>
-                                                <label for="check-inci" class="form-check-label">INCI</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-casNo" name="check-casNo" checked>
-                                                <label for="check-casNo" class="form-check-label">Numery CAS</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-ecNo" name="check-ecNo">
-                                                <label for="check-ecNo" class="form-check-label">Numery WE</label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="check-description" name="check-description">
-                                                <label for="check-description" class="form-check-label">Opisy składników</label>
-                                            </div>
-                                        </div>
-                                        <div class="text-center">
-                                            <button type="submit" class="btn btn-outline-light w-50"><i class="bi bi-search"></i> Wyszukaj</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="search-response" class="my-3"></div>
                     </div>
                 </div>
             </div>

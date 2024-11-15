@@ -143,10 +143,6 @@ document.addEventListener("keydown",event=>{
         const toolsModal = new bootstrap.Modal("#tools");
         toolsModal.show();
     }
-    if (event.ctrlKey && event.shiftKey && event.key === "Q") {
-        const searchModal = new bootstrap.Modal("#searchINCI");
-        searchModal.show();
-    }
 })
 
 function correctmistake(span) {
@@ -337,18 +333,19 @@ if (searchINCI) {
     searchINCI.addEventListener("shown.bs.modal", _event => {
         searchINCI.querySelector("#ingredientsearch").focus();
     })
-}
-const searchForm = searchINCI.querySelector("form");
-const searchResponse = searchINCI.querySelector("#search-response");
-if (searchForm) {
-    searchForm.addEventListener("submit",event => {
-        searchResponse.innerHTML = throbber;
-        event.preventDefault();
-        const response = sendForm(searchForm,"?search");
-        response.onload = function() {
-            searchResponse.innerHTML = response.response;
-        }
-    })
+    const searchForm = searchINCI.querySelector("form");
+    const searchResponse = document.querySelector("#search-response");
+    if (searchForm) {
+        searchForm.addEventListener("submit",event => {
+            searchResponse.innerHTML = throbber;
+            event.preventDefault();
+            const response = sendForm(searchForm,"?query");
+            response.onload = function() {
+                searchResponse.innerHTML = response.response;
+                activateTooltips();
+            }
+        })
+    }
 }
 
 activateTooltips()
