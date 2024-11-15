@@ -93,7 +93,9 @@
         "jpn":"JPN",
         "mek":"MEK",
         "hdi":"HDI",
-        "hs2":"HS2"
+        "hs2":"HS2",
+        "kas":"KAS",
+        "bx1":"BX1"
     },
     "4":{
         "edta":"EDTA",
@@ -123,7 +125,8 @@
         "tipa":"TIPA",
         "dmso":"DMSO",
         "dmhf":"DMHF",
-        "mibk":"MIBK"
+        "mibk":"MIBK",
+        "rg92":"RG92"
     },
     "5":{
         "tmhdi":"TMHDI",
@@ -136,6 +139,12 @@
     },
     "6":{
         "cniiic":"CnIIIC"
+    },
+    "7":{
+        "ksf0006":"KSF0006",
+        "ksf0031":"KSF0031",
+        "ksf0041":"KSF0041",
+        "ksf0059":"KSF0059"
     },
     "except":{
         "ma-yuen":{"ma":"Ma"},

@@ -683,7 +683,7 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                         </div>
                         <div class="d-inline-flex gap-3 align-items-center">
                             <i class="bi bi-info-circle fs-4"></i>
-                            <div class="card d-inline-block border-light px-2 py-1 lh-sm">
+                            <div class="card d-inline-block border-light px-2 py-1 lh-sm rounded-1">
                                 <span class="font-sm text-light"><i class="bi bi-question-circle"></i> Ilość składników: <?php echo count($incitest); ?></span>
                             </div>
                         </div>
@@ -987,6 +987,9 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                         <h6>INCI lettersize</h6>
                         <input type="search" id="lettersize" class="form-control" placeholder="Wprowadź nazwę INCI">
                         <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-lettersize').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-lettersize" class="text-break"></span></div>
+                        <h6>strlen</h6>
+                        <input type="search" id="strlen" class="form-control" placeholder="Wprowadź tekst żeby uzyskać jego długość">
+                        <div class="d-flex gap-2 align-items-center my-2"><div class="card rounded-1 d-inline-block border-light px-2 py-1 lh-sm"><span class="font-sm text-light"><i class="bi bi-calculator"></i></span></div></button><i class="bi bi-chevron-right"></i><span id="out-lettersize" class="text-break"></span></div>
                     </div>
                 </div>
             </div>
