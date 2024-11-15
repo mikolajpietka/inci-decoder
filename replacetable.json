@@ -45,7 +45,9 @@
         "7m":"7M",
         "1m":"1M",
         "2m":"2M",
-        "5m":"5M"
+        "5m":"5M",
+        "kj":"KJ",
+        "hs":"HS"
     },
     "3":{
         "bht":"BHT",
@@ -90,7 +92,8 @@
         "tdi":"TDI",
         "jpn":"JPN",
         "mek":"MEK",
-        "hdi":"HDI"
+        "hdi":"HDI",
+        "hs2":"HS2"
     },
     "4":{
         "edta":"EDTA",
@@ -119,7 +122,8 @@
         "tert":"tert",
         "tipa":"TIPA",
         "dmso":"DMSO",
-        "dmhf":"DMHF"
+        "dmhf":"DMHF",
+        "mibk":"MIBK"
     },
     "5":{
         "tmhdi":"TMHDI",
@@ -136,6 +140,7 @@
     "except":{
         "ma-yuen":{"ma":"Ma"},
         "o-phosphoserine":{"o":"O"},
-        "tea tree":{"tea":"Tea"}
+        "tea tree":{"tea":"Tea"},
+        "sp.":{"sp":"sp"}
     }
 }
