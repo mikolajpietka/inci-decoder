@@ -310,6 +310,10 @@ if (tools) {
             outLettersize.innerText = "";
         }
     })
+    const strlen = tools.querySelector("#strlen");
+    strlen.addEventListener("input", _event => {
+        tools.querySelector("#out-strlen").innerText = strlen.value.length;
+    });
 }
 
 function checkAll(selector,check) {
