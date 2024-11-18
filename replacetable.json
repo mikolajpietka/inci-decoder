@@ -47,7 +47,9 @@
         "2m":"2M",
         "5m":"5M",
         "kj":"KJ",
-        "hs":"HS"
+        "hs":"HS",
+        "pb":"PB",
+        "mk":"MK"
     },
     "3":{
         "bht":"BHT",
@@ -95,7 +97,8 @@
         "hdi":"HDI",
         "hs2":"HS2",
         "kas":"KAS",
-        "bx1":"BX1"
+        "bx1":"BX1",
+        "hpa":"HPA"
     },
     "4":{
         "edta":"EDTA",
@@ -126,7 +129,9 @@
         "dmso":"DMSO",
         "dmhf":"DMHF",
         "mibk":"MIBK",
-        "rg92":"RG92"
+        "rg92":"RG92",
+        "atcc":"ATCC",
+        "icc1":"ICC1"
     },
     "5":{
         "tmhdi":"TMHDI",
@@ -138,13 +143,22 @@
         "2638a":"2638A"
     },
     "6":{
-        "cniiic":"CnIIIC"
+        "cniiic":"CnIIIC",
+        "sun098":"SUN098"
     },
     "7":{
         "ksf0006":"KSF0006",
         "ksf0031":"KSF0031",
         "ksf0041":"KSF0041",
-        "ksf0059":"KSF0059"
+        "ksf0059":"KSF0059",
+        "anf0048":"ANF0048"
+    },
+    "8":{
+        "ab811026":"AB811026",
+        "An120535":"AN120535"
+    },
+    "9":{
+        "atcc20888":"ATCC20888"
     },
     "except":{
         "ma-yuen":{"ma":"Ma"},
