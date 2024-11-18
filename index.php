@@ -600,6 +600,7 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
         </div>
     </nav>
     <?php if (!isset($_GET['search'])): ?>
+    <?php if (!isset($_GET['random'])): ?>
     <div class="container my-3">
         <?php if (!isset($_GET['compare'])): ?>
         <h2>Sprawdzanie INCI</h2>
@@ -651,6 +652,7 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
             </div>
         </form>
     </div>
+    <?php endif; ?>
     <div class="container-fluid ingredients">
         <div class="mx-2 mx-lg-4 mt-2">
             <?php if (isset($incitest)): 
