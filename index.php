@@ -782,8 +782,8 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
     <?php else: ?>
     <div class="container my-3" id="searchINCI">
         <div class="d-flex justify-content-center">
-            <div class="card col-12 col-md-8 col-lg-5 m-4">
-                <div class="card-body p-5">
+            <div class="card col-12 col-sm-11 col-md-8 col-lg-5 m-4">
+                <div class="card-body p-4">
                     <div class="text-center m-2">
                         <h3>Wyszukaj składnik</h3>
                     </div>
