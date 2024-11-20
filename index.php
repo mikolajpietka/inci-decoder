@@ -43,10 +43,10 @@ class INCI {
         if (!in_array($property,$this->properties)) return null;
         return $this->data[$inciname][$property];
     }
-    public function suggest(string $mistake, int $startsimilarity = 80, int &$endpercent = null) : array | null {
+    public function suggest(string $mistake, int $startsimilarity = 80, int &$endpercent = null, int $allowed_attempts = 5) : array | null {
         $mistake = strtoupper($mistake);
         $attempt = 1;
-        while ($attempt <= 5) {
+        while ($attempt <= $allowed_attempts) {
             $suggestions = [];
             $perclimit = $startsimilarity - ($attempt - 1) * 5;
             $rawsuggest = array_filter($this->dictionary,function($value) use ($mistake,$perclimit) {
@@ -329,14 +329,21 @@ if (isset($_GET["query"])) {
     }
     $wheretolook = [];
     foreach (array_keys($_POST) as $post) {
-        if ($post == "ingredientsearch") continue;
+        if ($inci->isprop($post)) continue;
         $wheretolook[] = str_replace("check-","",$post);
     }
-    if (empty($wheretolook)) {
+    if (empty($wheretolook) && !isset($_POST["check-suggestion"])) {
         echo "<h3>Wybierz gdzie szukać składnika...</h3>";
         exit;
     }
     $found = $inci->search($_POST["ingredientsearch"],$wheretolook);
+    if (isset($_POST["check-suggestion"])) {
+        $suggestions = $inci->suggest($_POST["ingredientsearch"],allowed_attempts:10);
+        if (!empty($suggestions)) {
+            $suggested = array_column($suggestions,"inci");
+            $found = array_merge($found,$suggested);
+        }
+    }
     if (empty($found)) {
         echo "<h3>Nic nie znaleziono</h3>";
         exit;
@@ -348,7 +355,8 @@ if (isset($_GET["query"])) {
     array_multisort($ps,SORT_DESC,$found);
     ?>
     <div class="table-responsive">
-        <table class="table table-striped table-sm align-middle">
+        <table class="table table-striped table-sm align-middle caption-top">
+            <caption>Znalezionych składników: <?php echo count($found); ?></caption>
             <thead>
                 <tr>
                     <th scope="col" class="col-6 word-break">INCI</th>
@@ -678,6 +686,7 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                             <div class="d-inline-flex flex-wrap gap-3">
                                 <?php if (!$fail): ?>
                                 <button type="button" class="btn btn-sm btn-outline-light" onclick="downloadTable()"><i class="bi bi-download"></i> Pobierz tabelę</button>
+                                <!-- <button type="button" class="btn btn-sm btn-outline-light" data-bs-target="#filename" data-bs-toggle="modal"><i class="bi bi-download"></i> Pobierz tabelę</button> -->
                                 <button type="button" class="btn btn-sm btn-outline-light" onclick="copyText(document.querySelector('#inci').value)"><i class="bi bi-copy"></i> Kopiuj skład</button>
                                 <?php endif; ?>
                                 <button type="button" class="btn btn-sm btn-outline-light" onclick="pasteinci()"><i class="bi bi-clipboard2-fill"></i> Wklej ze schowka</button>
@@ -808,6 +817,10 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="check-description" name="check-description">
                                 <label for="check-description" class="form-check-label">Opisy składników</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="check-suggestion" name="check-suggestion">
+                                <label for="check-suggestion" class="form-check-label">Sugestie</label>
                             </div>
                         </div>
                         <div class="text-center">
@@ -996,6 +1009,21 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="filename" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content">
+                    <div class="modal-body text-center p-3">
+                        <h5>Pobierz tabelę</h5>
+                        <p>Wpisz nazwę produktu, którego skład był analizowany</p>
+                        <input type="text" class="form-control" name="filenameinput" id="filenameinput">
+                    </div>
+                    <div class="modal-footer flex-nowrap p-0">
+                        <button type="button" class="btn btn-lg btn-link text-decoration-none rounded-0 border-end col-6 m-0 text-danger" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="button" class="btn btn-lg btn-link text-decoration-none rounded-0 col-6 m-0 text-success">Pobierz</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="position-fixed start-50 translate-middle-x top-0 mt-5 z-up" id="toast">
         <div class="toast fade text-bg-light" role="alert" data-bs-delay="1200">
@@ -1005,5 +1033,6 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
             </div>
         </div>
     </div>
+    <div class="d-none" id="todownload"></div>
 </body>
 </html>
