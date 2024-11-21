@@ -1,9 +1,8 @@
 import csv
-import requests
 import json
 
 def lettersize(text: str) -> str:
-    with open("replacetable.json","r",encoding="utf-8") as f:
+    with open("../../replacetable.json","r",encoding="utf-8") as f:
         rp = json.load(f)
         f.close()
     text = text.lower()
@@ -25,10 +24,38 @@ def lettersize(text: str) -> str:
     positions.sort()
     # Split string into words and serparators
     seplen = len(positions)
-    
-
-    processed = ""
-    return processed
+    split = []
+    for i in range(0,seplen):
+        if i+1 < seplen:
+            next = positions[i+1]
+        else:
+            next = len(text)
+        if i == 0 and positions[0] != 0:
+            split.append(text[0:positions[0]])
+        split.append(text[positions[i]:positions[i]+1])
+        if next - positions[i] != 1:
+            split.append(text[positions[i]+1:next])
+    if split == []:
+        split.append(text)
+    # Check for exceptions
+    exceptions = {}
+    for exc in rp["except"]:
+        if exc in text:
+            for tk in rp["except"][exc]:
+                exceptions[tk] = rp["except"][exc][tk]
+    # Make uppercase when needed
+    newpart = []
+    for part in split:
+        partlen = len(part)
+        if str(partlen) in rp.keys() and part in rp[str(partlen)].keys():
+            if exceptions != {} and part in exceptions.keys():
+                newpart.append(exceptions[part])
+            else:
+                newpart.append(rp[str(partlen)][part])
+        else:
+            newpart.append(part.capitalize())
+    # Return corrected
+    return "".join(newpart)
 
 def lettersizeCSV():
     with open("systeminci.csv","r",encoding="utf-8") as f:
@@ -36,8 +63,9 @@ def lettersizeCSV():
         newinci = []
         for row in incicsv:
             print(f"Processing {row["INCI"]}...")
-            response = json.loads(requests.get("http://localhost/inci-decoder",params={"lettersize":row["INCI"]}).text) # until lettersize() not completed
-            row["INCI"] = response["converted"]
+            # response = json.loads(requests.get("http://localhost/inci-decoder",params={"lettersize":row["INCI"]}).text) # until lettersize() not completed
+            # row["INCI"] = response["converted"]
+            row["INCI"] = lettersize(row["INCI"])
             newinci.append(row)
         f.close()
     with open("newinci.csv","w",encoding="utf-8",newline="") as f:
@@ -50,5 +78,5 @@ def lettersizeCSV():
     print("Done!")
 
 if __name__ == "__main__":
-    # lettersizeCSV()
-    lettersize("test/potem - hrch /")
+    lettersizeCSV()
+    # print(lettersize("test/potem - hrch /ptfe, aqua, edta"))
