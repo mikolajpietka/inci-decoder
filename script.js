@@ -204,6 +204,9 @@ if (microplastics) {
         xhttp.send();
         search.value = "";
     })
+    microplastics.addEventListener("shown.bs.modal",_event => {
+        search.focus();
+    })
 }
 
 const currency = document.querySelector("#currency");
