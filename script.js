@@ -299,6 +299,10 @@ if (tools) {
     inToUpper.addEventListener("input", _event => {
         tools.querySelector("#out-toupper").innerText = inToUpper.value.toUpperCase();
     })
+    const inToTitle = tools.querySelector("#totitle");
+    inToTitle.addEventListener("input", _event => {
+        tools.querySelector("#out-totitle").innerText = inToTitle.value.replace(/\w\S*/g,text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase());
+    })
     const lettersize = tools.querySelector("#lettersize");
     const outLettersize = tools.querySelector("#out-lettersize")
     lettersize.addEventListener("input", _event => {

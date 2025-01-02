@@ -999,6 +999,9 @@ $js_ver = date("yWNHis" ,filemtime("script.js"));
                         <h6>to-uppercase</h6>
                         <input type="search" id="toupper" class="form-control" placeholder="Tekst do zamiany na wielkie litery">
                         <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-toupper').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-toupper" class="text-break"></span></div>
+                        <h6>to-titlesize</h6>
+                        <input type="search" id="totitle" class="form-control" placeholder="Tekst do zamiany na wielkie i małe litery">
+                        <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-toupper').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-totitle" class="text-break"></span></div>
                         <h6>INCI lettersize</h6>
                         <input type="search" id="lettersize" class="form-control" placeholder="Wprowadź nazwę INCI">
                         <div class="d-flex gap-2 align-items-center my-2"><button type="button" class="btn btn-outline-light btn-sm" onclick="copyText(document.querySelector('#out-lettersize').innerText)"><i class="bi bi-clipboard2-plus-fill"></i></button><i class="bi bi-chevron-right"></i><span id="out-lettersize" class="text-break"></span></div>
